@@ -1,0 +1,45 @@
+# =============================================================================
+# requirements.txt
+# Projeto Final — Teoria dos Grafos (Python 3.11+)
+#
+# IMPORTANTE: NÃO inclui networkx, igraph nem graph-tool.
+# Toda lógica de BFS/DFS/Dijkstra/Bellman-Ford é implementação própria.
+#
+# Bibliotecas da stdlib usadas (NÃO listadas aqui, pois já vêm com Python):
+#   argparse, heapq, dataclasses, typing, csv, json, logging, pathlib,
+#   collections, time, math, itertools
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# I/O e manipulação de dados
+# -----------------------------------------------------------------------------
+pandas>=2.2.0,<3.0.0          # Leitura e validação dos arquivos CSV (io.py)
+
+# -----------------------------------------------------------------------------
+# Visualização — estática
+# -----------------------------------------------------------------------------
+matplotlib>=3.8.0,<4.0.0      # Gráficos analíticos (histogramas, barras, etc.)
+                               # e out/arvore_percurso.png
+
+# -----------------------------------------------------------------------------
+# Visualização — interativa
+# -----------------------------------------------------------------------------
+plotly>=5.20.0,<6.0.0          # Gráficos interativos (distribuição de graus,
+                               # heatmaps, comparação de algoritmos Parte 2)
+kaleido>=0.2.1                 # Exportação de figuras Plotly para .png/.pdf
+                               # (necessário para salvar em out/ sem browser)
+pyvis>=0.3.2,<1.0.0            # Grafo HTML interativo → out/grafo_interativo.html
+                               # e out/arvore_percurso.html
+
+# -----------------------------------------------------------------------------
+# UX / App interativo (bônus)
+# -----------------------------------------------------------------------------
+streamlit>=1.35.0,<2.0.0       # Interface web para explorar o grafo,
+                               # escolher algoritmo e visualizar resultados
+
+# -----------------------------------------------------------------------------
+# Testes (obrigatórios pelo enunciado)
+# -----------------------------------------------------------------------------
+pytest>=8.2.0,<9.0.0           # Framework de testes (test_bfs, test_dfs,
+                               # test_dijkstra, test_bellman_ford)
+pytest-cov>=5.0.0,<6.0.0       # Relatório de cobertura de código
