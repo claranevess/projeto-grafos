@@ -1,1 +1,73 @@
 origem,destino,tipo_conexao,justificativa,peso
+REC,SSA,regional,Corredor Recife-Salvador: alta demanda turistica e comercial entre as maiores cidades do Nordeste,1.0
+REC,FOR,regional,Ligacao entre capitais nordestinas: REC e FOR sao hubs regionais com rotas frequentes,1.0
+REC,NAT,regional,Rota de curta distancia entre capitais vizinhas do Nordeste: alta demanda domestica,1.0
+REC,JPA,regional,Recife e hub regional: Joao Pessoa e cidade satelite com forte demanda de conexao,1.0
+REC,THE,regional,Recife cobre Teresina como hub regional do Nordeste: rota estrategica interna,1.0
+SSA,FOR,regional,Corredor Salvador-Fortaleza: dois dos maiores aeroportos nordestinos com fluxo intenso,1.0
+FOR,NAT,regional,Fortaleza e Natal sao capitais vizinhas com rota regional de alta demanda turistica,1.0
+FOR,THE,regional,Fortaleza e o hub mais proximo de Teresina: rota intra-nordeste estrategica,1.0
+NAT,JPA,regional,Natal e Joao Pessoa sao as capitais mais proximas geograficamente: rota regional natural,2.0
+JPA,THE,regional,Conexao entre capitais nordestinas menores sem hub direto entre si,2.0
+GRU,GIG,regional,Ponte aerea Sao Paulo-Rio: uma das rotas mais movimentadas do Brasil: ambos hubs nacionais,1.0
+GRU,CNF,regional,Sao Paulo e hub nacional: Belo Horizonte e polo economico: alta demanda corporativa,1.0
+GRU,VIX,regional,GRU cobre Vitoria como hub sudeste: rota comercial do corredor litoraneo,1.0
+GIG,CNF,regional,Rio de Janeiro e Belo Horizonte sao capitais proximas do Sudeste com forte demanda,1.0
+GIG,VIX,regional,Corredor Rio-Vitoria: rota litoranea com demanda turistica e corporativa,1.0
+CNF,VIX,regional,Conexao entre Belo Horizonte e Vitoria sem hub direto: cidades do interior-litoral sudeste,2.0
+CGH,GRU,regional,Dois aeroportos de Sao Paulo na mesma cidade: conectados para redistribuicao de trafego,1.0
+CGH,GIG,regional,CGH serve como alternativa ao GRU para rota Rio-SP: alta demanda operacional,1.0
+CWB,POA,regional,Corredor Curitiba-Porto Alegre: dois dos maiores aeroportos do Sul sem hub entre si,2.0
+CWB,FLN,regional,Curitiba e Florianopolis sao capitais vizinhas do Sul: rota turistica e corporativa,2.0
+POA,FLN,regional,Porto Alegre e Florianopolis: capitais proximas do Sul sem hub direto entre si,2.0
+BSB,GYN,regional,Brasilia e hub nacional: Goiania e segunda cidade do Centro-Oeste: rota estrategica interna,1.0
+MAO,BEL,regional,Manaus e Belem sao os dois maiores hubs do Norte: corredor amazonico essencial,1.0
+MAO,PVH,regional,Manaus e hub do Norte: Porto Velho e capital isolada: conexao regional indispensavel,1.0
+MAO,RBR,regional,Manaus cobre Rio Branco como hub amazonico: rota estrategica para capital do Acre,1.0
+BEL,PVH,regional,Belem conecta Porto Velho via corredor norte: BEL e hub regional de apoio,1.0
+PVH,RBR,regional,Porto Velho e Rio Branco sao capitais amazonicas proximas: conexao regional sem hub,2.0
+REC,GRU,hub,REC e GRU sao hubs nacionais: eixo Nordeste-Sudeste de maior volume de passageiros do Brasil,2.0
+REC,GIG,hub,Recife e hub nordestino e GIG e hub sudeste: corredor estrategico de alta frequencia,2.0
+SSA,GRU,hub,Salvador conecta ao hub nacional GRU: rota inter-regional de alta demanda turistica,2.0
+FOR,GRU,hub,Fortaleza e hub nordestino: GRU e maior hub do Brasil: rota inter-regional estrategica,2.0
+FOR,GIG,hub,Fortaleza-Rio de Janeiro: rota inter-regional turistica e corporativa com hubs em ambos os lados,2.0
+NAT,GRU,hub,Natal conecta ao hub nacional GRU: rota inter-regional para turismo e negocios,2.0
+THE,GRU,hub,Teresina acessa o hub nacional GRU: conexao inter-regional essencial para cidade secundaria,2.0
+REC,BSB,hub,REC e BSB sao hubs nacionais: Brasilia como capital federal conecta todos os corredores,2.0
+SSA,BSB,hub,Salvador conecta a capital federal: rota inter-regional com hub em ambos os lados,2.0
+FOR,BSB,hub,Fortaleza-Brasilia: rota inter-regional estrategica via hubs com alta demanda governamental,2.0
+THE,BSB,hub,Teresina conecta a Brasilia via hub: rota inter-regional para capital nordestina,2.0
+GRU,BSB,hub,GRU e BSB sao os dois maiores hubs do Brasil: corredor Sudeste-Centro-Oeste mais movimentado,2.0
+GIG,BSB,hub,Rio de Janeiro e Brasilia: rota inter-regional de alta demanda politica e corporativa,2.0
+CNF,BSB,hub,Belo Horizonte e Brasilia: capitais proximas com forte demanda corporativa e governamental,2.0
+GRU,GYN,hub,GRU como hub nacional conecta Goiania: rota inter-regional importante para o Centro-Oeste,2.0
+GIG,GYN,hub,Goiania conecta ao hub GIG: rota inter-regional via hub sudeste,2.0
+GYN,CNF,inter-regional,Goiania e Belo Horizonte: capitais proximas sem hub entre si: rota corporativa,3.0
+GRU,CWB,hub,GRU cobre o Sul via Curitiba: rota inter-regional de maior demanda no eixo SP-Sul,2.0
+GRU,POA,hub,GRU conecta Porto Alegre: rota inter-regional estrategica com hub em Sao Paulo,2.0
+GRU,FLN,hub,GRU conecta Florianopolis: rota turistica e corporativa inter-regional via hub nacional,2.0
+GIG,CWB,hub,GIG e CWB conectam Rio e Sul: rota inter-regional com hub em ambas as pontas,2.0
+GIG,POA,hub,Rio de Janeiro e Porto Alegre: rota inter-regional cultural e corporativa via hubs,2.0
+CNF,CWB,inter-regional,Belo Horizonte e Curitiba: capitais do Sudeste e Sul sem hub: rota corporativa,3.0
+BSB,CWB,hub,BSB cobre o Sul via Curitiba: Brasilia como hub federal conecta todas as capitais,2.0
+BSB,POA,hub,Brasilia conecta Porto Alegre: rota inter-regional via hub federal com alta demanda,2.0
+BSB,FLN,hub,Brasilia cobre Florianopolis: rota inter-regional via hub com demanda governamental,2.0
+GYN,CWB,inter-regional,Goiania e Curitiba: capitais do Centro-Oeste e Sul sem hub direto: rota corporativa,3.0
+MAO,FOR,hub,MAO e FOR sao hubs regionais: corredor Norte-Nordeste de alta importancia estrategica,2.0
+MAO,REC,hub,Manaus e Recife sao hubs das duas regioes: rota inter-regional de longa distancia,2.0
+MAO,SSA,hub,Manaus conecta Salvador: rota inter-regional via hubs Norte-Nordeste: demanda turistica,2.0
+BEL,FOR,hub,Belem e Fortaleza sao hubs: corredor litoral norte-nordeste de alta demanda,2.0
+BEL,REC,hub,BEL e REC sao hubs regionais: Belem e porta de entrada do Norte para o Nordeste,2.0
+BEL,SSA,hub,Belem conecta Salvador: rota inter-regional via hubs com demanda crescente,2.0
+PVH,FOR,inter-regional,Porto Velho conecta a Fortaleza via hub nordestino: rota estrategica sem hub de origem,2.0
+MAO,GRU,hub,MAO e GRU sao hubs nacionais: eixo Manaus-Sao Paulo de altissima demanda comercial,2.0
+MAO,GIG,hub,Manaus e Rio de Janeiro: rota inter-regional via hubs com forte demanda turistica,2.0
+BEL,GRU,hub,Belem conecta ao hub nacional GRU: rota inter-regional essencial para o Norte,2.0
+BEL,GIG,hub,Belem e Rio de Janeiro: rota inter-regional via hubs com demanda turistica e corporativa,2.0
+PVH,GRU,hub,Porto Velho conecta ao hub GRU: acesso ao Sudeste para capital isolada do Norte,2.0
+RBR,GRU,hub,Rio Branco conecta ao hub GRU: acesso essencial ao Sudeste para capital mais isolada do Norte,2.0
+MAO,BSB,hub,MAO e BSB sao hubs nacionais: corredor Norte-Centro-Oeste estrategico via capitais,2.0
+BEL,BSB,hub,Belem e Brasilia: rota inter-regional via hubs com demanda governamental e corporativa,2.0
+PVH,BSB,hub,Porto Velho conecta a Brasilia via hub federal: rota estrategica para capital amazonica,2.0
+RBR,BSB,hub,Rio Branco conecta a Brasilia via hub federal: unica conexao inter-regional da capital mais isolada,2.0
+MAO,GYN,inter-regional,Manaus conecta Goiania: rota inter-regional via hub amazonico para o Centro-Oeste,2.0
