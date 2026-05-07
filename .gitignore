@@ -1,2 +1,22 @@
-# .venv/
+# Virtual environments
 .venv/
+venv/
+env/
+
+# Byte-compiled / optimized / cache files
+__pycache__/
+*.py[cod]
+
+# pytest cache
+.pytest_cache/
+
+# Editor directories
+.vscode/
+
+# Distribution / build
+build/
+dist/
+*.egg-info/
+
+# MacOS
+.DS_Store
