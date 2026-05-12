@@ -123,20 +123,23 @@ def _build_parser() -> argparse.ArgumentParser:
 
 def _executar(args: argparse.Namespace) -> None:
     """
-    Carrega o grafo e despacha para o algoritmo escolhido.
+    Carrega o grafo, gera métricas e despacha para o algoritmo escolhido.
 
     Os módulos de I/O e algoritmos são importados aqui para que o
-    `--help` funcione mesmo com stubs vazios.
+    `--help` funcione mesmo com stubs ainda não implementados.
     """
-    # Importações tardias – evitam falha no --help se stubs ainda estiverem vazios
-    from src.graphs.io import carregar_grafo          # noqa: F401  (stub)
-    from src.graphs.algorithms import (               # noqa: F401  (stubs)
-        bfs, dfs, dijkstra, bellman_ford,
-    )
+    from src.graphs.io import carregar_grafo
+    from src.graphs.algorithms import bfs, dfs, dijkstra, bellman_ford
+    from src.solve import salvar_metricas
 
     print(f"[cli] Carregando dataset: {args.dataset}")
     grafo = carregar_grafo(args.dataset)
 
+    # --- Métricas estruturais (sempre geradas ao carregar o grafo) -----------
+    salvar_metricas(grafo, args.out)
+    print(f"[cli] Métricas salvas em '{args.out}' (global.json, regioes.json)")
+
+    # --- Despacha para o algoritmo -------------------------------------------
     print(f"[cli] Executando {args.alg} | origem={args.source} | destino={args.target}")
     inicio = time.perf_counter()
 
@@ -165,15 +168,12 @@ def _executar(args: argparse.Namespace) -> None:
         resultado = bellman_ford(grafo, args.source, args.target)
 
     else:
-        # Não deve chegar aqui graças ao _validar_alg, mas por segurança:
         print(f"[erro] Algoritmo desconhecido: {args.alg}", file=sys.stderr)
         sys.exit(1)
 
     elapsed = time.perf_counter() - inicio
     print(f"[cli] Concluído em {elapsed:.4f}s")
     print(f"[cli] Resultado: {resultado}")
-
-    # Futuramente: chamar src.solve para gravar os arquivos de saída em args.out
 
 
 # ---------------------------------------------------------------------------

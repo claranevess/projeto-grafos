@@ -98,3 +98,26 @@ def bfs(graph: Graph, raiz: str) -> tuple[dict[str, int], list[str]]:
     niveis = {no: dist for no, dist in distancias.items() if dist != float("inf")}
 
     return niveis, ordem_visitacao
+
+
+def dfs(graph: Graph, raiz: str) -> tuple[list[str], set[tuple[str, str]]]:
+    """Busca em Profundidade (DFS) — implementação completa pendente."""
+    raise NotImplementedError("DFS ainda não implementado.")
+
+
+def dijkstra(
+    graph: Graph,
+    origem: str,
+    destino: str | None = None,
+) -> dict[str, float] | tuple[float, list[str]]:
+    """Dijkstra para caminhos mínimos — implementação completa pendente."""
+    raise NotImplementedError("Dijkstra ainda não implementado.")
+
+
+def bellman_ford(
+    graph: Graph,
+    origem: str,
+    destino: str | None = None,
+) -> dict[str, float] | tuple[float, list[str]]:
+    """Bellman-Ford para pesos negativos — implementação completa pendente."""
+    raise NotImplementedError("Bellman-Ford ainda não implementado.")
