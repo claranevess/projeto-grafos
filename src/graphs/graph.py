@@ -254,6 +254,15 @@ class Graph:
     def degree(self, iata: str) -> int:
         """Grau de um nó: número de vizinhos diretos."""
         return len(self.get_neighbors(iata))
+    
+    # Método para percorrer todos os nós e analisar os seus graus
+    # Retorna uma lista de tuplas (no, grau)
+    def all_degrees(self) -> list:
+        lista = []
+        for i in self.adjacency:
+            lista.append((i, self.degree(i)))
+        return lista
+
 
     # ------------------------------------------------------------------
     # Representação textual

@@ -341,3 +341,10 @@ def carregar_grafo(dataset_path: str | Path) -> Graph:
         )
 
     return graph
+
+def salvar_csv_graus(graus:list[tuple[str, int]]) -> None:
+    with open ("out/graus.csv", "w", newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(["IATA", "Grau"])
+        for i in graus:
+            writer.writerow(i)
