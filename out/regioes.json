@@ -1,0 +1,32 @@
+[
+  {
+    "regiao": "Norte",
+    "ordem": 4,
+    "tamanho": 5,
+    "densidade": 0.8333333333333334
+  },
+  {
+    "regiao": "Nordeste",
+    "ordem": 6,
+    "tamanho": 10,
+    "densidade": 0.6666666666666666
+  },
+  {
+    "regiao": "Sudeste",
+    "ordem": 5,
+    "tamanho": 8,
+    "densidade": 0.8
+  },
+  {
+    "regiao": "Sul",
+    "ordem": 3,
+    "tamanho": 3,
+    "densidade": 1.0
+  },
+  {
+    "regiao": "Centro-Oeste",
+    "ordem": 2,
+    "tamanho": 1,
+    "densidade": 1.0
+  }
+]
