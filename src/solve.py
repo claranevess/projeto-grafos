@@ -24,6 +24,7 @@ import logging
 from pathlib import Path
 
 from src.graphs.graph import Graph
+from src.graphs.io import salvar_csv_graus
 
 logger = logging.getLogger(__name__)
 
@@ -161,3 +162,6 @@ def salvar_metricas(graph: Graph, out_dir: str | Path) -> None:
             "[%s] ordem=%d  tamanho=%d  densidade=%.6f",
             r["regiao"], r["ordem"], r["tamanho"], r["densidade"],
         )
+    
+    lista = graph.all_degrees()
+    salvar_csv_graus(lista)
