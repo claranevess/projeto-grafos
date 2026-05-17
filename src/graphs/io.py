@@ -348,3 +348,10 @@ def salvar_csv_graus(graus:list[tuple[str, int]]) -> None:
         writer.writerow(["IATA", "Grau"])
         for i in graus:
             writer.writerow(i)
+
+def salvar_ego_aeroporto_csv(ego_data: list[dict]) -> None:
+    with open("out/ego_aeroportos.csv", "w", newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=["aeroporto", "grau", "ordem_ego", "tamanho_ego", "densidade_ego"])
+        writer.writeheader()
+        for row in ego_data:
+            writer.writerow(row)

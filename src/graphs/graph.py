@@ -267,6 +267,9 @@ class Graph:
         subgrafo = Graph()
         vizinhos = self.get_neighbors(iata)
         vizinhos_iata = [edge.destino for edge in vizinhos]
+
+        ego_node = self.get_node(iata)
+        subgrafo.add_node(ego_node.iata, ego_node.cidade, ego_node.regiao)
         
         for i in vizinhos_iata:
             subgrafo.add_node(i, self.get_node(i).cidade, self.get_node(i).regiao)
@@ -275,7 +278,7 @@ class Graph:
 
         for i in nos_subgrafo:
             for j in nos_subgrafo:
-                if i != j and self.has_edge(i,j):
+                if i < j and self.has_edge(i,j):
                     edge = next(edge for edge in self.get_neighbors(i) if edge.destino == j)
                     subgrafo.add_edge(i, j, edge.peso, edge.tipo_conexao, edge.justificativa)
         

@@ -24,7 +24,7 @@ import logging
 from pathlib import Path
 
 from src.graphs.graph import Graph
-from src.graphs.io import salvar_csv_graus
+from src.graphs.io import salvar_csv_graus, carregar_grafo, salvar_ego_aeroporto_csv
 
 logger = logging.getLogger(__name__)
 
@@ -165,3 +165,28 @@ def salvar_metricas(graph: Graph, out_dir: str | Path) -> None:
     
     lista = graph.all_degrees()
     salvar_csv_graus(lista)
+    gerar_analise_ego_network()
+    
+
+def gerar_analise_ego_network() -> None:
+    grafo_principal = carregar_grafo("data/aeroportos_data.csv")
+
+    resultado_ego = []
+
+    for iata in grafo_principal.iter_nodes():
+        subgrafo = grafo_principal.criar_ego_subgrafo(iata)
+        aeroporto =  grafo_principal.get_node(iata)
+        grau = grafo_principal.degree(iata)
+        ordem_ego = subgrafo.order()
+        tamanho_ego = subgrafo.size()
+        densidade_ego = subgrafo.density()
+
+        resultado_ego.append({
+            "aeroporto": iata,
+            "grau": grau,
+            "ordem_ego": ordem_ego,
+            "tamanho_ego": tamanho_ego,
+            "densidade_ego": densidade_ego
+        })
+    
+    salvar_ego_aeroporto_csv(resultado_ego)
