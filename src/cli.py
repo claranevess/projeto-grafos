@@ -11,6 +11,7 @@ import argparse
 import sys
 import os
 import time
+from src.solve import aerporto_maior_grau, aeroporto_maior_densidade
 
 
 # ---------------------------------------------------------------------------
@@ -175,6 +176,8 @@ def _executar(args: argparse.Namespace) -> None:
     print(f"[cli] Concluído em {elapsed:.4f}s")
     print(f"[cli] Resultado: {resultado}")
 
+    aerporto_maior_grau()
+    aeroporto_maior_densidade()
 
 # ---------------------------------------------------------------------------
 # Ponto de entrada
