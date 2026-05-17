@@ -355,3 +355,19 @@ def salvar_ego_aeroporto_csv(ego_data: list[dict]) -> None:
         writer.writeheader()
         for row in ego_data:
             writer.writerow(row)
+
+def grau_ego_aeroporto() -> list[tuple[str, int]]:
+    lista_graus = []
+    with open ("out/ego_aeroportos.csv", "r") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            lista_graus.append((row["aeroporto"], int(row["grau"])))
+    return lista_graus
+
+def densidade_ego_aeroporto() -> list[tuple[str, int]]:
+    lista_graus = []
+    with open ("out/ego_aeroportos.csv", "r") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            lista_graus.append((row["aeroporto"], float(row["densidade_ego"])))
+    return lista_graus
