@@ -8,7 +8,20 @@ import heapq
 from collections import deque
 from typing import Any, TypeAlias
 
-from .graph import Graph
+# Suporte para import quando o módulo é executado diretamente (sem package)
+try:
+    from .graph import Graph
+except Exception:
+    # Ao executar o arquivo diretamente, o contexto de pacote pode não existir.
+    # Insere o diretório do projeto no sys.path e tenta import absoluto.
+    import os
+    import sys
+
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+    if project_root not in sys.path:
+        sys.path.insert(0, project_root)
+
+    from src.graphs.graph import Graph
 
 # Tipos de dados para clareza
 Estado: TypeAlias = str
@@ -101,85 +114,81 @@ def bfs(graph: Graph, raiz: str) -> tuple[dict[str, int], list[str]]:
     return niveis, ordem_visitacao
 
 
-def dfs(graph: Graph, raiz: str) -> tuple[list[str], set[tuple[str, str]]]:
-    """Busca em Profundidade (DFS) — implementação completa pendente."""
-    raise NotImplementedError("DFS ainda não implementado.")
-
-
-def dijkstra(
-        graph: Graph,
-        source: str,
-        target: str | None = None,
-) -> dict[str, float] | tuple[float, list[str]]:
+def dfs(graph: Graph, raiz: str) -> tuple[list[str], bool, dict[tuple[str, str], str]]:
     """
-    Algoritmo de Dijkstra para caminhos mínimos com pesos não-negativos.
+    Executa a Busca em Profundidade (DFS) a partir de uma raiz.
 
-    Parâmetros
-    ----------
-    graph  : Grafo ponderado não-direcionado.
-    source : Nó de origem.
-    target : Nó de destino (opcional).
-               - Se informado, retorna (custo_total, caminho).
-               - Se None, retorna dict com distâncias mínimas de source a todos
-                 os nós.
+    Retorna uma tupla com:
+    - ordem de visitação (lista de nós na ordem em que foram descobertos),
+    - booleano indicando se foi detectado ciclo,
+    - dicionário classificando cada aresta (tupla ordenada (u, v)) como
+      "ARVORE", "RETORNO" ou "CRUZAMENTO".
 
-    Raises
-    ------
-    KeyError   : Se source não existir no grafo.
-    ValueError : Se qualquer aresta percorrida tiver peso negativo.
+    Observações:
+    - O grafo fornecido é o `Graph` definido em graph.py (não-direcionado).
+    - As arestas são armazenadas com chave ordenada (min, max) para evitar
+      duplicação devido ao armazenamento bidirecional das arestas.
+    - Lança KeyError se a raiz não existir no grafo.
     """
-    if not graph.has_node(source):
-        raise KeyError(f"Nó origem '{source}' não encontrado no grafo.")
+    if not graph.has_node(raiz):
+        raise KeyError(f"Nó raiz '{raiz}' não encontrado no grafo.")
 
-    dist: dict[str, float] = {no: float("inf") for no in graph.iter_nodes()}
-    dist[source] = 0.0
-    pred: dict[str, str | None] = {no: None for no in graph.iter_nodes()}
+    # Inicialização
+    estados: dict[str, Estado] = {no: NAO_VISITADO for no in graph.iter_nodes()}
+    pais: dict[str, Pai] = {no: None for no in graph.iter_nodes()}
+    tin: dict[str, int] = {no: 0 for no in graph.iter_nodes()}
+    tout: dict[str, int] = {no: 0 for no in graph.iter_nodes()}
+    ordem_visitacao: list[str] = []
+    classificacao_arestas: dict[tuple[str, str], str] = {}
 
-    # Heap: (distância acumulada, nó)
-    heap: list[tuple[float, str]] = [(0.0, source)]
-    visitados: set[str] = set()
+    # Contadores/flags
+    tempo = 0
+    tem_ciclo = False
 
-    while heap:
-        d, u = heapq.heappop(heap)
+    def edge_key(a: str, b: str) -> tuple[str, str]:
+        return (a, b) if a < b else (b, a)
 
-        if u in visitados:
-            continue
-        visitados.add(u)
+    def dfs_visit(u: str) -> None:
+        nonlocal tempo, tem_ciclo
+
+        estados[u] = VISITADO
+        tempo += 1
+        tin[u] = tempo
+        ordem_visitacao.append(u)
 
         for aresta in graph.get_neighbors(u):
-            if aresta.peso < 0:
-                raise ValueError(
-                    f"Dijkstra não suporta pesos negativos. "
-                    f"Aresta {u}→{aresta.destino} tem peso {aresta.peso}."
-                )
-            nova_dist = d + aresta.peso
-            if nova_dist < dist[aresta.destino]:
-                dist[aresta.destino] = nova_dist
-                pred[aresta.destino] = u
-                heapq.heappush(heap, (nova_dist, aresta.destino))
+            v = aresta.destino
 
-    if target is None:
-        return dist
+            # Em grafos não-direcionados a aresta espelhada leva ao pai; ignoramos
+            # esse caso para não classificar a aresta do pai como retorno.
+            if pais[u] == v:
+                continue
 
-    # Nó inalcançável
-    if dist[target] == float("inf"):
-        return float("inf"), []
+            key = edge_key(u, v)
 
-    # Reconstrói o caminho via dicionário de predecessores
-    caminho: list[str] = []
-    no: str | None = target
-    while no is not None:
-        caminho.append(no)
-        no = pred[no]
-    caminho.reverse()
+            if estados[v] == NAO_VISITADO:
+                pais[v] = u
+                if key not in classificacao_arestas:
+                    classificacao_arestas[key] = "ARVORE"
+                dfs_visit(v)
 
-    return dist[target], caminho
+            elif estados[v] == VISITADO:
+                # Aresta para um ancestral na pilha -> ciclo (retorno)
+                if key not in classificacao_arestas:
+                    classificacao_arestas[key] = "RETORNO"
+                tem_ciclo = True
 
+            else:  # estados[v] == ENCERRADO
+                # v já foi totalmente explorado. Decide-se entre cruzamento
+                # (ou avanço) — aqui unificamos como CRUZAMENTO.
+                if key not in classificacao_arestas:
+                    classificacao_arestas[key] = "CRUZAMENTO"
 
-def bellman_ford(
-        graph: Graph,
-        origem: str,
-        destino: str | None = None,
-) -> dict[str, float] | tuple[float, list[str]]:
-    """Bellman-Ford para pesos negativos — implementação completa pendente."""
-    raise NotImplementedError("Bellman-Ford ainda não implementado.")
+        estados[u] = ENCERRADO
+        tempo += 1
+        tout[u] = tempo
+
+    # Inicia a DFS a partir da raiz (single-source)
+    dfs_visit(raiz)
+
+    return ordem_visitacao, tem_ciclo, classificacao_arestas
