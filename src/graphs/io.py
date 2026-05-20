@@ -8,10 +8,6 @@ Responsabilidade deste módulo
   - Popular o grafo APENAS com nós (aeroportos isolados).
   - O CSV original não contém conexões explícitas; arestas são
     construídas em etapa posterior (via adjacencias_aeroportos.csv).
-
-Colunas esperadas em aeroportos_data.csv
------------------------------------------
-  iata, cidade, regiao
 """
 
 from __future__ import annotations
@@ -311,3 +307,67 @@ def load_edges(graph: Graph, filepath: str | Path, encoding: str = "utf-8") -> i
         "Arestas: %d adicionadas | %d ignoradas.", edges_added, edges_skipped
     )
     return edges_added
+
+
+# ---------------------------------------------------------------------------
+# Função de conveniência: carrega nós + arestas em uma única chamada
+# ---------------------------------------------------------------------------
+
+def carregar_grafo(dataset_path: str | Path) -> Graph:
+    """
+    Carrega aeroportos e arestas a partir do caminho do CSV de aeroportos.
+
+    Assume que `adjacencias_aeroportos.csv` está no mesmo diretório que
+    o arquivo de aeroportos fornecido.
+
+    Parâmetros
+    ----------
+    dataset_path : Caminho para `aeroportos_data.csv`.
+
+    Retorna
+    -------
+    Graph : Grafo completo com nós e arestas carregados.
+    """
+    dataset_path = Path(dataset_path)
+    graph = load_airports(dataset_path)
+
+    adjacencias_path = dataset_path.parent / "adjacencias_aeroportos.csv"
+    if adjacencias_path.exists():
+        load_edges(graph, adjacencias_path)
+    else:
+        logger.warning(
+            "Adjacências não encontradas em '%s' — grafo carregado sem arestas.",
+            adjacencias_path,
+        )
+
+    return graph
+
+def salvar_csv_graus(graus:list[tuple[str, int]]) -> None:
+    with open ("out/graus.csv", "w", newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(["IATA", "Grau"])
+        for i in graus:
+            writer.writerow(i)
+
+def salvar_ego_aeroporto_csv(ego_data: list[dict]) -> None:
+    with open("out/ego_aeroportos.csv", "w", newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=["aeroporto", "grau", "ordem_ego", "tamanho_ego", "densidade_ego"])
+        writer.writeheader()
+        for row in ego_data:
+            writer.writerow(row)
+
+def grau_ego_aeroporto() -> list[tuple[str, int]]:
+    lista_graus = []
+    with open ("out/ego_aeroportos.csv", "r") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            lista_graus.append((row["aeroporto"], int(row["grau"])))
+    return lista_graus
+
+def densidade_ego_aeroporto() -> list[tuple[str, int]]:
+    lista_graus = []
+    with open ("out/ego_aeroportos.csv", "r") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            lista_graus.append((row["aeroporto"], float(row["densidade_ego"])))
+    return lista_graus

@@ -254,6 +254,36 @@ class Graph:
     def degree(self, iata: str) -> int:
         """Grau de um nó: número de vizinhos diretos."""
         return len(self.get_neighbors(iata))
+    
+    # Método para percorrer todos os nós e analisar os seus graus
+    # Retorna uma lista de tuplas (no, grau)
+    def all_degrees(self) -> list:
+        lista = []
+        for i in self.adjacency:
+            lista.append((i, self.degree(i)))
+        return lista
+    
+    def criar_ego_subgrafo(self, iata: str)-> Graph:
+        subgrafo = Graph()
+        vizinhos = self.get_neighbors(iata)
+        vizinhos_iata = [edge.destino for edge in vizinhos]
+
+        ego_node = self.get_node(iata)
+        subgrafo.add_node(ego_node.iata, ego_node.cidade, ego_node.regiao)
+        
+        for i in vizinhos_iata:
+            subgrafo.add_node(i, self.get_node(i).cidade, self.get_node(i).regiao)
+        
+        nos_subgrafo = [iata] + vizinhos_iata
+
+        for i in nos_subgrafo:
+            for j in nos_subgrafo:
+                if i < j and self.has_edge(i,j):
+                    edge = next(edge for edge in self.get_neighbors(i) if edge.destino == j)
+                    subgrafo.add_edge(i, j, edge.peso, edge.tipo_conexao, edge.justificativa)
+        
+        return subgrafo
+
 
     # ------------------------------------------------------------------
     # Representação textual

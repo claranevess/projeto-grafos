@@ -4,6 +4,7 @@ algorithms.py
 Módulo com a implementação dos algoritmos de grafos.
 """
 
+import heapq
 from collections import deque
 from typing import Any, TypeAlias
 
