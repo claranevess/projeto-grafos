@@ -191,10 +191,10 @@ def gerar_analise_ego_network() -> None:
     
     salvar_ego_aeroporto_csv(resultado_ego)
 
-def aerporto_maior_grau(lista = grau_ego_aeroporto()) -> None:
-    maior_grau = max(lista, key=lambda x:x[1])
-    print(f"[solve] Aeroporto com maior grau: {maior_grau[0]} | Grau = {maior_grau[1]}")
+    # recebe a lista resultado_ego e analisa qual o aeroporto com maior grau
+    maior_grau = max(resultado_ego, key=lambda x:x["grau"])
+    print(f"[solve] Aeroporto com maior grau: {maior_grau["aeroporto"]} | Grau = {maior_grau["grau"]}")
 
-def aeroporto_maior_densidade(lista = densidade_ego_aeroporto()) -> None:
-    maior_densidade = max(lista, key=lambda x:x[1])
-    print(f"[solve] Aeroporto com maior densidade: {maior_densidade[0]} | Densidade = {maior_densidade[1]}")
+    # recebe a lista resultado_ego e analisa qual o aeroporto com maior densidade
+    maior_densidade = max(resultado_ego, key=lambda x:x["densidade_ego"])
+    print(f"[solve] Aeroporto com maior densidade: {maior_densidade["aeroporto"]} | Densidade = {maior_densidade["densidade_ego"]}")
