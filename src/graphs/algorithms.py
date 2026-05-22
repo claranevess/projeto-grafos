@@ -263,7 +263,7 @@ def dijkstra(
     return dist[target], caminho
 
 
-def bellman_ford(graph: Graph, raiz: str) -> tuple[dict[str, float], dict[str, Pai], bool]:
+def bellman_ford(graph: Graph, raiz: str, target: str | None = None) -> tuple[dict[str, float], dict[str, Pai], bool] | tuple[float, list[str]]:
     """
     Executa o algoritmo de Bellman-Ford a partir de um nó raiz.
 
@@ -332,4 +332,23 @@ def bellman_ford(graph: Graph, raiz: str) -> tuple[dict[str, float], dict[str, P
         if tem_ciclo_negativo:
             break
 
-    return distancias, pais, tem_ciclo_negativo
+    # Se target não foi informado, retornamos a API clássica (distancias, pais, tem_ciclo_negativo)
+    if target is None:
+        return distancias, pais, tem_ciclo_negativo
+
+    # Se target foi informado, convertemos para API ponto-a-ponto semelhante ao Dijkstra
+    if tem_ciclo_negativo:
+        raise ValueError("Ciclo de peso negativo detectado; caminho não confiável.")
+
+    if distancias.get(target, float("inf")) == float("inf"):
+        return float("inf"), []
+
+    # Reconstrói caminho usando o dicionário de predecessores
+    caminho: list[str] = []
+    no: str | None = target
+    while no is not None:
+        caminho.append(no)
+        no = pais[no]
+    caminho.reverse()
+
+    return distancias[target], caminho
