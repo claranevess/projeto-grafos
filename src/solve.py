@@ -22,9 +22,16 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
+import pandas as pd
 
 from src.graphs.graph import Graph
-from src.graphs.io import salvar_csv_graus, carregar_grafo, salvar_ego_aeroporto_csv, grau_ego_aeroporto, densidade_ego_aeroporto
+from src.graphs.io import (
+    salvar_csv_graus,
+    carregar_grafo,
+    salvar_ego_aeroporto_csv,
+    grau_ego_aeroporto,
+    densidade_ego_aeroporto,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -164,18 +171,18 @@ def salvar_metricas(graph: Graph, out_dir: str | Path) -> None:
         )
     
     lista = graph.all_degrees()
-    salvar_csv_graus(lista)
-    gerar_analise_ego_network()
+    salvar_csv_graus(lista, out_dir)
+    gerar_analise_ego_network(out_dir)
     
 
-def gerar_analise_ego_network() -> None:
+def gerar_analise_ego_network(out_dir: str | Path) -> None:
     grafo_principal = carregar_grafo("data/aeroportos_data.csv")
 
     resultado_ego = []
 
     for iata in grafo_principal.iter_nodes():
         subgrafo = grafo_principal.criar_ego_subgrafo(iata)
-        aeroporto =  grafo_principal.get_node(iata)
+        aeroporto = grafo_principal.get_node(iata)
         grau = grafo_principal.degree(iata)
         ordem_ego = subgrafo.order()
         tamanho_ego = subgrafo.size()
@@ -186,15 +193,91 @@ def gerar_analise_ego_network() -> None:
             "grau": grau,
             "ordem_ego": ordem_ego,
             "tamanho_ego": tamanho_ego,
-            "densidade_ego": densidade_ego
+            "densidade_ego": densidade_ego,
         })
-    
-    salvar_ego_aeroporto_csv(resultado_ego)
+
+    salvar_ego_aeroporto_csv(resultado_ego, out_dir)
 
     # recebe a lista resultado_ego e analisa qual o aeroporto com maior grau
-    maior_grau = max(resultado_ego, key=lambda x:x["grau"])
-    print(f"[solve] Aeroporto com maior grau: {maior_grau["aeroporto"]} | Grau = {maior_grau["grau"]}")
+    maior_grau = max(resultado_ego, key=lambda x: x["grau"])
+    print(
+        f"[solve] Aeroporto com maior grau: {maior_grau['aeroporto']} | Grau = {maior_grau['grau']}"
+    )
 
     # recebe a lista resultado_ego e analisa qual o aeroporto com maior densidade
-    maior_densidade = max(resultado_ego, key=lambda x:x["densidade_ego"])
-    print(f"[solve] Aeroporto com maior densidade: {maior_densidade["aeroporto"]} | Densidade = {maior_densidade["densidade_ego"]}")
+    maior_densidade = max(resultado_ego, key=lambda x: x["densidade_ego"])
+    print(
+        f"[solve] Aeroporto com maior densidade: {maior_densidade['aeroporto']} | Densidade = {maior_densidade['densidade_ego']}"
+    )
+
+
+def compute_routes(
+    airports_csv: str | Path = "data/aeroportos_data.csv",
+    routes_csv: str | Path = "data/rotas.csv",
+    out_dir: str | Path = "out",
+    out_csv_name: str = "distancias_rotas.csv",
+) -> pd.DataFrame:
+    """
+    Carrega o grafo, calcula rotas especificadas em `routes_csv` usando Dijkstra
+    e persiste o CSV `out/distancias_rotas.csv`.
+
+    Retorna o DataFrame gravado para facilitar testes.
+    """
+    from src.graphs.algorithms import dijkstra
+
+    airports_csv = Path(airports_csv)
+    routes_csv = Path(routes_csv)
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    # Carrega grafo completo (nós + arestas)
+    graph = carregar_grafo(airports_csv)
+
+    # Lê rotas
+    if not routes_csv.exists():
+        raise FileNotFoundError(f"Rotas não encontrado: {routes_csv}")
+
+    df = pd.read_csv(routes_csv, dtype=str)
+    df.columns = df.columns.str.strip().str.lower()
+
+    if "origin" not in df.columns or "destination" not in df.columns:
+        raise ValueError("Arquivo de rotas deve conter header: origin,destination")
+
+    resultados: list[dict] = []
+
+    for _, row in df.iterrows():
+        origem = str(row["origin"]).strip().upper()
+        destino = str(row["destination"]).strip().upper()
+
+        if not graph.has_node(origem):
+            resultados.append({"origin": origem, "destination": destino, "custo": "", "caminho": ""})
+            continue
+
+        if not graph.has_node(destino):
+            resultados.append({"origin": origem, "destination": destino, "custo": "", "caminho": ""})
+            continue
+
+        try:
+            custo, caminho = dijkstra(graph, origem, destino)
+        except Exception as exc:
+            logging.getLogger(__name__).error(
+                "Erro ao calcular Dijkstra para %s→%s: %s", origem, destino, exc
+            )
+            resultados.append({"origin": origem, "destination": destino, "custo": "", "caminho": ""})
+            continue
+
+        if custo == float("inf"):
+            resultados.append({"origin": origem, "destination": destino, "custo": "", "caminho": ""})
+        else:
+            resultados.append({
+                "origin": origem,
+                "destination": destino,
+                "custo": f"{custo:.2f}",
+                "caminho": ";".join(caminho),
+            })
+
+    out_df = pd.DataFrame(resultados)
+    out_path = out_dir / out_csv_name
+    out_df.to_csv(out_path, index=False)
+    logging.getLogger(__name__).info("Gravado: %s", out_path)
+    return out_df

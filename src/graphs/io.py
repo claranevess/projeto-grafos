@@ -253,13 +253,18 @@ def load_edges(graph: Graph, filepath: str | Path, encoding: str = "utf-8") -> i
             )
 
         for line_number, row in enumerate(reader, start=2):
-            origem = row.get("origem", "").strip().upper()
-            destino = row.get("destino", "").strip().upper()
-            tipo = row.get("tipo_conexao", "").strip()
-            justificativa = row.get("justificativa", "").strip()
+            # Normalize row keys to lowercase stripped names to be robust
+            # against header capitalization/spacing differences.
+            row_norm = { (k.strip().lower() if k is not None else ""): (v or "").strip() for k, v in row.items() }
 
+            origem = row_norm.get("origem", "").upper()
+            destino = row_norm.get("destino", "").upper()
+            tipo = row_norm.get("tipo_conexao", "")
+            justificativa = row_norm.get("justificativa", "")
+
+            peso_str = row_norm.get("peso", "1.0")
             try:
-                peso = float(row.get("peso", "1.0").strip())
+                peso = float(peso_str)
             except ValueError:
                 logger.warning(
                     "[Linha %d] Peso inválido para aresta %s→%s — ignorado.",
@@ -342,32 +347,51 @@ def carregar_grafo(dataset_path: str | Path) -> Graph:
 
     return graph
 
-def salvar_csv_graus(graus:list[tuple[str, int]]) -> None:
-    with open ("out/graus.csv", "w", newline='') as f:
+def salvar_csv_graus(graus: list[tuple[str, int]], out_dir: str | Path = "out") -> None:
+    """Salva um CSV `graus.csv` no diretório `out_dir` com colunas IATA,Grau."""
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    path = out_dir / "graus.csv"
+    with path.open("w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow(["IATA", "Grau"])
         for i in graus:
             writer.writerow(i)
 
-def salvar_ego_aeroporto_csv(ego_data: list[dict]) -> None:
-    with open("out/ego_aeroportos.csv", "w", newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=["aeroporto", "grau", "ordem_ego", "tamanho_ego", "densidade_ego"])
+def salvar_ego_aeroporto_csv(ego_data: list[dict], out_dir: str | Path = "out") -> None:
+    """Salva `ego_aeroportos.csv` no diretório `out_dir`."""
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    path = out_dir / "ego_aeroportos.csv"
+    with path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(
+            f,
+            fieldnames=["aeroporto", "grau", "ordem_ego", "tamanho_ego", "densidade_ego"],
+        )
         writer.writeheader()
         for row in ego_data:
             writer.writerow(row)
 
-def grau_ego_aeroporto() -> list[tuple[str, int]]:
-    lista_graus = []
-    with open ("out/ego_aeroportos.csv", "r") as f:
+def grau_ego_aeroporto(out_dir: str | Path = "out") -> list[tuple[str, int]]:
+    """Lê `ego_aeroportos.csv` do `out_dir` e retorna lista de (aeroporto, grau)."""
+    lista_graus: list[tuple[str, int]] = []
+    path = Path(out_dir) / "ego_aeroportos.csv"
+    if not path.exists():
+        return lista_graus
+    with path.open("r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
             lista_graus.append((row["aeroporto"], int(row["grau"])))
     return lista_graus
 
-def densidade_ego_aeroporto() -> list[tuple[str, int]]:
-    lista_graus = []
-    with open ("out/ego_aeroportos.csv", "r") as f:
+def densidade_ego_aeroporto(out_dir: str | Path = "out") -> list[tuple[str, float]]:
+    """Lê `ego_aeroportos.csv` do `out_dir` e retorna lista de (aeroporto, densidade_ego)."""
+    lista: list[tuple[str, float]] = []
+    path = Path(out_dir) / "ego_aeroportos.csv"
+    if not path.exists():
+        return lista
+    with path.open("r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
-            lista_graus.append((row["aeroporto"], float(row["densidade_ego"])))
-    return lista_graus
+            lista.append((row["aeroporto"], float(row["densidade_ego"])))
+    return lista
