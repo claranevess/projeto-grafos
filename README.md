@@ -157,10 +157,12 @@ python -m pytest tests/
 Listadas em `requirements.txt`:
 
 ```
+
 pandas
 matplotlib
 pyvis
 pytest
+
 ```
 
 ---
@@ -177,3 +179,4 @@ pytest
 ## Licença
 
 Uso acadêmico – Disciplina de Teoria dos Grafos.
+```
