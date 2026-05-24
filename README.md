@@ -129,9 +129,11 @@ python -m src.cli --help
 
 ## Executar os Testes
 
+Para garantir que todos os algoritmos estão funcionando corretamente, navegue até a pasta raiz do projeto e utilize o comando abaixo:
+
 ```bash
-pytest tests/ -v
-```
+cd projeto-grafos
+python -m pytest tests/
 
 ---
 
