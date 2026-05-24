@@ -1,9 +1,3 @@
-"""
-algorithms.py
-
-Módulo com a implementação dos algoritmos de grafos.
-"""
-
 import heapq
 from collections import deque
 from typing import Any, TypeAlias
@@ -193,6 +187,7 @@ def dfs(graph: Graph, raiz: str) -> tuple[list[str], bool, dict[tuple[str, str],
 
     return ordem_visitacao, tem_ciclo, classificacao_arestas
 
+
 def dijkstra(
         graph: Graph,
         source: str,
@@ -263,7 +258,8 @@ def dijkstra(
     return dist[target], caminho
 
 
-def bellman_ford(graph: Graph, raiz: str, target: str | None = None) -> tuple[dict[str, float], dict[str, Pai], bool] | tuple[float, list[str]]:
+def bellman_ford(graph: Graph, raiz: str, target: str | None = None) -> tuple[dict[str, float], dict[str, Pai], bool] | \
+                                                                        tuple[float, list[str]]:
     """
     Executa o algoritmo de Bellman-Ford a partir de um nó raiz.
 
@@ -309,8 +305,8 @@ def bellman_ford(graph: Graph, raiz: str, target: str | None = None) -> tuple[di
             for aresta in graph.get_neighbors(u):
                 v = aresta.destino
                 # No seu objeto, assume-se que 'aresta.peso' guarda o valor numérico
-                peso = aresta.peso 
-                
+                peso = aresta.peso
+
                 if distancias[u] + peso < distancias[v]:
                     distancias[v] = distancias[u] + peso
                     pais[v] = u

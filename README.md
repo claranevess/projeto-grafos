@@ -14,7 +14,7 @@ projeto-grafos/
 ├── requirements.txt
 ├── data/
 │   ├── aeroportos_data.csv          # fornecido pelo professor
-│   ├── adjacencias_aeroportos.csv   # construído pelo grupo (Parte 1)        
+│   ├── adjacencias_aeroportos.csv   # construído pelo grupo (Parte 1)
 │   └── rotas.csv                    # construído pelo grupo (Parte 1)
 ├── out/                             # saídas geradas (.json / .html / .png / .csv)
 │   └── .gitkeep
@@ -116,7 +116,7 @@ python -m src.cli --help
 ## Algoritmos disponíveis
 
 | Flag           | Algoritmo                      | Requer `--target`?  |
-|----------------|--------------------------------|---------------------|
+| -------------- | ------------------------------ | ------------------- |
 | `BFS`          | Busca em Largura               | Não (single-source) |
 | `DFS`          | Busca em Profundidade          | Não (single-source) |
 | `DIJKSTRA`     | Dijkstra (pesos ≥ 0)           | Opcional            |
@@ -138,7 +138,7 @@ pytest tests/ -v
 ## Saídas Geradas (pasta `out/`)
 
 | Arquivo                 | Descrição                                         |
-|-------------------------|---------------------------------------------------|
+| ----------------------- | ------------------------------------------------- |
 | `global.json`           | Ordem, tamanho e densidade do grafo completo      |
 | `regioes.json`          | Métricas por região geográfica                    |
 | `ego_aeroportos.csv`    | Ego-rede de cada aeroporto                        |
