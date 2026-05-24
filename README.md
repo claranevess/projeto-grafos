@@ -116,7 +116,7 @@ python -m src.cli --help
 ## Algoritmos disponíveis
 
 | Flag           | Algoritmo                      | Requer `--target`?  |
-|----------------|--------------------------------|---------------------|
+| -------------- | ------------------------------ | ------------------- |
 | `BFS`          | Busca em Largura               | Não (single-source) |
 | `DFS`          | Busca em Profundidade          | Não (single-source) |
 | `DIJKSTRA`     | Dijkstra (pesos ≥ 0)           | Opcional            |
@@ -178,5 +178,7 @@ pytest
 ## Licença
 
 Uso acadêmico – Disciplina de Teoria dos Grafos.
+
+```
 
 ```
