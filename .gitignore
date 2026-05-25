@@ -12,6 +12,7 @@ __pycache__/
 
 # Editor directories
 .vscode/
+.idea/
 
 # Distribution / build
 build/

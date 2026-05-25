@@ -1,0 +1,1158 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+
+    <script src="lib/bindings/utils.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css"
+      integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js"
+      integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+
+    <center>
+      <h1></h1>
+    </center>
+
+    <!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+      crossorigin="anonymous"
+    ></script>
+
+    <center>
+      <h1></h1>
+    </center>
+    <style type="text/css">
+      #mynetwork {
+        width: 100%;
+        height: 750px;
+        background-color: #0d1b2a;
+        border: 1px solid lightgray;
+        position: relative;
+        float: left;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="card" style="width: 100%">
+      <div id="mynetwork" class="card-body"></div>
+    </div>
+
+    <script type="text/javascript">
+      // initialize global variables.
+      var edges;
+      var nodes;
+      var allNodes;
+      var allEdges;
+      var nodeColors;
+      var originalNodes;
+      var network;
+      var container;
+      var options, data;
+      var filter = {
+        item: "",
+        property: "",
+        value: [],
+      };
+
+      // This method is responsible for drawing the graph, returns the drawn network
+      function drawGraph() {
+        var container = document.getElementById("mynetwork");
+
+        // parsing and collecting nodes and edges from the python
+        nodes = new vis.DataSet([
+          {
+            color: {
+              background: "#FF9800",
+              border: "#FF9800",
+              highlight: { background: "#FFB300", border: "#fff" },
+            },
+            font: { color: "#e2efff" },
+            id: "REC",
+            label: "REC",
+            shape: "dot",
+            size: 28.0,
+            title:
+              "\u003cb\u003eREC\u003c/b\u003e \u2014 Recife\u003cbr\u003eRegi\u00e3o: Nordeste\u003cbr\u003eGrau: 10\u003cbr\u003eDensidade ego: 0.673",
+            x: 358.90109890109886,
+            y: -325.21739130434776,
+          },
+          {
+            color: {
+              background: "#FF9800",
+              border: "#FF9800",
+              highlight: { background: "#FFB300", border: "#fff" },
+            },
+            font: { color: "#e2efff" },
+            id: "SSA",
+            label: "SSA",
+            shape: "dot",
+            size: 20.8,
+            title:
+              "\u003cb\u003eSSA\u003c/b\u003e \u2014 Salvador\u003cbr\u003eRegi\u00e3o: Nordeste\u003cbr\u003eGrau: 6\u003cbr\u003eDensidade ego: 1.000",
+            x: 284.17582417582423,
+            y: -227.41687979539648,
+          },
+          {
+            color: {
+              background: "#FF9800",
+              border: "#FF9800",
+              highlight: { background: "#FFB300", border: "#fff" },
+            },
+            font: { color: "#e2efff" },
+            id: "FOR",
+            label: "FOR",
+            shape: "dot",
+            size: 28.0,
+            title:
+              "\u003cb\u003eFOR\u003c/b\u003e \u2014 Fortaleza\u003cbr\u003eRegi\u00e3o: Nordeste\u003cbr\u003eGrau: 10\u003cbr\u003eDensidade ego: 0.709",
+            x: 279.5604395604395,
+            y: -414.21994884910487,
+          },
+          {
+            color: {
+              background: "#FF9800",
+              border: "#FF9800",
+              highlight: { background: "#FFB300", border: "#fff" },
+            },
+            font: { color: "#e2efff" },
+            id: "NAT",
+            label: "NAT",
+            shape: "dot",
+            size: 17.2,
+            title:
+              "\u003cb\u003eNAT\u003c/b\u003e \u2014 Natal\u003cbr\u003eRegi\u00e3o: Nordeste\u003cbr\u003eGrau: 4\u003cbr\u003eDensidade ego: 0.800",
+            x: 351.64835164835165,
+            y: -372.07161125319703,
+          },
+          {
+            color: {
+              background: "#FF9800",
+              border: "#FF9800",
+              highlight: { background: "#FFB300", border: "#fff" },
+            },
+            font: { color: "#e2efff" },
+            id: "JPA",
+            label: "JPA",
+            shape: "dot",
+            size: 15.4,
+            title:
+              "\u003cb\u003eJPA\u003c/b\u003e \u2014 Jo\u00e3o Pessoa\u003cbr\u003eRegi\u00e3o: Nordeste\u003cbr\u003eGrau: 3\u003cbr\u003eDensidade ego: 0.833",
+            x: 358.24175824175813,
+            y: -345.2685421994885,
+          },
+          {
+            color: {
+              background: "#E91E63",
+              border: "#ffffff",
+              highlight: { background: "#FFB300", border: "#fff" },
+            },
+            font: { color: "#e2efff" },
+            id: "GRU",
+            label: "GRU",
+            shape: "dot",
+            size: 42.4,
+            title:
+              "\u003cb\u003eGRU\u003c/b\u003e \u2014 S\u00e3o Paulo\u003cbr\u003eRegi\u00e3o: Sudeste\u003cbr\u003eGrau: 18\u003cbr\u003eDensidade ego: 0.409",
+            x: 105.05494505494505,
+            y: -12.173913043478223,
+          },
+          {
+            color: {
+              background: "#E91E63",
+              border: "#E91E63",
+              highlight: { background: "#FFB300", border: "#fff" },
+            },
+            font: { color: "#e2efff" },
+            id: "CGH",
+            label: "CGH",
+            shape: "dot",
+            size: 13.6,
+            title:
+              "\u003cb\u003eCGH\u003c/b\u003e \u2014 S\u00e3o Paulo\u003cbr\u003eRegi\u00e3o: Sudeste\u003cbr\u003eGrau: 2\u003cbr\u003eDensidade ego: 1.000",
+            x: 100.87912087912093,
+            y: -8.081841432225048,
+          },
+          {
+            color: {
+              background: "#E91E63",
+              border: "#ffffff",
+              highlight: { background: "#FFB300", border: "#fff" },
+            },
+            font: { color: "#e2efff" },
+            id: "GIG",
+            label: "GIG",
+            shape: "dot",
+            size: 31.6,
+            title:
+              "\u003cb\u003eGIG\u003c/b\u003e \u2014 Rio de Janeiro\u003cbr\u003eRegi\u00e3o: Sudeste\u003cbr\u003eGrau: 12\u003cbr\u003eDensidade ego: 0.564",
+            x: 175.82417582417588,
+            y: -24.859335038363156,
+          },
+          {
+            color: {
+              background: "#E91E63",
+              border: "#E91E63",
+              highlight: { background: "#FFB300", border: "#fff" },
+            },
+            font: { color: "#e2efff" },
+            id: "CNF",
+            label: "CNF",
+            shape: "dot",
+            size: 20.8,
+            title:
+              "\u003cb\u003eCNF\u003c/b\u003e \u2014 Belo Horizonte\u003cbr\u003eRegi\u00e3o: Sudeste\u003cbr\u003eGrau: 6\u003cbr\u003eDensidade ego: 0.857",
+            x: 160.0,
+            y: -89.92327365728903,
+          },
+          {
+            color: {
+              background: "#E91E63",
+              border: "#E91E63",
+              highlight: { background: "#FFB300", border: "#fff" },
+            },
+            font: { color: "#e2efff" },
+            id: "VIX",
+            label: "VIX",
+            shape: "dot",
+            size: 15.4,
+            title:
+              "\u003cb\u003eVIX\u003c/b\u003e \u2014 Vit\u00f3ria\u003cbr\u003eRegi\u00e3o: Sudeste\u003cbr\u003eGrau: 3\u003cbr\u003eDensidade ego: 1.000",
+            x: 240.87912087912093,
+            y: -77.03324808184135,
+          },
+          {
+            color: {
+              background: "#9C27B0",
+              border: "#ffffff",
+              highlight: { background: "#FFB300", border: "#fff" },
+            },
+            font: { color: "#e2efff" },
+            id: "BSB",
+            label: "BSB",
+            shape: "dot",
+            size: 37.0,
+            title:
+              "\u003cb\u003eBSB\u003c/b\u003e \u2014 Bras\u00edlia\u003cbr\u003eRegi\u00e3o: Centro-Oeste\u003cbr\u003eGrau: 15\u003cbr\u003eDensidade ego: 0.517",
+            x: 73.1868131868132,
+            y: -166.85421994884916,
+          },
+          {
+            color: {
+              background: "#9C27B0",
+              border: "#9C27B0",
+              highlight: { background: "#FFB300", border: "#fff" },
+            },
+            font: { color: "#e2efff" },
+            id: "GYN",
+            label: "GYN",
+            shape: "dot",
+            size: 20.8,
+            title:
+              "\u003cb\u003eGYN\u003c/b\u003e \u2014 Goi\u00e2nia\u003cbr\u003eRegi\u00e3o: Centro-Oeste\u003cbr\u003eGrau: 6\u003cbr\u003eDensidade ego: 0.952",
+            x: 44.61538461538464,
+            y: -151.304347826087,
+          },
+          {
+            color: {
+              background: "#4CAF50",
+              border: "#4CAF50",
+              highlight: { background: "#FFB300", border: "#fff" },
+            },
+            font: { color: "#e2efff" },
+            id: "CWB",
+            label: "CWB",
+            shape: "dot",
+            size: 24.4,
+            title:
+              "\u003cb\u003eCWB\u003c/b\u003e \u2014 Curitiba\u003cbr\u003eRegi\u00e3o: Sul\u003cbr\u003eGrau: 8\u003cbr\u003eDensidade ego: 0.778",
+            x: 45.714285714285666,
+            y: 30.79283887468037,
+          },
+          {
+            color: {
+              background: "#4CAF50",
+              border: "#4CAF50",
+              highlight: { background: "#FFB300", border: "#fff" },
+            },
+            font: { color: "#e2efff" },
+            id: "FLN",
+            label: "FLN",
+            shape: "dot",
+            size: 17.2,
+            title:
+              "\u003cb\u003eFLN\u003c/b\u003e \u2014 Florian\u00f3polis\u003cbr\u003eRegi\u00e3o: Sul\u003cbr\u003eGrau: 4\u003cbr\u003eDensidade ego: 1.000",
+            x: 59.340659340659386,
+            y: 74.57800511508958,
+          },
+          {
+            color: {
+              background: "#4CAF50",
+              border: "#4CAF50",
+              highlight: { background: "#FFB300", border: "#fff" },
+            },
+            font: { color: "#e2efff" },
+            id: "POA",
+            label: "POA",
+            shape: "dot",
+            size: 19.0,
+            title:
+              "\u003cb\u003ePOA\u003c/b\u003e \u2014 Porto Alegre\u003cbr\u003eRegi\u00e3o: Sul\u003cbr\u003eGrau: 5\u003cbr\u003eDensidade ego: 0.933",
+            x: 1.7582417582416952,
+            y: 122.04603580562662,
+          },
+          {
+            color: {
+              background: "#2196F3",
+              border: "#2196F3",
+              highlight: { background: "#FFB300", border: "#fff" },
+            },
+            font: { color: "#e2efff" },
+            id: "MAO",
+            label: "MAO",
+            shape: "dot",
+            size: 29.8,
+            title:
+              "\u003cb\u003eMAO\u003c/b\u003e \u2014 Manaus\u003cbr\u003eRegi\u00e3o: Norte\u003cbr\u003eGrau: 11\u003cbr\u003eDensidade ego: 0.682",
+            x: -193.40659340659334,
+            y: -429.3606138107417,
+          },
+          {
+            color: {
+              background: "#2196F3",
+              border: "#2196F3",
+              highlight: { background: "#FFB300", border: "#fff" },
+            },
+            font: { color: "#e2efff" },
+            id: "BEL",
+            label: "BEL",
+            shape: "dot",
+            size: 24.4,
+            title:
+              "\u003cb\u003eBEL\u003c/b\u003e \u2014 Bel\u00e9m\u003cbr\u003eRegi\u00e3o: Norte\u003cbr\u003eGrau: 8\u003cbr\u003eDensidade ego: 0.889",
+            x: 60.87912087912093,
+            y: -463.3248081841432,
+          },
+          {
+            color: {
+              background: "#2196F3",
+              border: "#2196F3",
+              highlight: { background: "#FFB300", border: "#fff" },
+            },
+            font: { color: "#e2efff" },
+            id: "PVH",
+            label: "PVH",
+            shape: "dot",
+            size: 20.8,
+            title:
+              "\u003cb\u003ePVH\u003c/b\u003e \u2014 Porto Velho\u003cbr\u003eRegi\u00e3o: Norte\u003cbr\u003eGrau: 6\u003cbr\u003eDensidade ego: 0.905",
+            x: -278.021978021978,
+            y: -313.3503836317136,
+          },
+          {
+            color: {
+              background: "#2196F3",
+              border: "#2196F3",
+              highlight: { background: "#FFB300", border: "#fff" },
+            },
+            font: { color: "#e2efff" },
+            id: "RBR",
+            label: "RBR",
+            shape: "dot",
+            size: 17.2,
+            title:
+              "\u003cb\u003eRBR\u003c/b\u003e \u2014 Rio Branco\u003cbr\u003eRegi\u00e3o: Norte\u003cbr\u003eGrau: 4\u003cbr\u003eDensidade ego: 1.000",
+            x: -365.93406593406604,
+            y: -289.6163682864451,
+          },
+          {
+            color: {
+              background: "#FF9800",
+              border: "#FF9800",
+              highlight: { background: "#FFB300", border: "#fff" },
+            },
+            font: { color: "#e2efff" },
+            id: "THE",
+            label: "THE",
+            shape: "dot",
+            size: 19.0,
+            title:
+              "\u003cb\u003eTHE\u003c/b\u003e \u2014 Teresina\u003cbr\u003eRegi\u00e3o: Nordeste\u003cbr\u003eGrau: 5\u003cbr\u003eDensidade ego: 0.800",
+            x: 185.27472527472526,
+            y: -388.0306905370844,
+          },
+        ]);
+        edges = new vis.DataSet([
+          {
+            color: "#4FC3F7",
+            dashes: false,
+            from: "REC",
+            title: "peso=1.0 | regional",
+            to: "SSA",
+            width: 1.5,
+          },
+          {
+            color: "#4FC3F7",
+            dashes: false,
+            from: "REC",
+            title: "peso=1.0 | regional",
+            to: "THE",
+            width: 1.5,
+          },
+          {
+            color: "#4FC3F7",
+            dashes: false,
+            from: "FOR",
+            title: "peso=1.0 | regional",
+            to: "REC",
+            width: 1.5,
+          },
+          {
+            color: "#4FC3F7",
+            dashes: false,
+            from: "FOR",
+            title: "peso=1.0 | regional",
+            to: "SSA",
+            width: 1.5,
+          },
+          {
+            color: "#4FC3F7",
+            dashes: false,
+            from: "FOR",
+            title: "peso=1.0 | regional",
+            to: "NAT",
+            width: 1.5,
+          },
+          {
+            color: "#4FC3F7",
+            dashes: false,
+            from: "FOR",
+            title: "peso=1.0 | regional",
+            to: "THE",
+            width: 1.5,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "FOR",
+            title: "peso=2.0 | hub",
+            to: "GRU",
+            width: 1.2,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "FOR",
+            title: "peso=2.0 | hub",
+            to: "GIG",
+            width: 1.2,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "FOR",
+            title: "peso=2.0 | hub",
+            to: "MAO",
+            width: 1.2,
+          },
+          {
+            color: "#CE93D8",
+            dashes: true,
+            from: "FOR",
+            title: "peso=2.0 | inter-regional",
+            to: "PVH",
+            width: 1.0,
+          },
+          {
+            color: "#4FC3F7",
+            dashes: false,
+            from: "NAT",
+            title: "peso=1.0 | regional",
+            to: "REC",
+            width: 1.5,
+          },
+          {
+            color: "#4FC3F7",
+            dashes: false,
+            from: "JPA",
+            title: "peso=1.0 | regional",
+            to: "REC",
+            width: 1.5,
+          },
+          {
+            color: "#4FC3F7",
+            dashes: false,
+            from: "JPA",
+            title: "peso=2.0 | regional",
+            to: "NAT",
+            width: 1.5,
+          },
+          {
+            color: "#4FC3F7",
+            dashes: false,
+            from: "JPA",
+            title: "peso=2.0 | regional",
+            to: "THE",
+            width: 1.5,
+          },
+          {
+            color: "#4FC3F7",
+            dashes: false,
+            from: "GRU",
+            title: "peso=1.0 | regional",
+            to: "VIX",
+            width: 1.5,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "GRU",
+            title: "peso=2.0 | hub",
+            to: "REC",
+            width: 1.2,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "GRU",
+            title: "peso=2.0 | hub",
+            to: "SSA",
+            width: 1.2,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "GRU",
+            title: "peso=2.0 | hub",
+            to: "NAT",
+            width: 1.2,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "GRU",
+            title: "peso=2.0 | hub",
+            to: "THE",
+            width: 1.2,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "GRU",
+            title: "peso=2.0 | hub",
+            to: "GYN",
+            width: 1.2,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "GRU",
+            title: "peso=2.0 | hub",
+            to: "POA",
+            width: 1.2,
+          },
+          {
+            color: "#FFB300",
+            dashes: false,
+            from: "GRU",
+            title: "peso=2.0 | hub",
+            to: "MAO",
+            width: 4,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "GRU",
+            title: "peso=2.0 | hub",
+            to: "PVH",
+            width: 1.2,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "GRU",
+            title: "peso=2.0 | hub",
+            to: "RBR",
+            width: 1.2,
+          },
+          {
+            color: "#4FC3F7",
+            dashes: false,
+            from: "CGH",
+            title: "peso=1.0 | regional",
+            to: "GRU",
+            width: 1.5,
+          },
+          {
+            color: "#4FC3F7",
+            dashes: false,
+            from: "CGH",
+            title: "peso=1.0 | regional",
+            to: "GIG",
+            width: 1.5,
+          },
+          {
+            color: "#4FC3F7",
+            dashes: false,
+            from: "GIG",
+            title: "peso=1.0 | regional",
+            to: "GRU",
+            width: 1.5,
+          },
+          {
+            color: "#4FC3F7",
+            dashes: false,
+            from: "GIG",
+            title: "peso=1.0 | regional",
+            to: "VIX",
+            width: 1.5,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "GIG",
+            title: "peso=2.0 | hub",
+            to: "REC",
+            width: 1.2,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "GIG",
+            title: "peso=2.0 | hub",
+            to: "GYN",
+            width: 1.2,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "GIG",
+            title: "peso=2.0 | hub",
+            to: "POA",
+            width: 1.2,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "GIG",
+            title: "peso=2.0 | hub",
+            to: "MAO",
+            width: 1.2,
+          },
+          {
+            color: "#4FC3F7",
+            dashes: false,
+            from: "CNF",
+            title: "peso=1.0 | regional",
+            to: "GRU",
+            width: 1.5,
+          },
+          {
+            color: "#4FC3F7",
+            dashes: false,
+            from: "CNF",
+            title: "peso=1.0 | regional",
+            to: "GIG",
+            width: 1.5,
+          },
+          {
+            color: "#4FC3F7",
+            dashes: false,
+            from: "CNF",
+            title: "peso=2.0 | regional",
+            to: "VIX",
+            width: 1.5,
+          },
+          {
+            color: "#CE93D8",
+            dashes: true,
+            from: "CNF",
+            title: "peso=3.0 | inter-regional",
+            to: "GYN",
+            width: 1.0,
+          },
+          {
+            color: "#CE93D8",
+            dashes: true,
+            from: "CNF",
+            title: "peso=3.0 | inter-regional",
+            to: "CWB",
+            width: 1.0,
+          },
+          {
+            color: "#4FC3F7",
+            dashes: false,
+            from: "BSB",
+            title: "peso=1.0 | regional",
+            to: "GYN",
+            width: 1.5,
+          },
+          {
+            color: "#FFB300",
+            dashes: false,
+            from: "BSB",
+            title: "peso=2.0 | hub",
+            to: "REC",
+            width: 4,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "BSB",
+            title: "peso=2.0 | hub",
+            to: "SSA",
+            width: 1.2,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "BSB",
+            title: "peso=2.0 | hub",
+            to: "FOR",
+            width: 1.2,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "BSB",
+            title: "peso=2.0 | hub",
+            to: "THE",
+            width: 1.2,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "BSB",
+            title: "peso=2.0 | hub",
+            to: "GRU",
+            width: 1.2,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "BSB",
+            title: "peso=2.0 | hub",
+            to: "GIG",
+            width: 1.2,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "BSB",
+            title: "peso=2.0 | hub",
+            to: "CNF",
+            width: 1.2,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "BSB",
+            title: "peso=2.0 | hub",
+            to: "CWB",
+            width: 1.2,
+          },
+          {
+            color: "#FFB300",
+            dashes: false,
+            from: "BSB",
+            title: "peso=2.0 | hub",
+            to: "POA",
+            width: 4,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "BSB",
+            title: "peso=2.0 | hub",
+            to: "FLN",
+            width: 1.2,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "BSB",
+            title: "peso=2.0 | hub",
+            to: "MAO",
+            width: 1.2,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "BSB",
+            title: "peso=2.0 | hub",
+            to: "PVH",
+            width: 1.2,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "BSB",
+            title: "peso=2.0 | hub",
+            to: "RBR",
+            width: 1.2,
+          },
+          {
+            color: "#CE93D8",
+            dashes: true,
+            from: "GYN",
+            title: "peso=2.0 | inter-regional",
+            to: "MAO",
+            width: 1.0,
+          },
+          {
+            color: "#4FC3F7",
+            dashes: false,
+            from: "CWB",
+            title: "peso=2.0 | regional",
+            to: "POA",
+            width: 1.5,
+          },
+          {
+            color: "#4FC3F7",
+            dashes: false,
+            from: "CWB",
+            title: "peso=2.0 | regional",
+            to: "FLN",
+            width: 1.5,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "CWB",
+            title: "peso=2.0 | hub",
+            to: "GRU",
+            width: 1.2,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "CWB",
+            title: "peso=2.0 | hub",
+            to: "GIG",
+            width: 1.2,
+          },
+          {
+            color: "#CE93D8",
+            dashes: true,
+            from: "CWB",
+            title: "peso=3.0 | inter-regional",
+            to: "GYN",
+            width: 1.0,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "CWB",
+            title: "peso=3.0 | hub",
+            to: "MAO",
+            width: 1.2,
+          },
+          {
+            color: "#4FC3F7",
+            dashes: false,
+            from: "FLN",
+            title: "peso=2.0 | regional",
+            to: "POA",
+            width: 1.5,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "FLN",
+            title: "peso=2.0 | hub",
+            to: "GRU",
+            width: 1.2,
+          },
+          {
+            color: "#4FC3F7",
+            dashes: false,
+            from: "MAO",
+            title: "peso=1.0 | regional",
+            to: "PVH",
+            width: 1.5,
+          },
+          {
+            color: "#4FC3F7",
+            dashes: false,
+            from: "MAO",
+            title: "peso=1.0 | regional",
+            to: "RBR",
+            width: 1.5,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "MAO",
+            title: "peso=2.0 | hub",
+            to: "REC",
+            width: 1.2,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "MAO",
+            title: "peso=2.0 | hub",
+            to: "SSA",
+            width: 1.2,
+          },
+          {
+            color: "#4FC3F7",
+            dashes: false,
+            from: "BEL",
+            title: "peso=1.0 | regional",
+            to: "MAO",
+            width: 1.5,
+          },
+          {
+            color: "#4FC3F7",
+            dashes: false,
+            from: "BEL",
+            title: "peso=1.0 | regional",
+            to: "PVH",
+            width: 1.5,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "BEL",
+            title: "peso=2.0 | hub",
+            to: "FOR",
+            width: 1.2,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "BEL",
+            title: "peso=2.0 | hub",
+            to: "REC",
+            width: 1.2,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "BEL",
+            title: "peso=2.0 | hub",
+            to: "SSA",
+            width: 1.2,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "BEL",
+            title: "peso=2.0 | hub",
+            to: "GRU",
+            width: 1.2,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "BEL",
+            title: "peso=2.0 | hub",
+            to: "GIG",
+            width: 1.2,
+          },
+          {
+            color: "#7986CB",
+            dashes: false,
+            from: "BEL",
+            title: "peso=2.0 | hub",
+            to: "BSB",
+            width: 1.2,
+          },
+          {
+            color: "#4FC3F7",
+            dashes: false,
+            from: "PVH",
+            title: "peso=2.0 | regional",
+            to: "RBR",
+            width: 1.5,
+          },
+        ]);
+
+        nodeColors = {};
+        allNodes = nodes.get({ returnType: "Object" });
+        for (nodeId in allNodes) {
+          nodeColors[nodeId] = allNodes[nodeId].color;
+        }
+        allEdges = edges.get({ returnType: "Object" });
+        // adding nodes and edges to the graph
+        data = { nodes: nodes, edges: edges };
+
+        var options = {
+          nodes: { borderWidth: 2, shadow: { enabled: true, size: 8 } },
+          edges: { smooth: { type: "curvedCW", roundness: 0.1 } },
+          physics: {
+            enabled: true,
+            barnesHut: {
+              gravitationalConstant: -8000,
+              centralGravity: 0.3,
+              springLength: 130,
+              springConstant: 0.04,
+            },
+          },
+          interaction: {
+            hover: true,
+            tooltipDelay: 100,
+            navigationButtons: true,
+            keyboard: { enabled: true },
+          },
+        };
+
+        network = new vis.Network(container, data, options);
+
+        return network;
+      }
+      drawGraph();
+    </script>
+
+    <style>
+      #panel {
+        position: fixed;
+        top: 12px;
+        left: 12px;
+        z-index: 9999;
+        background: rgba(11, 21, 38, 0.92);
+        border: 1px solid #1a3050;
+        border-radius: 8px;
+        padding: 12px 16px;
+        min-width: 280px;
+        font-family: "Inter", system-ui, sans-serif;
+        color: #e2efff;
+      }
+      #panel h3 {
+        margin: 0 0 8px;
+        font-size: 13px;
+        color: #00d4ff;
+      }
+      #searchBox {
+        width: 100%;
+        padding: 6px 10px;
+        margin-bottom: 10px;
+        background: #0f1e35;
+        border: 1px solid #1a3050;
+        border-radius: 4px;
+        color: #e2efff;
+        font-size: 12px;
+        box-sizing: border-box;
+      }
+      .legenda-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 4px 0;
+        font-size: 11px;
+      }
+      .legenda-cor {
+        width: 22px;
+        height: 4px;
+        border-radius: 2px;
+      }
+      #caminhos-panel {
+        margin-top: 10px;
+        border-top: 1px solid #1a3050;
+        padding-top: 8px;
+      }
+      #caminhos-panel h4 {
+        margin: 0 0 6px;
+        font-size: 12px;
+        color: #ffb300;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 11px;
+      }
+    </style>
+    <div id="panel">
+      <h3>✈ Rede de Aeroportos — Brasil</h3>
+      <input
+        id="searchBox"
+        type="text"
+        placeholder="Buscar aeroporto (ex: GRU, REC)..."
+        oninput="buscarAeroporto(this.value)"
+      />
+      <div class="legenda-item">
+        <div class="legenda-cor" style="background: #4fc3f7"></div>
+        Regional
+      </div>
+      <div class="legenda-item">
+        <div class="legenda-cor" style="background: #7986cb"></div>
+        Hub (inter-regional)
+      </div>
+      <div class="legenda-item">
+        <div
+          class="legenda-cor"
+          style="background: #ce93d8; border: 1px dashed #ce93d8"
+        ></div>
+        Inter-regional
+      </div>
+      <div class="legenda-item">
+        <div class="legenda-cor" style="background: #ffb300; height: 4px"></div>
+        Caminhos obrigatórios
+      </div>
+      <div id="caminhos-panel">
+        <h4>📍 Caminhos obrigatórios (Dijkstra)</h4>
+        <table>
+          <tr>
+            <td style="padding: 4px 8px; font-weight: bold; color: #ffb300">
+              REC -> POA
+            </td>
+            <td style="padding: 4px 8px; color: #e2efff">
+              REC → BSB → POA <span style="color: #aaa">(custo=2)</span>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 4px 8px; font-weight: bold; color: #ffb300">
+              MAO -> GRU
+            </td>
+            <td style="padding: 4px 8px; color: #e2efff">
+              MAO → GRU <span style="color: #aaa">(custo=1)</span>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <script>
+      function buscarAeroporto(val) {
+        if (!val || val.trim() === "") {
+          if (window.network) window.network.unselectAll();
+          return;
+        }
+        val = val.trim().toUpperCase();
+        if (!window.network) return;
+        var allNodes = window.network.body.data.nodes.getIds();
+        var match = allNodes.filter((id) => id.toUpperCase().includes(val));
+        if (match.length > 0) {
+          window.network.selectNodes(match);
+          window.network.focus(match[0], { scale: 1.5, animation: true });
+        }
+      }
+      // Expõe a instância da rede para acesso global
+      document.addEventListener("DOMContentLoaded", function () {
+        var interval = setInterval(function () {
+          if (typeof network !== "undefined") {
+            window.network = network;
+            clearInterval(interval);
+          }
+        }, 200);
+      });
+    </script>
+  </body>
+</html>
