@@ -45,7 +45,7 @@ COORDS: dict[str, tuple[float, float]] = {
     "JPA": (-7.15, -34.95),
     "THE": (-5.06, -42.82),
     "GRU": (-23.43, -46.47),
-    "CGH": (-23.63, -46.66),
+    "CGH": (-23.63, -47.40),
     "GIG": (-22.81, -43.25),
     "CNF": (-19.63, -43.97),
     "VIX": (-20.26, -40.29),
@@ -197,14 +197,13 @@ def viz_ranking_hubs(graus_df: pd.DataFrame, graph, out_dir: Path) -> None:
     df = graus_df.copy()
     df["regiao"] = df["IATA"].apply(lambda x: graph.get_node(x).regiao)
     df["cidade"] = df["IATA"].apply(lambda x: graph.get_node(x).cidade)
-    df["label"] = df["IATA"] + "\n" + df["cidade"]
     df = df.sort_values("Grau", ascending=True)
 
     fig, ax = plt.subplots(figsize=(10, 8), facecolor="#f8f9fa")
     ax.set_facecolor("#f0f4f8")
 
     bars = ax.barh(
-        df["label"], df["Grau"],
+        df["IATA"], df["Grau"],
         color=[CORES_REGIAO[r] for r in df["regiao"]],
         edgecolor="white", linewidth=0.5, height=0.75
     )
