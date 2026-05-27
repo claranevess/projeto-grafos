@@ -7,10 +7,11 @@ Uso:
     python -m src.cli --dataset data/aeroportos_data.csv --alg DIJKSTRA --source REC --target POA --out ./out/
 """
 
-import argparse
 import sys
 import os
 import time
+from pathlib import Path
+from types import SimpleNamespace
 
 
 # ---------------------------------------------------------------------------
@@ -24,27 +25,22 @@ ALGORITMOS_VALIDOS = {"BFS", "DFS", "DIJKSTRA", "BELLMAN-FORD"}
 # Helpers de validação
 # ---------------------------------------------------------------------------
 
-def _validar_dataset(caminho: str) -> str:
+def _validar_dataset(caminho):
     """Verifica se o caminho do dataset existe (arquivo ou diretório)."""
     if not os.path.exists(caminho):
-        raise argparse.ArgumentTypeError(
-            f"Dataset não encontrado: '{caminho}'"
-        )
+        raise ValueError(f"Dataset não encontrado: '{caminho}'")
     return caminho
 
 
-def _validar_alg(valor: str) -> str:
+def _validar_alg(valor):
     """Normaliza e valida o nome do algoritmo."""
     normalizado = valor.upper()
     if normalizado not in ALGORITMOS_VALIDOS:
-        raise argparse.ArgumentTypeError(
-            f"Algoritmo inválido: '{valor}'. "
-            f"Opções: {', '.join(sorted(ALGORITMOS_VALIDOS))}"
-        )
+        raise ValueError(f"Algoritmo inválido: '{valor}'. Opções: {', '.join(sorted(ALGORITMOS_VALIDOS))}")
     return normalizado
 
 
-def _validar_out(caminho: str) -> str:
+def _validar_out(caminho):
     """Cria o diretório de saída se ainda não existir."""
     os.makedirs(caminho, exist_ok=True)
     return caminho
@@ -54,94 +50,155 @@ def _validar_out(caminho: str) -> str:
 # Construção do parser
 # ---------------------------------------------------------------------------
 
-def _build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
-        prog="src.cli",
-        description=(
-            "Rede de Aeroportos do Brasil – Teoria dos Grafos\n"
-            "Implementações próprias de BFS, DFS, Dijkstra e Bellman-Ford."
-        ),
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog=(
-            "Exemplos:\n"
-            "  python -m src.cli --dataset data/aeroportos_data.csv "
-            "--alg BFS --source REC --out ./out/\n"
-            "  python -m src.cli --dataset data/aeroportos_data.csv "
-            "--alg DIJKSTRA --source REC --target POA --out ./out/\n"
-            "  python -m src.cli --dataset data/dataset_parte2/ "
-            "--alg DIJKSTRA --source A --target B --out ./out/"
-        ),
-    )
+def parse_args(argv=None):
+    """Parseador mínimo de argumentos (substitui argparse no núcleo).
 
-    # --- Argumentos obrigatórios ---
-    parser.add_argument(
-        "--dataset",
-        required=True,
-        type=_validar_dataset,
-        metavar="CAMINHO",
-        help="Caminho para o arquivo CSV ou diretório de dados.",
-    )
-    parser.add_argument(
-        "--alg",
-        required=True,
-        type=_validar_alg,
-        metavar="ALGORITMO",
-        help=f"Algoritmo a executar. Opções: {', '.join(sorted(ALGORITMOS_VALIDOS))}.",
-    )
-    parser.add_argument(
-        "--source",
-        required=True,
-        metavar="ORIGEM",
-        help="Código IATA (ou ID) do nó de origem (ex.: REC, GRU).",
-    )
+    Suporta argumentos na forma `--key value` ou `--key=value`.
+    """
+    if argv is None:
+        argv = sys.argv[1:]
 
-    # --- Argumentos opcionais ---
-    parser.add_argument(
-        "--target",
-        default=None,
-        metavar="DESTINO",
-        help=(
-            "Código IATA (ou ID) do nó de destino. "
-            "Obrigatório para DIJKSTRA e BELLMAN-FORD quando se deseja "
-            "um caminho ponto-a-ponto."
-        ),
-    )
-    parser.add_argument(
-        "--out",
-        default="./out/",
-        type=_validar_out,
-        metavar="DIR_SAIDA",
-        help="Diretório onde os arquivos de saída serão gravados (padrão: ./out/).",
-    )
+    # ajuda
+    if "-h" in argv or "--help" in argv:
+        print(__doc__)
+        sys.exit(0)
 
-    return parser
+    kv = {}
+    i = 0
+    while i < len(argv):
+        a = argv[i]
+        if not a.startswith("--"):
+            i += 1
+            continue
+        key = a[2:]
+        if "=" in key:
+            k, v = key.split("=", 1)
+            kv[k] = v
+            i += 1
+            continue
+        # valor no próximo token, se existir e não for outra flag
+        if i + 1 < len(argv) and not argv[i + 1].startswith("--"):
+            kv[key] = argv[i + 1]
+            i += 2
+        else:
+            kv[key] = True
+            i += 1
+
+    # parâmetros obrigatórios
+    if "dataset" not in kv or "alg" not in kv or "source" not in kv:
+        print("Usage: --dataset PATH --alg ALG --source NODE [--target NODE] [--out DIR]")
+        sys.exit(2)
+
+    # aplicar validações e normalizações
+    try:
+        dataset = _validar_dataset(kv["dataset"])
+        alg = _validar_alg(kv["alg"])
+        source = kv["source"].strip().upper()
+        target = kv.get("target")
+        out = _validar_out(kv.get("out", "./out/"))
+    except Exception as exc:
+        print(f"Argument error: {exc}", file=sys.stderr)
+        sys.exit(2)
+
+    return SimpleNamespace(dataset=dataset, alg=alg, source=source, target=target, out=out)
 
 
 # ---------------------------------------------------------------------------
 # Despachante de algoritmos
 # ---------------------------------------------------------------------------
 
-def _executar(args: argparse.Namespace) -> None:
+def _executar(args):
     """
     Carrega o grafo, gera métricas e despacha para o algoritmo escolhido.
 
     Os módulos de I/O e algoritmos são importados aqui para que o
     `--help` funcione mesmo com stubs ainda não implementados.
     """
-    from src.graphs.io import carregar_grafo
     from src.graphs.algorithms import bfs, dfs, dijkstra, bellman_ford
     from src.solve import salvar_metricas
 
+    dataset_path = Path(args.dataset)
     print(f"[cli] Carregando dataset: {args.dataset}")
-    grafo = carregar_grafo(args.dataset)
+
+    # Escolher loader com heurística mínima: se for diretório e contiver CSVs
+    # compatíveis com Parte 2 usamos carregar_dataset_parte2, caso contrário
+    # usamos o loader legacy carregar_grafo.
+    try:
+        if dataset_path.is_dir():
+            # detecção explícita de Parte 2: presença do arquivo 'marvel_movies.csv'
+            parte2_marker = dataset_path / "marvel_movies.csv"
+            if parte2_marker.exists():
+                try:
+                    from src.graphs.io import carregar_dataset_parte2
+                except Exception:
+                    carregar_dataset_parte2 = None
+
+                if carregar_dataset_parte2 is None:
+                    raise RuntimeError("Loader de Parte 2 não disponível no módulo 'src.graphs.io'.")
+
+                print("[cli] Detectado dataset Parte 2 — usando loader específico.")
+                grafo = carregar_dataset_parte2(dataset_path)
+            else:
+                # fallback: tentar escolher um CSV de aeroportos no diretório
+                csvs = [p for p in dataset_path.iterdir() if p.is_file() and p.suffix.lower() == '.csv']
+                try:
+                    from src.graphs.io import carregar_grafo
+                except Exception:
+                    carregar_grafo = None
+
+                if carregar_grafo is None:
+                    raise RuntimeError("Loader legacy 'carregar_grafo' não disponível.")
+
+                airports_csv = None
+                for p in csvs:
+                    if 'aeroport' in p.name.lower():
+                        airports_csv = p
+                        break
+                if airports_csv is None and csvs:
+                    airports_csv = sorted(csvs, key=lambda x: x.stat().st_size, reverse=True)[0]
+                if airports_csv is None:
+                    raise FileNotFoundError(f"Nenhum CSV válido encontrado em '{dataset_path}'")
+
+                print(f"[cli] Usando '{airports_csv.name}' como arquivo de aeroportos (fallback).")
+                grafo = carregar_grafo(airports_csv)
+
+        else:
+            from src.graphs.io import carregar_grafo
+            grafo = carregar_grafo(args.dataset)
+    except Exception as exc:
+        print(f"[erro] Falha ao carregar dataset: {exc}", file=sys.stderr)
+        sys.exit(2)
 
     # --- Métricas estruturais (sempre geradas ao carregar o grafo) -----------
-    salvar_metricas(grafo, args.out)
-    print(f"[cli] Métricas salvas em '{args.out}' (global.json, regioes.json)")
+    try:
+        # Se detectamos explicitamente Parte 2 (marvel_movies.csv) geramos
+        # a descrição específica do dataset; caso contrário mantemos fluxo
+        # legacy de métricas para aeroportos.
+        if dataset_path.is_dir() and (dataset_path / "marvel_movies.csv").exists():
+            try:
+                from src.graphs.io import save_dataset_description
+                save_dataset_description(grafo, args.out)
+                print(f"[cli] Descrição do dataset Parte 2 salva em '{args.out}'")
+            except Exception as exc:
+                print(f"[aviso] Falha ao gerar descrição Parte 2: {exc}", file=sys.stderr)
+        else:
+                salvar_metricas(grafo, args.out)
+                print(f"[cli] Métricas salvas em '{args.out}' (global.png, regioes.png)")
+    except Exception as exc:
+        print(f"[aviso] Falha ao salvar métricas: {exc}", file=sys.stderr)
 
     # --- Despacha para o algoritmo -------------------------------------------
     print(f"[cli] Executando {args.alg} | origem={args.source} | destino={args.target}")
     inicio = time.perf_counter()
+
+    # Validações básicas de existência dos nós solicitados
+    if not grafo.has_node(args.source):
+        print(f"[erro] Nó de origem '{args.source}' não encontrado no grafo.", file=sys.stderr)
+        sys.exit(3)
+
+    if args.target is not None and not grafo.has_node(args.target):
+        print(f"[erro] Nó destino '{args.target}' não encontrado no grafo.", file=sys.stderr)
+        sys.exit(3)
 
     if args.alg == "BFS":
         resultado = bfs(grafo, args.source)
@@ -180,9 +237,8 @@ def _executar(args: argparse.Namespace) -> None:
 # Ponto de entrada
 # ---------------------------------------------------------------------------
 
-def main(argv=None) -> None:
-    parser = _build_parser()
-    args = parser.parse_args(argv)
+def main(argv=None):
+    args = parse_args(argv)
 
     # Validação semântica extra: algoritmos de caminho precisam de --target
     if args.alg in {"DIJKSTRA", "BELLMAN-FORD"} and args.target is None:

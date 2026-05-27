@@ -1,5 +1,5 @@
 import pytest
-from src.graphs.graph import Graph, EdgeData
+from src.graphs.graph import Graph
 from src.graphs.algorithms import bellman_ford
 
 
@@ -21,9 +21,7 @@ def test_bellman_ford_com_pesos_negativos_sem_ciclo():
     
     # Inserimos apenas na saída de B para C para permitir o teste do peso negativo
     # sem criar o ciclo de retorno automático (C -> B) que invalidaria o teste
-    g._adjacency["B"].append(
-        EdgeData(destino="C", peso=-2.0, tipo_conexao="regional", justificativa="justificativa")
-    )
+    g.add_directed_edge("B", "C", -2.0, "regional", "justificativa", allow_negative=True)
     # Deixamos a lista de C vazia para ser um nó terminal no fluxo
 
     distancias, pais, tem_ciclo = bellman_ford(g, "A")
@@ -47,12 +45,8 @@ def test_bellman_ford_com_ciclo_negativo():
     g.add_node("B", "Cidade B", "Norte")
 
     # Inserção mútua com peso negativo -> Ciclo negativo de ida e volta imediato
-    g._adjacency["A"].append(
-        EdgeData(destino="B", peso=-5.0, tipo_conexao="regional", justificativa="justificativa")
-    )
-    g._adjacency["B"].append(
-        EdgeData(destino="A", peso=-5.0, tipo_conexao="regional", justificativa="justificativa")
-    )
+    g.add_directed_edge("A", "B", -5.0, "regional", "justificativa", allow_negative=True)
+    g.add_directed_edge("B", "A", -5.0, "regional", "justificativa", allow_negative=True)
 
     distancias, pais, tem_ciclo = bellman_ford(g, "A")
 
