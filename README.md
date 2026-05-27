@@ -14,7 +14,7 @@ projeto-grafos/
 ├── requirements.txt
 ├── data/
 │   ├── aeroportos_data.csv          # fornecido pelo professor
-│   ├── adjacencias_aeroportos.csv   # construído pelo grupo (Parte 1)        
+│   ├── adjacencias_aeroportos.csv   # construído pelo grupo (Parte 1)
 │   └── rotas.csv                    # construído pelo grupo (Parte 1)
 ├── out/                             # saídas geradas (.json / .html / .png / .csv)
 │   └── .gitkeep
@@ -116,7 +116,7 @@ python -m src.cli --help
 ## Algoritmos disponíveis
 
 | Flag           | Algoritmo                      | Requer `--target`?  |
-|----------------|--------------------------------|---------------------|
+| -------------- | ------------------------------ | ------------------- |
 | `BFS`          | Busca em Largura               | Não (single-source) |
 | `DFS`          | Busca em Profundidade          | Não (single-source) |
 | `DIJKSTRA`     | Dijkstra (pesos ≥ 0)           | Opcional            |
@@ -129,16 +129,19 @@ python -m src.cli --help
 
 ## Executar os Testes
 
+Para garantir que todos os algoritmos estão funcionando corretamente, navegue até a pasta raiz do projeto e utilize o
+comando abaixo:
+
 ```bash
-pytest tests/ -v
-```
+cd projeto-grafos
+python -m pytest tests/
 
 ---
 
 ## Saídas Geradas (pasta `out/`)
 
 | Arquivo                 | Descrição                                         |
-|-------------------------|---------------------------------------------------|
+| ----------------------- | ------------------------------------------------- |
 | `global.json`           | Ordem, tamanho e densidade do grafo completo      |
 | `regioes.json`          | Métricas por região geográfica                    |
 | `ego_aeroportos.csv`    | Ego-rede de cada aeroporto                        |
@@ -173,11 +176,11 @@ Arquivos criados como stubs para testes do pipeline:
 
 Listadas em `requirements.txt`:
 
-```
 pandas
 matplotlib
 pyvis
 pytest
+
 ```
 
 ---
@@ -194,3 +197,7 @@ pytest
 ## Licença
 
 Uso acadêmico – Disciplina de Teoria dos Grafos.
+
+```
+
+```

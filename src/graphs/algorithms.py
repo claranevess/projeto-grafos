@@ -1,9 +1,4 @@
-"""
-algorithms.py
-
-Módulo com a implementação dos algoritmos de grafos.
-"""
-
+import heapq
 from collections import deque
 
 # NOTE: typing annotations removed from core algorithm module to comply with
@@ -192,7 +187,12 @@ def dfs(graph, raiz):
 
     return ordem_visitacao, tem_ciclo, classificacao_arestas
 
-def dijkstra(graph, source, target=None):
+
+def dijkstra(
+        graph: Graph,
+        source: str,
+        target: str | None = None,
+) -> dict[str, float] | tuple[float, list[str]]:
     """
     Algoritmo de Dijkstra para caminhos mínimos com pesos não-negativos.
 
@@ -265,7 +265,8 @@ def dijkstra(graph, source, target=None):
     return dist[target], caminho
 
 
-def bellman_ford(graph, raiz, target=None):
+def bellman_ford(graph: Graph, raiz: str, target: str | None = None) -> tuple[dict[str, float], dict[str, Pai], bool] | \
+                                                                        tuple[float, list[str]]:
     """
     Executa o algoritmo de Bellman-Ford a partir de um nó raiz.
 
@@ -311,8 +312,8 @@ def bellman_ford(graph, raiz, target=None):
             for aresta in graph.get_neighbors(u):
                 v = aresta.destino
                 # No seu objeto, assume-se que 'aresta.peso' guarda o valor numérico
-                peso = aresta.peso 
-                
+                peso = aresta.peso
+
                 if distancias[u] + peso < distancias[v]:
                     distancias[v] = distancias[u] + peso
                     pais[v] = u
