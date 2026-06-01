@@ -1,5 +1,6 @@
 
 from .graph import Graph, Pai
+from collections import deque
 
 # Constantes para estados dos nós
 NAO_VISITADO = "NAO_VISITADO"
@@ -7,10 +8,23 @@ VISITADO = "VISITADO"
 ENCERRADO = "ENCERRADO"
 
 def bfs(graph: Graph, raiz):
+    '''
+    Criação dos dicionários de cada atributo de um nó.
+    É definida a chave 'no' e o grafo é percorrido com seus
+    valores iniciais sendo padronizados
+    
+    '''
     estados = {no: NAO_VISITADO for no in graph.iter_nodes()}
     pais = {no: None for no in graph.iter_nodes()}
-    distancia = {no: float("inf") for no in graph.iter_nodes()}
-    
+    distancia = {no: 0 for no in graph.iter_nodes()}
+
+    estados[raiz] = VISITADO
+
+    fila = deque()
+    fila.append(raiz)
+
+    while fila:
+        no_atual = fila.popleft()
 
 def dfs(graph, raiz):
     """
