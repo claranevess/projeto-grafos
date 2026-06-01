@@ -71,3 +71,4 @@ BEL,BSB,hub,Belem e Brasilia: rota inter-regional via hubs com demanda govername
 PVH,BSB,hub,Porto Velho conecta a Brasilia via hub federal: rota estrategica para capital amazonica,2.0
 RBR,BSB,hub,Rio Branco conecta a Brasilia via hub federal: unica conexao inter-regional da capital mais isolada,2.0
 MAO,GYN,inter-regional,Manaus conecta Goiania: rota inter-regional via hub amazonico para o Centro-Oeste,2.0
+CWB,MAO,hub,Curitiba conecta a Manaus: rota inter-regional Sul-Norte que fecha a conectividade nacional via hubs,3.0
