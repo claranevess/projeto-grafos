@@ -153,6 +153,25 @@ python -m pytest tests/
 
 ---
 
+# Dataset Parte 2 — Marvel Movies
+
+Fonte: https://www.kaggle.com/datasets/joebeachcapital/marvel-movies
+
+Instruções:
+- Preferência: use a CLI do `kaggle` para baixar e descompactar:
+
+  ```bash
+  kaggle datasets download -d joebeachcapital/marvel-movies -p data/dataset_parte2 --unzip
+  ```
+
+- Caso não tenha a CLI, baixe manualmente e posicione os arquivos em `data/dataset_parte2/`.
+- O arquivo principal esperado para as próximas etapas será `marvel_movies.csv`.
+
+Arquivos criados como stubs para testes do pipeline:
+- `negative_edges.csv` — cabeçalho: `origin,destination,weight,tipo_conexao,justificativa`
+- `negative_cycle.csv` — cabeçalho: `origin,destination,weight,tipo_conexao,justificativa`
+ ---
+
 ## Dependências
 
 Listadas em `requirements.txt`:

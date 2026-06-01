@@ -1,6 +1,8 @@
 import heapq
 from collections import deque
-from typing import Any, TypeAlias
+
+# NOTE: typing annotations removed from core algorithm module to comply with
+# discipline rules; types are documented in docstrings and comments.
 
 # Suporte para import quando o módulo é executado diretamente (sem package)
 try:
@@ -17,10 +19,8 @@ except Exception:
 
     from src.graphs.graph import Graph
 
-# Tipos de dados para clareza
-Estado: TypeAlias = str
-Distancia: TypeAlias = int | float
-Pai: TypeAlias = str | None
+# Tipos documentados apenas nos docstrings; removeram-se aliases e
+# anotações para obedecer à política do núcleo (sem typing).
 
 # Constantes para estados dos nós
 NAO_VISITADO = "NAO_VISITADO"
@@ -28,7 +28,7 @@ VISITADO = "VISITADO"
 ENCERRADO = "ENCERRADO"
 
 
-def bfs(graph: Graph, raiz: str) -> tuple[dict[str, int], list[str]]:
+def bfs(graph, raiz):
     """
     Executa a Busca em Largura (BFS) em um grafo a partir de um nó raiz.
 
@@ -75,17 +75,17 @@ def bfs(graph: Graph, raiz: str) -> tuple[dict[str, int], list[str]]:
         raise KeyError(f"Nó raiz '{raiz}' não encontrado no grafo.")
 
     # 1. Inicialização
-    estados: dict[str, Estado] = {no: NAO_VISITADO for no in graph.iter_nodes()}
-    distancias: dict[str, Any] = {no: float("inf") for no in graph.iter_nodes()}
-    pais: dict[str, Pai] = {no: None for no in graph.iter_nodes()}
-    ordem_visitacao: list[str] = []
+    estados = {no: NAO_VISITADO for no in graph.iter_nodes()}
+    distancias = {no: float("inf") for no in graph.iter_nodes()}
+    pais = {no: None for no in graph.iter_nodes()}
+    ordem_visitacao = []
 
     # 2. Configuração da raiz
     estados[raiz] = VISITADO
     distancias[raiz] = 0
     # pais[raiz] já é None
 
-    fila: deque[str] = deque([raiz])
+    fila = deque([raiz])
 
     # 3. Laço Principal
     while fila:
@@ -108,7 +108,7 @@ def bfs(graph: Graph, raiz: str) -> tuple[dict[str, int], list[str]]:
     return niveis, ordem_visitacao
 
 
-def dfs(graph: Graph, raiz: str) -> tuple[list[str], bool, dict[tuple[str, str], str]]:
+def dfs(graph, raiz):
     """
     Executa a Busca em Profundidade (DFS) a partir de uma raiz.
 
@@ -128,21 +128,21 @@ def dfs(graph: Graph, raiz: str) -> tuple[list[str], bool, dict[tuple[str, str],
         raise KeyError(f"Nó raiz '{raiz}' não encontrado no grafo.")
 
     # Inicialização
-    estados: dict[str, Estado] = {no: NAO_VISITADO for no in graph.iter_nodes()}
-    pais: dict[str, Pai] = {no: None for no in graph.iter_nodes()}
-    tin: dict[str, int] = {no: 0 for no in graph.iter_nodes()}
-    tout: dict[str, int] = {no: 0 for no in graph.iter_nodes()}
-    ordem_visitacao: list[str] = []
-    classificacao_arestas: dict[tuple[str, str], str] = {}
+    estados = {no: NAO_VISITADO for no in graph.iter_nodes()}
+    pais = {no: None for no in graph.iter_nodes()}
+    tin = {no: 0 for no in graph.iter_nodes()}
+    tout = {no: 0 for no in graph.iter_nodes()}
+    ordem_visitacao = []
+    classificacao_arestas = {}
 
     # Contadores/flags
     tempo = 0
     tem_ciclo = False
 
-    def edge_key(a: str, b: str) -> tuple[str, str]:
+    def edge_key(a, b):
         return (a, b) if a < b else (b, a)
 
-    def dfs_visit(u: str) -> None:
+    def dfs_visit(u):
         nonlocal tempo, tem_ciclo
 
         estados[u] = VISITADO
@@ -213,20 +213,28 @@ def dijkstra(
     if not graph.has_node(source):
         raise KeyError(f"Nó origem '{source}' não encontrado no grafo.")
 
-    dist: dict[str, float] = {no: float("inf") for no in graph.iter_nodes()}
+    dist = {no: float("inf") for no in graph.iter_nodes()}
     dist[source] = 0.0
-    pred: dict[str, str | None] = {no: None for no in graph.iter_nodes()}
+    pred = {no: None for no in graph.iter_nodes()}
 
-    # Heap: (distância acumulada, nó)
-    heap: list[tuple[float, str]] = [(0.0, source)]
-    visitados: set[str] = set()
+    # Implementação simples sem heap (O(V^2)): seleciona o nó não visitado
+    # com menor distância. Evita dependência de `heapq` no núcleo.
+    unvisited = set(graph.iter_nodes())
 
-    while heap:
-        d, u = heapq.heappop(heap)
+    while unvisited:
+        # seleciona nó com menor distância atual
+        u = min(unvisited, key=lambda n: dist.get(n, float("inf")))
+        d = dist.get(u, float("inf"))
 
-        if u in visitados:
-            continue
-        visitados.add(u)
+        # se o menor é infinito, nós restantes são inalcançáveis
+        if d == float("inf"):
+            break
+
+        unvisited.remove(u)
+
+        # early stop se atingimos o alvo
+        if target is not None and u == target:
+            break
 
         for aresta in graph.get_neighbors(u):
             if aresta.peso < 0:
@@ -238,7 +246,6 @@ def dijkstra(
             if nova_dist < dist[aresta.destino]:
                 dist[aresta.destino] = nova_dist
                 pred[aresta.destino] = u
-                heapq.heappush(heap, (nova_dist, aresta.destino))
 
     if target is None:
         return dist
@@ -248,11 +255,11 @@ def dijkstra(
         return float("inf"), []
 
     # Reconstrói o caminho via dicionário de predecessores
-    caminho: list[str] = []
-    no: str | None = target
-    while no is not None:
-        caminho.append(no)
-        no = pred[no]
+    caminho = []
+    node = target
+    while node is not None:
+        caminho.append(node)
+        node = pred[node]
     caminho.reverse()
 
     return dist[target], caminho
@@ -289,8 +296,8 @@ def bellman_ford(graph: Graph, raiz: str, target: str | None = None) -> tuple[di
         raise KeyError(f"Nó raiz '{raiz}' não encontrado no grafo.")
 
     # 1. Inicialização
-    distancias: dict[str, float] = {no: float("inf") for no in graph.iter_nodes()}
-    pais: dict[str, Pai] = {no: None for no in graph.iter_nodes()}
+    distancias = {no: float("inf") for no in graph.iter_nodes()}
+    pais = {no: None for no in graph.iter_nodes()}
     distancias[raiz] = 0.0
 
     nos = list(graph.iter_nodes())
@@ -340,11 +347,11 @@ def bellman_ford(graph: Graph, raiz: str, target: str | None = None) -> tuple[di
         return float("inf"), []
 
     # Reconstrói caminho usando o dicionário de predecessores
-    caminho: list[str] = []
-    no: str | None = target
-    while no is not None:
-        caminho.append(no)
-        no = pais[no]
+    caminho = []
+    node = target
+    while node is not None:
+        caminho.append(node)
+        node = pais[node]
     caminho.reverse()
 
     return distancias[target], caminho

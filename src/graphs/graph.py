@@ -14,41 +14,52 @@ Os dois dicionários são mantidos separados propositalmente:
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Iterator, Optional
+"""Estrutura de dados principal: Grafo não-direcionado baseado em Lista de Adjacência.
+
+Este módulo foi refatorado para não usar `dataclasses` nem anotações do
+`typing` no núcleo, mantendo a API pública compatível.
+"""
 
 
 # ---------------------------------------------------------------------------
 # Tipos de dados
 # ---------------------------------------------------------------------------
 
-@dataclass(frozen=True)
 class NodeData:
+    """Metadados associados a um nó (aeroporto).
+
+    Implementado como classe simples (substitui dataclass) para obedecer
+    às restrições da disciplina. Preserva atributos públicos `iata`,
+    `cidade` e `regiao`.
     """
-    Metadados associados a um nó (aeroporto).
-    frozen=True garante imutabilidade após inserção.
-    """
-    iata: str       # Código IATA  — chave primária (ex.: "REC")
-    cidade: str     # Nome da cidade (ex.: "Recife")
-    regiao: str     # Região geográfica (ex.: "Nordeste")
+    def __init__(self, iata, cidade, regiao):
+        self.iata = iata
+        self.cidade = cidade
+        self.regiao = regiao
+
+    def __repr__(self):
+        return f"NodeData(iata={self.iata!r}, cidade={self.cidade!r}, regiao={self.regiao!r})"
 
 
-@dataclass
 class EdgeData:
-    """
-    Representa uma aresta na lista de adjacência.
-    Armazena o destino e todos os atributos da conexão.
-    """
-    destino: str            # Código IATA do nó de destino
-    peso: float             # Peso da aresta (≥ 0 na Parte 1)
-    tipo_conexao: str       # Ex.: "regional", "hub", "inter-regional"
-    justificativa: str      # Descrição da razão da conexão
+    """Representa uma aresta na lista de adjacência.
 
-    def __repr__(self) -> str:
-        return (
-            f"Edge(→{self.destino}, peso={self.peso:.2f}, "
-            f"tipo='{self.tipo_conexao}')"
-        )
+    Implementado como classe simples com atributos públicos para garantir
+    compatibilidade com o restante do código e testes que constroem
+    `EdgeData(...)` diretamente.
+    """
+    def __init__(self, destino, peso, tipo_conexao, justificativa):
+        self.destino = destino
+        self.peso = peso
+        self.tipo_conexao = tipo_conexao
+        self.justificativa = justificativa
+
+    def __repr__(self):
+        try:
+            peso_fmt = f"{self.peso:.2f}"
+        except Exception:
+            peso_fmt = str(self.peso)
+        return f"Edge(→{self.destino}, peso={peso_fmt}, tipo='{self.tipo_conexao}')"
 
 
 # ---------------------------------------------------------------------------
@@ -56,41 +67,23 @@ class EdgeData:
 # ---------------------------------------------------------------------------
 
 class Graph:
-    """
-    Grafo não-direcionado com pesos, implementado via Lista de Adjacência.
+    """Grafo não-direcionado com pesos, implementado via Lista de Adjacência.
 
-    Atributos internos
-    ------------------
-    _adjacency : dict[str, list[EdgeData]]
-        Lista de adjacência. Chave = código IATA do nó origem;
-        valor = lista de EdgeData representando cada vizinho.
-
-    _nodes : dict[str, NodeData]
-        Índice de metadados dos nós. Separado de _adjacency para
-        não interferir na lógica dos algoritmos de busca.
-
-    Exemplo de estado interno após adicionar REC e GRU com aresta entre eles:
-
-        _nodes = {
-            "REC": NodeData(iata="REC", cidade="Recife",    regiao="Nordeste"),
-            "GRU": NodeData(iata="GRU", cidade="São Paulo", regiao="Sudeste"),
-        }
-
-        _adjacency = {
-            "REC": [EdgeData(destino="GRU", peso=2.0, ...)],
-            "GRU": [EdgeData(destino="REC", peso=2.0, ...)],
-        }
+    Implementação sem `dataclasses` nem anotações `typing` no núcleo, para
+    obedecer às restrições disciplinares. As estruturas internas são:
+      - `_adjacency`: dict simples mapeando código do nó para lista de `EdgeData`.
+      - `_nodes`: dict mapeando código do nó para `NodeData`.
     """
 
-    def __init__(self) -> None:
-        self._adjacency: dict[str, list[EdgeData]] = {}
-        self._nodes: dict[str, NodeData] = {}
+    def __init__(self):
+        self._adjacency = {}
+        self._nodes = {}
 
     # ------------------------------------------------------------------
     # Nós
     # ------------------------------------------------------------------
 
-    def add_node(self, iata: str, cidade: str, regiao: str) -> None:
+    def add_node(self, iata, cidade, regiao):
         """
         Adiciona um nó ao grafo. Se o código IATA já existir, não faz nada
         (comportamento idempotente — seguro para chamadas duplicadas).
@@ -103,15 +96,14 @@ class Graph:
         """
         if iata in self._nodes:
             return  # nó já presente — idempotente
-
-        self._nodes[iata] = NodeData(iata=iata, cidade=cidade, regiao=regiao)
+        self._nodes[iata] = NodeData(iata, cidade, regiao)
         self._adjacency[iata] = []   # lista de vizinhos começa vazia
 
-    def get_node(self, iata: str) -> Optional[NodeData]:
+    def get_node(self, iata):
         """Retorna os metadados de um nó ou None se não existir."""
         return self._nodes.get(iata)
 
-    def has_node(self, iata: str) -> bool:
+    def has_node(self, iata):
         """Verifica se um nó está presente no grafo."""
         return iata in self._nodes
 
@@ -119,14 +111,7 @@ class Graph:
     # Arestas
     # ------------------------------------------------------------------
 
-    def add_edge(
-        self,
-        origem: str,
-        destino: str,
-        peso: float,
-        tipo_conexao: str,
-        justificativa: str,
-    ) -> None:
+    def add_edge(self, origem, destino, peso, tipo_conexao, justificativa, allow_negative=False):
         """
         Adiciona uma aresta não-direcionada entre origem e destino.
         Ambos os nós devem existir previamente; caso contrário,
@@ -155,42 +140,46 @@ class Graph:
                     "Adicione o nó antes de criar arestas."
                 )
 
-        if peso < 0:
+        if peso < 0 and not allow_negative:
             raise ValueError(
-                f"Peso negativo ({peso}) não permitido na Parte 1. "
-                "Use Bellman-Ford na Parte 2 para pesos negativos."
+                f"Peso negativo ({peso}) não permitido sem 'allow_negative=True'."
             )
 
         # Aresta origem → destino
         self._adjacency[origem].append(
-            EdgeData(
-                destino=destino,
-                peso=peso,
-                tipo_conexao=tipo_conexao,
-                justificativa=justificativa,
-            )
+            EdgeData(destino, peso, tipo_conexao, justificativa)
         )
 
         # Espelho: destino → origem (grafo não-direcionado)
         self._adjacency[destino].append(
-            EdgeData(
-                destino=origem,
-                peso=peso,
-                tipo_conexao=tipo_conexao,
-                justificativa=justificativa,
-            )
+            EdgeData(origem, peso, tipo_conexao, justificativa)
         )
 
-    def get_neighbors(self, iata: str) -> list[EdgeData]:
+    def add_directed_edge(self, origem, destino, peso, tipo_conexao, justificativa, allow_negative=False):
+        """Adiciona uma aresta dirigida (origem -> destino) sem espelhar.
+
+        Permite pesos negativos apenas se `allow_negative=True`.
         """
-        Retorna a lista de vizinhos (EdgeData) de um nó.
-        Lançará KeyError se o nó não existir.
-        """
+        for no in (origem, destino):
+            if not self.has_node(no):
+                raise KeyError(
+                    f"Nó '{no}' não encontrado. Adicione o nó antes de criar arestas."
+                )
+
+        if peso < 0 and not allow_negative:
+            raise ValueError(
+                f"Peso negativo ({peso}) não permitido sem 'allow_negative=True'."
+            )
+
+        self._adjacency[origem].append(EdgeData(destino, peso, tipo_conexao, justificativa))
+
+    def get_neighbors(self, iata):
+        """Retorna a lista de vizinhos (EdgeData) de um nó. Lança KeyError se o nó não existir."""
         if not self.has_node(iata):
             raise KeyError(f"Nó '{iata}' não encontrado no grafo.")
         return self._adjacency[iata]
 
-    def has_edge(self, origem: str, destino: str) -> bool:
+    def has_edge(self, origem, destino):
         """Verifica se existe aresta entre origem e destino."""
         if not self.has_node(origem):
             return False
@@ -201,20 +190,20 @@ class Graph:
     # ------------------------------------------------------------------
 
     @property
-    def nodes(self) -> dict[str, NodeData]:
+    def nodes(self):
         """Dicionário somente-leitura dos metadados de todos os nós."""
         return self._nodes
 
     @property
-    def adjacency(self) -> dict[str, list[EdgeData]]:
+    def adjacency(self):
         """Lista de adjacência completa (usada pelos algoritmos)."""
         return self._adjacency
 
-    def iter_nodes(self) -> Iterator[str]:
+    def iter_nodes(self):
         """Itera sobre os códigos IATA de todos os nós."""
         return iter(self._nodes)
 
-    def iter_edges(self) -> Iterator[tuple[str, EdgeData]]:
+    def iter_edges(self):
         """
         Itera sobre todas as arestas do grafo (sem duplicatas).
         Retorna tuplas (origem, EdgeData).
@@ -232,15 +221,15 @@ class Graph:
     # Métricas básicas
     # ------------------------------------------------------------------
 
-    def order(self) -> int:
+    def order(self):
         """Ordem do grafo: |V| (número de nós)."""
         return len(self._nodes)
 
-    def size(self) -> int:
+    def size(self):
         """Tamanho do grafo: |E| (número de arestas sem duplicatas)."""
         return sum(1 for _ in self.iter_edges())
 
-    def density(self) -> float:
+    def density(self):
         """
         Densidade do grafo não-direcionado:
             d = 2|E| / (|V| * (|V| - 1))
@@ -251,19 +240,19 @@ class Graph:
             return 0.0
         return (2 * self.size()) / (v * (v - 1))
 
-    def degree(self, iata: str) -> int:
+    def degree(self, iata):
         """Grau de um nó: número de vizinhos diretos."""
         return len(self.get_neighbors(iata))
     
     # Método para percorrer todos os nós e analisar os seus graus
     # Retorna uma lista de tuplas (no, grau)
-    def all_degrees(self) -> list:
+    def all_degrees(self):
         lista = []
         for i in self.adjacency:
             lista.append((i, self.degree(i)))
         return lista
     
-    def criar_ego_subgrafo(self, iata: str)-> Graph:
+    def criar_ego_subgrafo(self, iata):
         subgrafo = Graph()
         vizinhos = self.get_neighbors(iata)
         vizinhos_iata = [edge.destino for edge in vizinhos]
@@ -289,13 +278,13 @@ class Graph:
     # Representação textual
     # ------------------------------------------------------------------
 
-    def __len__(self) -> int:
+    def __len__(self):
         return self.order()
 
-    def __contains__(self, iata: object) -> bool:
+    def __contains__(self, iata):
         return isinstance(iata, str) and self.has_node(iata)
 
-    def __repr__(self) -> str:
+    def __repr__(self):
         return (
             f"Graph("
             f"nós={self.order()}, "

@@ -22,7 +22,7 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
-import pandas as pd
+import csv
 
 from src.graphs.graph import Graph
 from src.graphs.io import (
@@ -32,18 +32,19 @@ from src.graphs.io import (
     grau_ego_aeroporto,
     densidade_ego_aeroporto,
 )
+from src.viz import render_global, render_regioes
 
 logger = logging.getLogger(__name__)
 
 # Ordem canônica das regiões nos arquivos de saída
-REGIOES: list[str] = ["Norte", "Nordeste", "Sudeste", "Sul", "Centro-Oeste"]
+REGIOES = ["Norte", "Nordeste", "Sudeste", "Sul", "Centro-Oeste"]
 
 
 # ---------------------------------------------------------------------------
 # Funções internas
 # ---------------------------------------------------------------------------
 
-def _densidade(v: int, e: int) -> float:
+def _densidade(v, e):
     """Densidade de grafo não-direcionado: 2|E| / (|V| * (|V| - 1))."""
     if v < 2:
         return 0.0
@@ -54,7 +55,7 @@ def _densidade(v: int, e: int) -> float:
 # Métricas globais
 # ---------------------------------------------------------------------------
 
-def metricas_globais(graph: Graph) -> dict:
+def metricas_globais(graph):
     """
     Calcula ordem, tamanho e densidade do grafo completo.
 
@@ -75,7 +76,7 @@ def metricas_globais(graph: Graph) -> dict:
 # Métricas regionais (subgrafo induzido)
 # ---------------------------------------------------------------------------
 
-def metricas_regionais(graph: Graph) -> list[dict]:
+def metricas_regionais(graph):
     """
     Calcula ordem, tamanho e densidade para o subgrafo induzido de cada região.
 
@@ -88,11 +89,11 @@ def metricas_regionais(graph: Graph) -> list[dict]:
     Lista de dicts com chaves: 'regiao', 'ordem', 'tamanho', 'densidade'.
     A ordem das regiões segue a constante REGIOES.
     """
-    resultados: list[dict] = []
+    resultados = []
 
     for regiao in REGIOES:
         # Conjunto de nós que pertencem à região
-        nos_regiao: set[str] = {
+        nos_regiao = {
             iata
             for iata, nd in graph.nodes.items()
             if nd.regiao == regiao
@@ -121,7 +122,7 @@ def metricas_regionais(graph: Graph) -> list[dict]:
 # API pública principal
 # ---------------------------------------------------------------------------
 
-def calcular_metricas(graph: Graph) -> tuple[dict, list[dict]]:
+def calcular_metricas(graph):
     """
     Calcula e retorna métricas globais e regionais.
 
@@ -134,7 +135,7 @@ def calcular_metricas(graph: Graph) -> tuple[dict, list[dict]]:
     return metricas_globais(graph), metricas_regionais(graph)
 
 
-def salvar_metricas(graph: Graph, out_dir: str | Path) -> None:
+def salvar_metricas(graph, out_dir):
     """
     Persiste out/global.json e out/regioes.json no diretório indicado.
 
@@ -148,15 +149,18 @@ def salvar_metricas(graph: Graph, out_dir: str | Path) -> None:
 
     global_m, regional_m = calcular_metricas(graph)
 
-    global_path = out_dir / "global.json"
-    with global_path.open("w", encoding="utf-8") as f:
-        json.dump(global_m, f, indent=2, ensure_ascii=False)
-    logger.info("Salvo: %s", global_path)
+    # Renderizar PNGs finais em vez de gravar JSONs
+    try:
+        render_global(global_m, out_dir / "global.png")
+        logger.info("Salvo: %s", out_dir / "global.png")
+    except Exception:
+        logger.exception("Falha ao renderizar global PNG em %s", out_dir)
 
-    regioes_path = out_dir / "regioes.json"
-    with regioes_path.open("w", encoding="utf-8") as f:
-        json.dump(regional_m, f, indent=2, ensure_ascii=False)
-    logger.info("Salvo: %s", regioes_path)
+    try:
+        render_regioes(regional_m, out_dir / "regioes.png")
+        logger.info("Salvo: %s", out_dir / "regioes.png")
+    except Exception:
+        logger.exception("Falha ao renderizar regioes PNG em %s", out_dir)
 
     # Log de resumo para validação visual rápida no console
     g = global_m
@@ -172,11 +176,16 @@ def salvar_metricas(graph: Graph, out_dir: str | Path) -> None:
     
     lista = graph.all_degrees()
     salvar_csv_graus(lista, out_dir)
-    gerar_analise_ego_network(out_dir)
+    gerar_analise_ego_network(graph, out_dir)
     
 
-def gerar_analise_ego_network(out_dir: str | Path) -> None:
-    grafo_principal = carregar_grafo("data/aeroportos_data.csv")
+def gerar_analise_ego_network(graph, out_dir):
+    """Gera análise de ego network usando o grafo já carregado.
+
+    Anteriormente esta função carregava o CSV internamente; agora aceita
+    o `Graph` para evitar hardcode de datasets.
+    """
+    grafo_principal = graph
 
     resultado_ego = []
 
@@ -198,25 +207,26 @@ def gerar_analise_ego_network(out_dir: str | Path) -> None:
 
     salvar_ego_aeroporto_csv(resultado_ego, out_dir)
 
-    # recebe a lista resultado_ego e analisa qual o aeroporto com maior grau
-    maior_grau = max(resultado_ego, key=lambda x: x["grau"])
-    print(
-        f"[solve] Aeroporto com maior grau: {maior_grau['aeroporto']} | Grau = {maior_grau['grau']}"
-    )
+    if resultado_ego:
+        # recebe a lista resultado_ego e analisa qual o aeroporto com maior grau
+        maior_grau = max(resultado_ego, key=lambda x: x["grau"])
+        print(
+            f"[solve] Aeroporto com maior grau: {maior_grau['aeroporto']} | Grau = {maior_grau['grau']}"
+        )
 
-    # recebe a lista resultado_ego e analisa qual o aeroporto com maior densidade
-    maior_densidade = max(resultado_ego, key=lambda x: x["densidade_ego"])
-    print(
-        f"[solve] Aeroporto com maior densidade: {maior_densidade['aeroporto']} | Densidade = {maior_densidade['densidade_ego']}"
-    )
+        # recebe a lista resultado_ego e analisa qual o aeroporto com maior densidade
+        maior_densidade = max(resultado_ego, key=lambda x: x["densidade_ego"])
+        print(
+            f"[solve] Aeroporto com maior densidade: {maior_densidade['aeroporto']} | Densidade = {maior_densidade['densidade_ego']}"
+        )
 
 
 def compute_routes(
-    airports_csv: str | Path = "data/aeroportos_data.csv",
-    routes_csv: str | Path = "data/rotas.csv",
-    out_dir: str | Path = "out",
-    out_csv_name: str = "distancias_rotas.csv",
-) -> pd.DataFrame:
+    airports_csv="data/aeroportos_data.csv",
+    routes_csv="data/rotas.csv",
+    out_dir="out",
+    out_csv_name="distancias_rotas.csv",
+):
     """
     Carrega o grafo, calcula rotas especificadas em `routes_csv` usando Dijkstra
     e persiste o CSV `out/distancias_rotas.csv`.
@@ -237,47 +247,53 @@ def compute_routes(
     if not routes_csv.exists():
         raise FileNotFoundError(f"Rotas não encontrado: {routes_csv}")
 
-    df = pd.read_csv(routes_csv, dtype=str)
-    df.columns = df.columns.str.strip().str.lower()
+    resultados = []
 
-    if "origin" not in df.columns or "destination" not in df.columns:
-        raise ValueError("Arquivo de rotas deve conter header: origin,destination")
+    # Ler CSV de rotas via csv.DictReader para evitar pandas no núcleo
+    with routes_csv.open(encoding="utf-8", newline="") as f:
+        reader = csv.DictReader(f)
+        if reader.fieldnames is None:
+            raise ValueError("Arquivo de rotas está vazio ou sem header.")
+        headers = [h.strip().lower() for h in reader.fieldnames if h]
+        if "origin" not in headers or "destination" not in headers:
+            raise ValueError("Arquivo de rotas deve conter header: origin,destination")
 
-    resultados: list[dict] = []
+        for row in reader:
+            origem = str(row.get("origin", "")).strip().upper()
+            destino = str(row.get("destination", "")).strip().upper()
 
-    for _, row in df.iterrows():
-        origem = str(row["origin"]).strip().upper()
-        destino = str(row["destination"]).strip().upper()
+            if not graph.has_node(origem):
+                resultados.append({"origin": origem, "destination": destino, "custo": "", "caminho": ""})
+                continue
 
-        if not graph.has_node(origem):
-            resultados.append({"origin": origem, "destination": destino, "custo": "", "caminho": ""})
-            continue
+            if not graph.has_node(destino):
+                resultados.append({"origin": origem, "destination": destino, "custo": "", "caminho": ""})
+                continue
 
-        if not graph.has_node(destino):
-            resultados.append({"origin": origem, "destination": destino, "custo": "", "caminho": ""})
-            continue
+            try:
+                custo, caminho = dijkstra(graph, origem, destino)
+            except Exception as exc:
+                logging.getLogger(__name__).error(
+                    "Erro ao calcular Dijkstra para %s→%s: %s", origem, destino, exc
+                )
+                resultados.append({"origin": origem, "destination": destino, "custo": "", "caminho": ""})
+                continue
 
-        try:
-            custo, caminho = dijkstra(graph, origem, destino)
-        except Exception as exc:
-            logging.getLogger(__name__).error(
-                "Erro ao calcular Dijkstra para %s→%s: %s", origem, destino, exc
-            )
-            resultados.append({"origin": origem, "destination": destino, "custo": "", "caminho": ""})
-            continue
+            if custo == float("inf"):
+                resultados.append({"origin": origem, "destination": destino, "custo": "", "caminho": ""})
+            else:
+                resultados.append({
+                    "origin": origem,
+                    "destination": destino,
+                    "custo": f"{custo:.2f}",
+                    "caminho": ";".join(caminho),
+                })
 
-        if custo == float("inf"):
-            resultados.append({"origin": origem, "destination": destino, "custo": "", "caminho": ""})
-        else:
-            resultados.append({
-                "origin": origem,
-                "destination": destino,
-                "custo": f"{custo:.2f}",
-                "caminho": ";".join(caminho),
-            })
+    # Persistir resultados como JSON (não gerar CSV em out/)
+    out_path = Path(out_dir) / Path(out_csv_name).with_suffix('.json').name
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    with out_path.open("w", encoding="utf-8") as f:
+        json.dump(resultados, f, ensure_ascii=False, indent=2)
 
-    out_df = pd.DataFrame(resultados)
-    out_path = out_dir / out_csv_name
-    out_df.to_csv(out_path, index=False)
     logging.getLogger(__name__).info("Gravado: %s", out_path)
-    return out_df
+    return resultados
