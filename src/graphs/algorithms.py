@@ -192,7 +192,7 @@ def dijkstra(
     return dist[target], caminho
 
 
-def bellman_ford(graph: Graph, raiz: str, target: str | None = None) -> tuple[dict[str, float], dict[str, Pai], bool] | \
+def bellman_ford(graph: Graph, raiz: str, target: str | None = None) -> tuple[dict[str, float], dict[str, str | None], bool] | \
                                                                         tuple[float, list[str]]:
     """
     Executa o algoritmo de Bellman-Ford a partir de um nó raiz.
