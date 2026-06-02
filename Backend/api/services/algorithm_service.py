@@ -1,10 +1,10 @@
 import time
 
-from api.schemas.algorithms import BfsResult, DfsResult, PathResult
+from Backend.api.schemas.algorithms import BfsResult, DfsResult, PathResult
 
 
 def run_bfs(graph, source: str) -> BfsResult:
-    from src.graphs.algorithms import bfs
+    from Backend.src.graphs.algorithms import bfs
 
     start = time.perf_counter()
     niveis, visited_order = bfs(graph, source)
@@ -24,7 +24,7 @@ def run_bfs(graph, source: str) -> BfsResult:
 
 
 def run_dfs(graph, source: str) -> DfsResult:
-    from src.graphs.algorithms import dfs
+    from Backend.src.graphs.algorithms import dfs
 
     start = time.perf_counter()
     visited_order, has_cycle, edge_classification = dfs(graph, source)
@@ -45,7 +45,7 @@ def run_dfs(graph, source: str) -> DfsResult:
 
 
 def run_dijkstra(graph, source: str, target: str) -> PathResult:
-    from src.graphs.algorithms import dijkstra
+    from Backend.src.graphs.algorithms import dijkstra
 
     start = time.perf_counter()
     cost, path = dijkstra(graph, source, target)
@@ -66,7 +66,7 @@ def run_dijkstra(graph, source: str, target: str) -> PathResult:
 
 
 def run_bellman_ford(graph, source: str, target: str | None = None) -> PathResult:
-    from src.graphs.algorithms import bellman_ford
+    from Backend.src.graphs.algorithms import bellman_ford
 
     start = time.perf_counter()
     has_negative_cycle = False
