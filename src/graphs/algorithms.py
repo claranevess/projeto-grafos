@@ -26,6 +26,15 @@ def bfs(graph: Graph, raiz):
     while fila:
         no_atual = fila.popleft()
 
+        for aresta in graph.get_neighbors(no_atual):
+            vizinho = aresta.destino
+
+            if estados[vizinho] == NAO_VISITADO:
+                fila.append(vizinho)
+                estados[vizinho] = VISITADO
+                pais[vizinho] = no_atual
+                distancia[vizinho] = distancia[no_atual] + 1
+
 def dfs(graph, raiz):
     """
     Executa a Busca em Profundidade (DFS) a partir de uma raiz.
