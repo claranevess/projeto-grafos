@@ -321,3 +321,129 @@ def render_routes(
     # fallback para PNG
     png_path = out_path.with_suffix('.png') if out_path.suffix else Path(str(out_path) + '.png')
     render_routes_matplotlib(graph, paths, highlighted_pairs, png_path)
+
+
+def render_global(global_metrics: dict, out_png: str | Path) -> None:
+    """Renderiza as métricas globais do grafo como tabela PNG."""
+    out_png = Path(out_png)
+    out_png.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        fig, ax = plt.subplots(figsize=(6, 2))
+        ax.axis("off")
+        rows = [
+            ["Ordem |V|",    str(global_metrics.get("ordem", ""))],
+            ["Tamanho |E|",  str(global_metrics.get("tamanho", ""))],
+            ["Densidade",    f"{global_metrics.get('densidade', 0):.6f}"],
+        ]
+        table = ax.table(
+            cellText=rows,
+            colLabels=["Métrica", "Valor"],
+            cellLoc="center",
+            loc="center",
+        )
+        table.auto_set_font_size(False)
+        table.set_fontsize(11)
+        table.scale(1.4, 1.8)
+        ax.set_title("Métricas Globais do Grafo", fontsize=13, pad=12)
+        fig.tight_layout()
+        fig.savefig(out_png, dpi=150, bbox_inches="tight")
+        plt.close(fig)
+        logger.info("Métricas globais salvas: %s", out_png)
+    except Exception:
+        logger.warning("Falha ao renderizar métricas globais em: %s", out_png)
+
+
+def render_regioes(regional_metrics: list, out_png: str | Path) -> None:
+    """Renderiza as métricas por região como tabela PNG."""
+    out_png = Path(out_png)
+    out_png.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        fig, ax = plt.subplots(figsize=(9, max(2, len(regional_metrics) * 0.7 + 1)))
+        ax.axis("off")
+        rows = [
+            [
+                r.get("regiao", ""),
+                str(r.get("ordem", "")),
+                str(r.get("tamanho", "")),
+                f"{r.get('densidade', 0):.4f}",
+            ]
+            for r in regional_metrics
+        ]
+        table = ax.table(
+            cellText=rows,
+            colLabels=["Região", "Ordem |V|", "Tamanho |E|", "Densidade"],
+            cellLoc="center",
+            loc="center",
+        )
+        table.auto_set_font_size(False)
+        table.set_fontsize(10)
+        table.scale(1.3, 1.6)
+        ax.set_title("Métricas por Região Geográfica", fontsize=13, pad=12)
+        fig.tight_layout()
+        fig.savefig(out_png, dpi=150, bbox_inches="tight")
+        plt.close(fig)
+        logger.info("Métricas regionais salvas: %s", out_png)
+    except Exception:
+        logger.warning("Falha ao renderizar métricas regionais em: %s", out_png)
+
+
+def render_description(
+    description: dict,
+    dist_list: list,
+    hubs_data: list,
+    out_png: str | Path,
+) -> None:
+    """Renderiza resumo descritivo do grafo (vértices, arestas, top hubs) como PNG."""
+    out_png = Path(out_png)
+    out_png.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+
+        # --- Painel esquerdo: estatísticas descritivas ---
+        ax_left = axes[0]
+        ax_left.axis("off")
+        stats = description.get("degree_stats", {})
+        rows_stats = [
+            ["Vértices",  str(description.get("vertices", ""))],
+            ["Arestas",   str(description.get("edges", ""))],
+            ["Tipo",      description.get("graph_type", "")],
+            ["Grau mín",  str(stats.get("min", ""))],
+            ["Grau máx",  str(stats.get("max", ""))],
+            ["Grau médio", f"{stats.get('mean', 0):.2f}"],
+            ["Mediana",   f"{stats.get('median', 0):.2f}"],
+        ]
+        tbl = ax_left.table(
+            cellText=rows_stats,
+            colLabels=["Propriedade", "Valor"],
+            cellLoc="center",
+            loc="center",
+        )
+        tbl.auto_set_font_size(False)
+        tbl.set_fontsize(9)
+        tbl.scale(1.2, 1.5)
+        ax_left.set_title("Resumo do Grafo", fontsize=11)
+
+        # --- Painel direito: top hubs ---
+        ax_right = axes[1]
+        ax_right.axis("off")
+        top = hubs_data[:10]
+        rows_hubs = [[h.get("node", ""), str(h.get("degree", ""))] for h in top]
+        if rows_hubs:
+            tbl2 = ax_right.table(
+                cellText=rows_hubs,
+                colLabels=["Nó", "Grau"],
+                cellLoc="center",
+                loc="center",
+            )
+            tbl2.auto_set_font_size(False)
+            tbl2.set_fontsize(9)
+            tbl2.scale(1.2, 1.4)
+        ax_right.set_title("Top Hubs (por grau)", fontsize=11)
+
+        fig.suptitle("Descrição do Dataset", fontsize=13, fontweight="bold")
+        fig.tight_layout()
+        fig.savefig(out_png, dpi=150, bbox_inches="tight")
+        plt.close(fig)
+        logger.info("Descrição salva: %s", out_png)
+    except Exception:
+        logger.warning("Falha ao renderizar descrição em: %s", out_png)
