@@ -34,6 +34,10 @@ def bfs(graph: Graph, raiz):
                 estados[vizinho] = VISITADO
                 pais[vizinho] = no_atual
                 distancia[vizinho] = distancia[no_atual] + 1
+            
+            estados[no_atual] = ENCERRADO
+    
+    return estados, pais
 
 def dfs(graph, raiz):
     """
