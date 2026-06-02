@@ -12,8 +12,8 @@ Funções principais:
 
 from __future__ import annotations
 
-from pathlib import Path
 import logging
+from pathlib import Path
 from typing import Iterable, List, Set, Tuple
 
 logger = logging.getLogger(__name__)
@@ -28,60 +28,60 @@ except Exception:  # pragma: no cover - optional dependency
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
 
-from src.graphs.graph import Graph
+from .graphs.graph import Graph
 
 
 def plot_degree_histogram(degrees, out_png):
-	"""Gera um histograma simples a partir da lista de graus e salva em PNG."""
-	out_png = Path(out_png)
-	out_png.parent.mkdir(parents=True, exist_ok=True)
-	try:
-		fig, ax = plt.subplots(figsize=(8, 4))
-		if degrees:
-			ax.hist(degrees, bins=min(50, max(1, len(set(degrees)))), color="C0", edgecolor="black")
-			ax.set_xlabel("Degree")
-			ax.set_ylabel("Frequency")
-			ax.set_title("Degree histogram")
-			fig.tight_layout()
-			fig.savefig(out_png, dpi=150)
-		else:
-			# salva figura vazia mínima
-			fig.savefig(out_png, dpi=150)
-		plt.close(fig)
-		logger.info("Histograma salvo: %s", out_png)
-	except Exception:
-		logger.warning("Falha ao gerar histograma em: %s", out_png)
+    """Gera um histograma simples a partir da lista de graus e salva em PNG."""
+    out_png = Path(out_png)
+    out_png.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        fig, ax = plt.subplots(figsize=(8, 4))
+        if degrees:
+            ax.hist(degrees, bins=min(50, max(1, len(set(degrees)))), color="C0", edgecolor="black")
+            ax.set_xlabel("Degree")
+            ax.set_ylabel("Frequency")
+            ax.set_title("Degree histogram")
+            fig.tight_layout()
+            fig.savefig(out_png, dpi=150)
+        else:
+            # salva figura vazia mínima
+            fig.savefig(out_png, dpi=150)
+        plt.close(fig)
+        logger.info("Histograma salvo: %s", out_png)
+    except Exception:
+        logger.warning("Falha ao gerar histograma em: %s", out_png)
 
 
 def plot_degree_distribution(degrees, degree_counter, out_png):
-	"""Gera gráfico de distribuição de graus (barras ou histograma) e salva em PNG."""
-	out_png = Path(out_png)
-	out_png.parent.mkdir(parents=True, exist_ok=True)
-	try:
-		fig, ax = plt.subplots(figsize=(10, 6))
-		unique_degrees = len(degree_counter)
-		if unique_degrees <= 50:
-			items = sorted(degree_counter.items())
-			xs = [str(d) for d, _ in items]
-			ys = [f for _, f in items]
-			ax.bar(range(len(xs)), ys, color="C0")
-			ax.set_xticks(range(len(xs)))
-			ax.set_xticklabels(xs, rotation=45, ha="right", fontsize=8)
-			ax.set_xlabel("Degree")
-			ax.set_ylabel("Frequency")
-			ax.set_title("Degree distribution (frequency per degree)")
-		else:
-			ax.hist(degrees, bins=50, color="C0", edgecolor="black")
-			ax.set_xlabel("Degree")
-			ax.set_ylabel("Frequency")
-			ax.set_title("Degree histogram (50 bins)")
-		ax.grid(axis="y", alpha=0.25)
-		fig.tight_layout()
-		fig.savefig(out_png, dpi=150)
-		plt.close(fig)
-		logger.info("Distribuição salva: %s", out_png)
-	except Exception:
-		logger.warning("Falha ao gerar distribuição em: %s", out_png)
+    """Gera gráfico de distribuição de graus (barras ou histograma) e salva em PNG."""
+    out_png = Path(out_png)
+    out_png.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        fig, ax = plt.subplots(figsize=(10, 6))
+        unique_degrees = len(degree_counter)
+        if unique_degrees <= 50:
+            items = sorted(degree_counter.items())
+            xs = [str(d) for d, _ in items]
+            ys = [f for _, f in items]
+            ax.bar(range(len(xs)), ys, color="C0")
+            ax.set_xticks(range(len(xs)))
+            ax.set_xticklabels(xs, rotation=45, ha="right", fontsize=8)
+            ax.set_xlabel("Degree")
+            ax.set_ylabel("Frequency")
+            ax.set_title("Degree distribution (frequency per degree)")
+        else:
+            ax.hist(degrees, bins=50, color="C0", edgecolor="black")
+            ax.set_xlabel("Degree")
+            ax.set_ylabel("Frequency")
+            ax.set_title("Degree histogram (50 bins)")
+        ax.grid(axis="y", alpha=0.25)
+        fig.tight_layout()
+        fig.savefig(out_png, dpi=150)
+        plt.close(fig)
+        logger.info("Distribuição salva: %s", out_png)
+    except Exception:
+        logger.warning("Falha ao gerar distribuição em: %s", out_png)
 
 
 def _collect_edges_from_paths(paths: Iterable[List[str]]) -> Set[Tuple[str, str]]:

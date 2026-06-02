@@ -1,7 +1,7 @@
 import pytest
 
-from src.graphs.algorithms import dijkstra
-from src.graphs.graph import EdgeData, Graph
+from graphs.algorithms import dijkstra
+from graphs.graph import EdgeData, Graph
 
 
 # ---------------------------------------------------------------------------

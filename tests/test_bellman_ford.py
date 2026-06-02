@@ -1,6 +1,7 @@
 import pytest
-from src.graphs.graph import Graph
-from src.graphs.algorithms import bellman_ford
+
+from graphs.algorithms import bellman_ford
+from graphs.graph import Graph
 
 
 def test_bellman_ford_com_pesos_negativos_sem_ciclo():
@@ -18,7 +19,7 @@ def test_bellman_ford_com_pesos_negativos_sem_ciclo():
 
     # Inserção segura para peso positivo (A <-> B)
     g.add_edge("A", "B", 1.0, "regional", "justificativa")
-    
+
     # Inserimos apenas na saída de B para C para permitir o teste do peso negativo
     # sem criar o ciclo de retorno automático (C -> B) que invalidaria o teste
     g.add_directed_edge("B", "C", -2.0, "regional", "justificativa", allow_negative=True)
@@ -56,6 +57,6 @@ def test_bellman_ford_com_ciclo_negativo():
 def test_bellman_ford_raiz_inexistente():
     g = Graph()
     g.add_node("A", "Cidade A", "Norte")
-    
+
     with pytest.raises(KeyError, match="Nó raiz 'Z' não encontrado no grafo."):
         bellman_ford(g, "Z")
