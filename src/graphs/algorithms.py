@@ -1,5 +1,5 @@
 
-from .graph import Graph, Pai
+from .graph import Graph
 from collections import deque
 
 # Constantes para estados dos nós
