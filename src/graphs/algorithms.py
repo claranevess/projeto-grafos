@@ -14,9 +14,14 @@ def bfs(graph: Graph, raiz):
     valores iniciais sendo padronizados
     
     '''
+
+    if not graph.has_node(raiz):
+        raise KeyError(f"Nó raiz '{raiz}' não encontrado no grafo.")
+
     estados = {no: NAO_VISITADO for no in graph.iter_nodes()}
     pais = {no: None for no in graph.iter_nodes()}
-    distancia = {no: 0 for no in graph.iter_nodes()}
+    distancia = {no: float('inf') for no in graph.iter_nodes()}
+    distancia[raiz] = 0
 
     estados[raiz] = VISITADO
 
@@ -35,9 +40,9 @@ def bfs(graph: Graph, raiz):
                 pais[vizinho] = no_atual
                 distancia[vizinho] = distancia[no_atual] + 1
             
-            estados[no_atual] = ENCERRADO
+        estados[no_atual] = ENCERRADO
     
-    return estados, pais
+    return distancia, pais
 
 def dfs(graph, raiz):
     """
