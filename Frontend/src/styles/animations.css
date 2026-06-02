@@ -1,0 +1,46 @@
+@keyframes hub-pulse {
+  0%, 100% { opacity: 1; filter: drop-shadow(0 0 8px var(--primary)); }
+  50%       { opacity: 0.8; filter: drop-shadow(0 0 18px var(--primary)); }
+}
+
+@keyframes edge-trace {
+  from { stroke-dashoffset: var(--dash-len, 1000); }
+  to   { stroke-dashoffset: 0; }
+}
+
+@keyframes bfs-wave {
+  0%   { r: 0; opacity: 0.9; }
+  80%  { opacity: 0.2; }
+  100% { opacity: 0; }
+}
+
+@keyframes radar-sweep {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes alert-flash {
+  0%, 100% { background: transparent; }
+  50%      { background: #ff3b5c18; }
+}
+
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.animate-hub-pulse   { animation: hub-pulse   2s ease-in-out infinite; }
+.animate-radar-sweep { animation: radar-sweep 4s linear infinite; }
+.animate-slide-down  { animation: slide-down  0.25s ease-out; }
+.animate-fade-in     { animation: fade-in     0.2s ease-out; }
+.animate-spin-slow   { animation: spin-slow   8s linear infinite; }
