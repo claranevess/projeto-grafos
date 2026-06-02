@@ -19,14 +19,14 @@ Fórmula da densidade (grafo não-direcionado)
 
 from __future__ import annotations
 
+import csv
 import json
 import logging
 from pathlib import Path
 import csv
 import time
 
-from src.graphs.graph import Graph
-from src.graphs.io import (
+from .graphs.io import (
     salvar_csv_graus,
     carregar_grafo,
     salvar_ego_aeroporto_csv,
@@ -177,11 +177,11 @@ def salvar_metricas(graph, out_dir):
             "[%s] ordem=%d  tamanho=%d  densidade=%.6f",
             r["regiao"], r["ordem"], r["tamanho"], r["densidade"],
         )
-    
+
     lista = graph.all_degrees()
     salvar_csv_graus(lista, out_dir)
     gerar_analise_ego_network(graph, out_dir)
-    
+
 
 def gerar_analise_ego_network(graph, out_dir):
     """Gera análise de ego network usando o grafo já carregado.
@@ -226,10 +226,10 @@ def gerar_analise_ego_network(graph, out_dir):
 
 
 def compute_routes(
-    airports_csv="data/aeroportos_data.csv",
-    routes_csv="data/rotas.csv",
-    out_dir="out",
-    out_csv_name="distancias_rotas.csv",
+        airports_csv="data/aeroportos_data.csv",
+        routes_csv="data/rotas.csv",
+        out_dir="out",
+        out_csv_name="distancias_rotas.csv",
 ):
     """
     Carrega o grafo, calcula rotas especificadas em `routes_csv` usando Dijkstra
@@ -237,7 +237,7 @@ def compute_routes(
 
     Retorna o DataFrame gravado para facilitar testes.
     """
-    from src.graphs.algorithms import dijkstra
+    from .graphs.algorithms import dijkstra
 
     airports_csv = Path(airports_csv)
     routes_csv = Path(routes_csv)

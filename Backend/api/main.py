@@ -3,15 +3,15 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from api.routers import algorithms as alg_router
-from api.routers import graph as graph_router
-from api.routers import metrics as metrics_router
+from Backend.api.routers import algorithms as alg_router
+from Backend.api.routers import graph as graph_router
+from Backend.api.routers import metrics as metrics_router
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Pré-carrega e cacheia o grafo na inicialização do servidor
-    from api.services.graph_service import get_graph
+    from Backend.api.services.graph_service import get_graph
     get_graph()
     yield
 
@@ -35,8 +35,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(graph_router.router,   prefix="/api")
-app.include_router(alg_router.router,     prefix="/api")
+app.include_router(graph_router.router, prefix="/api")
+app.include_router(alg_router.router, prefix="/api")
 app.include_router(metrics_router.router, prefix="/api")
 
 

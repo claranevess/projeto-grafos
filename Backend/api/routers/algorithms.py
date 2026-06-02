@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 
-from api.schemas.algorithms import AlgorithmRequest, BfsResult, DfsResult, PathResult
-from api.services import algorithm_service, graph_service
+from Backend.api.schemas.algorithms import AlgorithmRequest, BfsResult, DfsResult, PathResult
+from Backend.api.services import algorithm_service, graph_service
 
 router = APIRouter(prefix="/algorithms", tags=["algorithms"])
 

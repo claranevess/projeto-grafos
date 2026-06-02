@@ -12,26 +12,26 @@ Responsabilidade deste módulo
 
 from __future__ import annotations
 
+import ast
 import csv
+import itertools
+import json
 import logging
-import subprocess
+import re
 import shutil
+import statistics
+import subprocess
 import zipfile
+from collections import defaultdict, Counter
 from pathlib import Path
 
-from src.graphs.graph import Graph
-import ast
-import json
-import re
 import unicodedata
-import itertools
-from collections import defaultdict, Counter
-import statistics
 
+from .graph import Graph
 # Plotagem e visualização ficam centralizadas em src.viz (apenas viz.py
 # pode importar matplotlib/pyvis/plotly). Importa-se apenas as funções de
 # plotagem reutilizáveis aqui.
-from src.viz import plot_degree_histogram, plot_degree_distribution, render_description
+from ..viz import plot_degree_histogram, plot_degree_distribution, render_description
 
 # ---------------------------------------------------------------------------
 # Configuração de logging
@@ -156,7 +156,7 @@ def load_airports(filepath, encoding="utf-8"):
         for line_number, row in enumerate(reader, start=2):
             total_read += 1
             # Normalize row keys to lowercase stripped names
-            row_norm = { (k.strip().lower() if k is not None else ""): (v or "").strip() for k, v in row.items() }
+            row_norm = {(k.strip().lower() if k is not None else ""): (v or "").strip() for k, v in row.items()}
 
             warning = _validate_row(row_norm, line_number)
             if warning:
@@ -270,7 +270,7 @@ def load_edges(graph, filepath, encoding="utf-8"):
         for line_number, row in enumerate(reader, start=2):
             # Normalize row keys to lowercase stripped names to be robust
             # against header capitalization/spacing differences.
-            row_norm = { (k.strip().lower() if k is not None else ""): (v or "").strip() for k, v in row.items() }
+            row_norm = {(k.strip().lower() if k is not None else ""): (v or "").strip() for k, v in row.items()}
 
             origem = row_norm.get("origem", "").upper()
             destino = row_norm.get("destino", "").upper()
@@ -368,7 +368,8 @@ def carregar_grafo(dataset_path):
 # ---------------------------------------------------------------------------
 
 
-def download_dataset_parte2(dest_dir="data/dataset_parte2", kaggle_dataset="joebeachcapital/marvel-movies", unzip=True, clean_archives=True):
+def download_dataset_parte2(dest_dir="data/dataset_parte2", kaggle_dataset="joebeachcapital/marvel-movies", unzip=True,
+                            clean_archives=True):
     """Tenta baixar e organizar o dataset Parte 2 no diretório destino.
 
     Estratégia:
@@ -524,6 +525,7 @@ def salvar_csv_graus(graus, out_dir="out", json_name="graus.json"):
     except Exception:
         logger.warning("Falha ao gerar degree_hist.png em %s", out_dir)
 
+
 def salvar_ego_aeroporto_csv(ego_data, out_dir="out"):
     """Salva resultados de ego network como JSON em `out_dir`.
 
@@ -534,6 +536,7 @@ def salvar_ego_aeroporto_csv(ego_data, out_dir="out"):
     out_dir.mkdir(parents=True, exist_ok=True)
     path = out_dir / "ego_aeroportos.json"
     path.write_text(json.dumps(ego_data, ensure_ascii=False, indent=2), encoding="utf-8")
+
 
 def grau_ego_aeroporto(out_dir="out"):
     """Lê `ego_aeroportos.json` do `out_dir` e retorna lista de (aeroporto, grau)."""
@@ -548,6 +551,7 @@ def grau_ego_aeroporto(out_dir="out"):
     except Exception:
         logger.warning("Falha ao ler ego_aeroportos.json em %s", out_dir)
     return lista_graus
+
 
 def densidade_ego_aeroporto(out_dir="out"):
     """Lê `ego_aeroportos.json` do `out_dir` e retorna lista de (aeroporto, densidade_ego)."""
@@ -858,7 +862,8 @@ def save_dataset_description(graph, out_dir="out"):
         degree_stats["50%"] = float(round(_percentile(sorted_degs, 50), 6))
         degree_stats["75%"] = float(round(_percentile(sorted_degs, 75), 6))
     else:
-        degree_stats = {"min": 0, "max": 0, "mean": 0.0, "median": 0.0, "stdev": 0.0, "25%": 0.0, "50%": 0.0, "75%": 0.0}
+        degree_stats = {"min": 0, "max": 0, "mean": 0.0, "median": 0.0, "stdev": 0.0, "25%": 0.0, "50%": 0.0,
+                        "75%": 0.0}
 
     # Distribuição de graus (degree -> frequency)
     degree_counter = Counter(degrees)

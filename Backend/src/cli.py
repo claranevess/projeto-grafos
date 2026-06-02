@@ -7,12 +7,11 @@ Uso:
     python -m src.cli --dataset data/aeroportos_data.csv --alg DIJKSTRA --source REC --target POA --out ./out/
 """
 
-import sys
 import os
+import sys
 import time
 from pathlib import Path
 from types import SimpleNamespace
-
 
 # ---------------------------------------------------------------------------
 # Constantes
@@ -152,7 +151,7 @@ def _executar(args):
                 # fallback: tentar escolher um CSV de aeroportos no diretório
                 csvs = [p for p in dataset_path.iterdir() if p.is_file() and p.suffix.lower() == '.csv']
                 try:
-                    from src.graphs.io import carregar_grafo
+                    from graphs.io import carregar_grafo
                 except Exception:
                     carregar_grafo = None
 
@@ -194,7 +193,7 @@ def _executar(args):
 
         if part2_indicator:
             try:
-                from src.graphs.io import save_dataset_description
+                from graphs.io import save_dataset_description
                 save_dataset_description(grafo, args.out)
                 print(f"[cli] Descrição do dataset Parte 2 salva em '{args.out}'")
             except Exception as exc:

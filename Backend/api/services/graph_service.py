@@ -1,7 +1,7 @@
 import functools
 
-from api.config import settings
-from api.schemas.graph import EdgeSchema, GraphSchema, NodeSchema
+from Backend.api.config import settings
+from Backend.api.schemas.graph import EdgeSchema, GraphSchema, NodeSchema
 
 # Coordenadas geográficas reais de cada aeroporto (lat, lon)
 # Fonte: OpenFlights / ANAC — usadas pelo mapa D3 no frontend
@@ -34,7 +34,7 @@ HUB_THRESHOLD = 5
 
 @functools.lru_cache(maxsize=1)
 def _load_graph():
-    from src.graphs.io import carregar_grafo
+    from Backend.src.graphs.io import carregar_grafo
     airports_path = settings.data_dir / settings.airports_csv
     return carregar_grafo(str(airports_path))
 

@@ -27,8 +27,8 @@ import matplotlib.patheffects as pe
 import numpy as np
 import pandas as pd
 
-from src.graphs.io import carregar_grafo
-from src.graphs.algorithms import dijkstra
+from graphs.io import carregar_grafo
+from graphs.algorithms import dijkstra
 
 logger = logging.getLogger(__name__)
 
@@ -571,7 +571,7 @@ def gerar_todas_visualizacoes(out_dir: str | Path = "out") -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
 
     print("[analytics] Carregando grafo...")
-    graph = carregar_grafo("data/aeroportos_data.csv")
+    graph = carregar_grafo("Backend/data/aeroportos_data.csv")
 
     graus_df = pd.read_csv(out_dir / "graus.csv")
     ego_df = pd.read_csv(out_dir / "ego_aeroportos.csv")
@@ -606,6 +606,7 @@ def gerar_todas_visualizacoes(out_dir: str | Path = "out") -> None:
     print("[analytics] Gerando viz 5 - Mapa geografico do grafo (bonus)...")
     viz_mapa_grafo(ego_df, graph, out_dir)
 
+<<<<<<< HEAD:src/analytics.py
     print("[analytics] Gerando visualizações de rotas obrigatórias - Secao 7 (HTML interativo)...")
     from src.viz import render_routes
     # Gerar arquivos separados para as rotas obrigatórias
@@ -625,6 +626,12 @@ def gerar_todas_visualizacoes(out_dir: str | Path = "out") -> None:
             render_routes(graph, [mao_path], {("MAO", "GRU")}, out_dir / "arvore_mao_gru.html")
         except Exception as exc:
             logger.warning("Falha ao gerar %s: %s", out_dir / "arvore_mao_gru.html", exc)
+=======
+    print("[analytics] Gerando arvore de percurso - Secao 7 (HTML interativo)...")
+    from viz import render_routes
+    highlighted = {("REC", "POA"), ("MAO", "GRU")}
+    render_routes(graph, all_paths, highlighted, out_dir / "arvore_percurso.html")
+>>>>>>> 7171e7a (refactor: reorganiza código do backend no pacote Backend/):Backend/src/analytics.py
 
     print("[analytics] Gerando grafo interativo (Secao 9)...")
     render_grafo_interativo(ego_df, graph, paths_obrigatorios, out_dir / "grafo_interativo.html")
