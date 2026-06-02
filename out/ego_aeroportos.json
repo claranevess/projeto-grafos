@@ -38,8 +38,8 @@
     "aeroporto": "GRU",
     "grau": 18,
     "ordem_ego": 19,
-    "tamanho_ego": 69,
-    "densidade_ego": 0.40350877192982454
+    "tamanho_ego": 70,
+    "densidade_ego": 0.4093567251461988
   },
   {
     "aeroporto": "CGH",
@@ -52,8 +52,8 @@
     "aeroporto": "GIG",
     "grau": 12,
     "ordem_ego": 13,
-    "tamanho_ego": 43,
-    "densidade_ego": 0.5512820512820513
+    "tamanho_ego": 44,
+    "densidade_ego": 0.5641025641025641
   },
   {
     "aeroporto": "CNF",
@@ -73,22 +73,22 @@
     "aeroporto": "BSB",
     "grau": 15,
     "ordem_ego": 16,
-    "tamanho_ego": 61,
-    "densidade_ego": 0.5083333333333333
+    "tamanho_ego": 62,
+    "densidade_ego": 0.5166666666666667
   },
   {
     "aeroporto": "GYN",
     "grau": 6,
     "ordem_ego": 7,
-    "tamanho_ego": 19,
-    "densidade_ego": 0.9047619047619048
+    "tamanho_ego": 20,
+    "densidade_ego": 0.9523809523809523
   },
   {
     "aeroporto": "CWB",
-    "grau": 7,
-    "ordem_ego": 8,
-    "tamanho_ego": 23,
-    "densidade_ego": 0.8214285714285714
+    "grau": 8,
+    "ordem_ego": 9,
+    "tamanho_ego": 28,
+    "densidade_ego": 0.7777777777777778
   },
   {
     "aeroporto": "FLN",
@@ -106,10 +106,10 @@
   },
   {
     "aeroporto": "MAO",
-    "grau": 10,
-    "ordem_ego": 11,
-    "tamanho_ego": 40,
-    "densidade_ego": 0.7272727272727273
+    "grau": 11,
+    "ordem_ego": 12,
+    "tamanho_ego": 45,
+    "densidade_ego": 0.6818181818181818
   },
   {
     "aeroporto": "BEL",

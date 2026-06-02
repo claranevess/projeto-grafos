@@ -1,112 +1,48 @@
-import heapq
+
+from .graph import Graph
 from collections import deque
-
-# NOTE: typing annotations removed from core algorithm module to comply with
-# discipline rules; types are documented in docstrings and comments.
-
-# Suporte para import quando o módulo é executado diretamente (sem package)
-try:
-    from .graph import Graph
-except Exception:
-    # Ao executar o arquivo diretamente, o contexto de pacote pode não existir.
-    # Insere o diretório do projeto no sys.path e tenta import absoluto.
-    import os
-    import sys
-
-    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-    if project_root not in sys.path:
-        sys.path.insert(0, project_root)
-
-    from src.graphs.graph import Graph
-
-# Tipos documentados apenas nos docstrings; removeram-se aliases e
-# anotações para obedecer à política do núcleo (sem typing).
 
 # Constantes para estados dos nós
 NAO_VISITADO = "NAO_VISITADO"
 VISITADO = "VISITADO"
 ENCERRADO = "ENCERRADO"
 
+def bfs(graph: Graph, raiz):
+    '''
+    Criação dos dicionários de cada atributo de um nó.
+    É definida a chave 'no' e o grafo é percorrido com seus
+    valores iniciais sendo padronizados
+    
+    '''
 
-def bfs(graph, raiz):
-    """
-    Executa a Busca em Largura (BFS) em um grafo a partir de um nó raiz.
-
-    O algoritmo calcula a menor distância (em número de arestas) da raiz
-    para todos os outros nós alcançáveis.
-
-    Estruturas de dados auxiliares:
-    - Fila (deque): para controlar a ordem de descoberta dos nós.
-    - Dicionários: para armazenar estado, distância e pai de cada nó.
-
-    Fluxo de Execução:
-    1.  Inicialização: Todos os nós são marcados como NAO_VISITADO,
-        com distância infinita e pai nulo, exceto a raiz.
-    2.  Raiz: A raiz é marcada como VISITADO, com distância 0, e
-        adicionada à fila.
-    3.  Laço Principal: Enquanto a fila não estiver vazia:
-        a.  Remove-se um nó `u` da fila.
-        b.  Para cada vizinho `v` de `u`:
-            - Se `v` for NAO_VISITADO, ele é marcado como VISITADO,
-              sua distância é atualizada (dist(u) + 1), seu pai é
-              definido como `u`, e ele é adicionado à fila.
-        c.  Após visitar todos os vizinhos, `u` é marcado como ENCERRADO.
-
-    Parâmetros
-    ----------
-    graph : Graph
-        O grafo (não-direcionado) no qual o algoritmo será executado.
-    raiz : str
-        O código IATA do nó inicial (raiz da busca).
-
-    Retorno
-    -------
-    tuple[dict[str, int], list[str]]
-        - Um dicionário mapeando cada nó alcançável à sua distância (nível)
-          a partir da raiz.
-        - Uma lista com a ordem de visitação dos nós.
-
-    Raises
-    ------
-    KeyError
-        Se o nó raiz não existir no grafo.
-    """
     if not graph.has_node(raiz):
         raise KeyError(f"Nó raiz '{raiz}' não encontrado no grafo.")
 
-    # 1. Inicialização
     estados = {no: NAO_VISITADO for no in graph.iter_nodes()}
-    distancias = {no: float("inf") for no in graph.iter_nodes()}
     pais = {no: None for no in graph.iter_nodes()}
-    ordem_visitacao = []
+    distancia = {no: float('inf') for no in graph.iter_nodes()}
+    distancia[raiz] = 0
 
-    # 2. Configuração da raiz
     estados[raiz] = VISITADO
-    distancias[raiz] = 0
-    # pais[raiz] já é None
 
-    fila = deque([raiz])
+    fila = deque()
+    fila.append(raiz)
 
-    # 3. Laço Principal
     while fila:
-        u = fila.popleft()
-        ordem_visitacao.append(u)
+        no_atual = fila.popleft()
 
-        for aresta in graph.get_neighbors(u):
-            v = aresta.destino
-            if estados[v] == NAO_VISITADO:
-                estados[v] = VISITADO
-                distancias[v] = distancias[u] + 1
-                pais[v] = u
-                fila.append(v)
+        for aresta in graph.get_neighbors(no_atual):
+            vizinho = aresta.destino
 
-        estados[u] = ENCERRADO
-
-    # Filtra o dicionário de distâncias para incluir apenas nós alcançáveis
-    niveis = {no: dist for no, dist in distancias.items() if dist != float("inf")}
-
-    return niveis, ordem_visitacao
-
+            if estados[vizinho] == NAO_VISITADO:
+                fila.append(vizinho)
+                estados[vizinho] = VISITADO
+                pais[vizinho] = no_atual
+                distancia[vizinho] = distancia[no_atual] + 1
+            
+        estados[no_atual] = ENCERRADO
+    
+    return distancia, pais
 
 def dfs(graph, raiz):
     """
