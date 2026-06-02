@@ -1,4 +1,4 @@
-from api.services.graph_service import get_graph
+from Backend.api.services.graph_service import get_graph
 
 
 def get_graph_dep():

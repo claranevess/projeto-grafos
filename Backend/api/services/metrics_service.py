@@ -1,5 +1,5 @@
-from api.schemas.metrics import GlobalMetrics, HubInfo, MetricsResponse, RegionMetrics
-from src.solve import calcular_metricas
+from Backend.api.schemas.metrics import GlobalMetrics, HubInfo, MetricsResponse, RegionMetrics
+from Backend.src.solve import calcular_metricas
 
 
 def get_metrics(graph) -> MetricsResponse:

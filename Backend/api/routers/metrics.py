@@ -1,8 +1,8 @@
 from fastapi import APIRouter
 
-from api.schemas.metrics import MetricsResponse
-from api.services import graph_service
-from api.services.metrics_service import get_metrics
+from Backend.api.schemas.metrics import MetricsResponse
+from Backend.api.services import graph_service
+from Backend.api.services.metrics_service import get_metrics
 
 router = APIRouter(tags=["metrics"])
 

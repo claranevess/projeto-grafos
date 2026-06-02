@@ -7,12 +7,11 @@ Uso:
     python -m src.cli --dataset data/aeroportos_data.csv --alg DIJKSTRA --source REC --target POA --out ./out/
 """
 
-import sys
 import os
+import sys
 import time
 from pathlib import Path
 from types import SimpleNamespace
-
 
 # ---------------------------------------------------------------------------
 # Constantes
@@ -114,8 +113,8 @@ def _executar(args):
     Os módulos de I/O e algoritmos são importados aqui para que o
     `--help` funcione mesmo com stubs ainda não implementados.
     """
-    from src.graphs.algorithms import bfs, dfs, dijkstra, bellman_ford
-    from src.solve import salvar_metricas
+    from graphs.algorithms import bfs, dfs, dijkstra, bellman_ford
+    from solve import salvar_metricas
 
     dataset_path = Path(args.dataset)
     print(f"[cli] Carregando dataset: {args.dataset}")
@@ -129,7 +128,7 @@ def _executar(args):
             parte2_marker = dataset_path / "marvel_movies.csv"
             if parte2_marker.exists():
                 try:
-                    from src.graphs.io import carregar_dataset_parte2
+                    from graphs.io import carregar_dataset_parte2
                 except Exception:
                     carregar_dataset_parte2 = None
 
@@ -142,7 +141,7 @@ def _executar(args):
                 # fallback: tentar escolher um CSV de aeroportos no diretório
                 csvs = [p for p in dataset_path.iterdir() if p.is_file() and p.suffix.lower() == '.csv']
                 try:
-                    from src.graphs.io import carregar_grafo
+                    from graphs.io import carregar_grafo
                 except Exception:
                     carregar_grafo = None
 
@@ -163,7 +162,7 @@ def _executar(args):
                 grafo = carregar_grafo(airports_csv)
 
         else:
-            from src.graphs.io import carregar_grafo
+            from graphs.io import carregar_grafo
             grafo = carregar_grafo(args.dataset)
     except Exception as exc:
         print(f"[erro] Falha ao carregar dataset: {exc}", file=sys.stderr)
@@ -176,14 +175,14 @@ def _executar(args):
         # legacy de métricas para aeroportos.
         if dataset_path.is_dir() and (dataset_path / "marvel_movies.csv").exists():
             try:
-                from src.graphs.io import save_dataset_description
+                from graphs.io import save_dataset_description
                 save_dataset_description(grafo, args.out)
                 print(f"[cli] Descrição do dataset Parte 2 salva em '{args.out}'")
             except Exception as exc:
                 print(f"[aviso] Falha ao gerar descrição Parte 2: {exc}", file=sys.stderr)
         else:
-                salvar_metricas(grafo, args.out)
-                print(f"[cli] Métricas salvas em '{args.out}' (global.png, regioes.png)")
+            salvar_metricas(grafo, args.out)
+            print(f"[cli] Métricas salvas em '{args.out}' (global.png, regioes.png)")
     except Exception as exc:
         print(f"[aviso] Falha ao salvar métricas: {exc}", file=sys.stderr)
 

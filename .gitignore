@@ -4,6 +4,7 @@ venv/
 env/
 
 .idea
+Frontend/node_modules
 
 # Byte-compiled / optimized / cache files
 __pycache__/

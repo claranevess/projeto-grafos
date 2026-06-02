@@ -1,4 +1,3 @@
-import heapq
 from collections import deque
 
 # NOTE: typing annotations removed from core algorithm module to comply with
@@ -17,7 +16,7 @@ except Exception:
     if project_root not in sys.path:
         sys.path.insert(0, project_root)
 
-    from src.graphs.graph import Graph
+    from graphs.graph import Graph
 
 # Tipos documentados apenas nos docstrings; removeram-se aliases e
 # anotações para obedecer à política do núcleo (sem typing).
@@ -265,7 +264,8 @@ def dijkstra(
     return dist[target], caminho
 
 
-def bellman_ford(graph: Graph, raiz: str, target: str | None = None) -> tuple[dict[str, float], dict[str, str | None], bool] | \
+def bellman_ford(graph: Graph, raiz: str, target: str | None = None) -> tuple[dict[str, float], dict[
+    str, str | None], bool] | \
                                                                         tuple[float, list[str]]:
     """
     Executa o algoritmo de Bellman-Ford a partir de um nó raiz.

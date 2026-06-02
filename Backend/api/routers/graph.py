@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
-from api.schemas.graph import GraphSchema, NodeSchema
-from api.services import graph_service
+from Backend.api.schemas.graph import GraphSchema, NodeSchema
+from Backend.api.services import graph_service
 
 router = APIRouter(tags=["graph"])
 
