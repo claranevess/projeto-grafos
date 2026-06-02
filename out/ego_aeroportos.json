@@ -1,0 +1,142 @@
+[
+  {
+    "aeroporto": "REC",
+    "grau": 10,
+    "ordem_ego": 11,
+    "tamanho_ego": 37,
+    "densidade_ego": 0.6727272727272727
+  },
+  {
+    "aeroporto": "SSA",
+    "grau": 6,
+    "ordem_ego": 7,
+    "tamanho_ego": 21,
+    "densidade_ego": 1.0
+  },
+  {
+    "aeroporto": "FOR",
+    "grau": 10,
+    "ordem_ego": 11,
+    "tamanho_ego": 39,
+    "densidade_ego": 0.7090909090909091
+  },
+  {
+    "aeroporto": "NAT",
+    "grau": 4,
+    "ordem_ego": 5,
+    "tamanho_ego": 8,
+    "densidade_ego": 0.8
+  },
+  {
+    "aeroporto": "JPA",
+    "grau": 3,
+    "ordem_ego": 4,
+    "tamanho_ego": 5,
+    "densidade_ego": 0.8333333333333334
+  },
+  {
+    "aeroporto": "GRU",
+    "grau": 18,
+    "ordem_ego": 19,
+    "tamanho_ego": 70,
+    "densidade_ego": 0.4093567251461988
+  },
+  {
+    "aeroporto": "CGH",
+    "grau": 2,
+    "ordem_ego": 3,
+    "tamanho_ego": 3,
+    "densidade_ego": 1.0
+  },
+  {
+    "aeroporto": "GIG",
+    "grau": 12,
+    "ordem_ego": 13,
+    "tamanho_ego": 44,
+    "densidade_ego": 0.5641025641025641
+  },
+  {
+    "aeroporto": "CNF",
+    "grau": 6,
+    "ordem_ego": 7,
+    "tamanho_ego": 18,
+    "densidade_ego": 0.8571428571428571
+  },
+  {
+    "aeroporto": "VIX",
+    "grau": 3,
+    "ordem_ego": 4,
+    "tamanho_ego": 6,
+    "densidade_ego": 1.0
+  },
+  {
+    "aeroporto": "BSB",
+    "grau": 15,
+    "ordem_ego": 16,
+    "tamanho_ego": 62,
+    "densidade_ego": 0.5166666666666667
+  },
+  {
+    "aeroporto": "GYN",
+    "grau": 6,
+    "ordem_ego": 7,
+    "tamanho_ego": 20,
+    "densidade_ego": 0.9523809523809523
+  },
+  {
+    "aeroporto": "CWB",
+    "grau": 8,
+    "ordem_ego": 9,
+    "tamanho_ego": 28,
+    "densidade_ego": 0.7777777777777778
+  },
+  {
+    "aeroporto": "FLN",
+    "grau": 4,
+    "ordem_ego": 5,
+    "tamanho_ego": 10,
+    "densidade_ego": 1.0
+  },
+  {
+    "aeroporto": "POA",
+    "grau": 5,
+    "ordem_ego": 6,
+    "tamanho_ego": 14,
+    "densidade_ego": 0.9333333333333333
+  },
+  {
+    "aeroporto": "MAO",
+    "grau": 11,
+    "ordem_ego": 12,
+    "tamanho_ego": 45,
+    "densidade_ego": 0.6818181818181818
+  },
+  {
+    "aeroporto": "BEL",
+    "grau": 8,
+    "ordem_ego": 9,
+    "tamanho_ego": 32,
+    "densidade_ego": 0.8888888888888888
+  },
+  {
+    "aeroporto": "PVH",
+    "grau": 6,
+    "ordem_ego": 7,
+    "tamanho_ego": 19,
+    "densidade_ego": 0.9047619047619048
+  },
+  {
+    "aeroporto": "RBR",
+    "grau": 4,
+    "ordem_ego": 5,
+    "tamanho_ego": 10,
+    "densidade_ego": 1.0
+  },
+  {
+    "aeroporto": "THE",
+    "grau": 5,
+    "ordem_ego": 6,
+    "tamanho_ego": 12,
+    "densidade_ego": 0.8
+  }
+]
