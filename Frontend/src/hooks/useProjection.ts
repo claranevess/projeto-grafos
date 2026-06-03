@@ -7,27 +7,44 @@ const BRAZIL_FEATURE: GeoJSON.Feature = {
     type: 'Polygon',
     coordinates: [[
       [-73.99, -33.75], [-28.85, -33.75], [-28.85, 5.27],
-      [-73.99,  5.27],  [-73.99, -33.75],
+      [-73.99, 5.27], [-73.99, -33.75],
     ]],
   },
   properties: {},
 }
 
+const SIDEBAR_WIDTH = 230
+
 export function useProjection(width: number, height: number) {
   return useMemo(() => {
-    const w = width  || 1400
+    const w = width || 1400
     const h = height || 900
 
-    // Fill the full available width with Brazil.
-    const projection = d3.geoMercator().fitWidth(w, BRAZIL_FEATURE)
+    const radarCx = SIDEBAR_WIDTH + (w - SIDEBAR_WIDTH) / 2
+    const radarCy = h / 2
 
-    // fitWidth places Brazil's y-centre at 0.  Shift so it sits at h/2.
-    const [[, y0], [, y1]] = d3.geoPath(projection).bounds(BRAZIL_FEATURE)
+    const projection = d3
+      .geoMercator()
+      .fitSize([w, h], BRAZIL_FEATURE)
+
+    const scaleFactor = 8.0
+    projection.scale(projection.scale() * scaleFactor)
+
+    const path = d3.geoPath(projection)
+
+    const [[x0, y0], [x1, y1]] = path.bounds(BRAZIL_FEATURE)
+
     const [tx, ty] = projection.translate()
-    projection.translate([tx, ty + h / 2 - (y0 + y1) / 2])
 
-    const project = (lon: number, lat: number): [number, number] =>
-      projection([lon, lat]) ?? [0, 0]
+    projection.translate([
+      tx + radarCx - (x0 + x1) / 2 + 600,
+      ty + radarCy - (y0 + y1) / 2 - 215,
+  ])
+
+    const project = (
+      lon: number,
+      lat: number
+    ): [number, number] => projection([lon, lat]) ?? [0, 0]
 
     return { projection, project }
   }, [width, height])

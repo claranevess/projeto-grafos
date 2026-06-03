@@ -40,7 +40,7 @@ export function MapCanvas() {
         >
           <RadarSweep cx={dims.w / 2} cy={dims.h / 2} r={Math.min(dims.w, dims.h) * 0.45} />
           <g>
-            <BrazilMapLayer projection={projection} width={dims.w} height={dims.h} />
+            <BrazilMapLayer projection={projection} />
             <EdgeLayer projection={projection} nodes={nodes} edges={edges} />
             <PathHighlightLayer projection={projection} nodes={nodes} />
             <BfsWaveLayer projection={projection} nodes={nodes} />
