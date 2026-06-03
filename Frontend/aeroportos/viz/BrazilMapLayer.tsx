@@ -1,12 +1,10 @@
 import { useState, useEffect, useMemo } from 'react'
 import * as d3 from 'd3'
 import * as topojson from 'topojson-client'
-import type { Topology } from 'topojson-specification'
+import type { Objects, Topology } from 'topojson-specification'
 
 interface Props {
   projection: d3.GeoProjection
-  width:  number
-  height: number
 }
 
 export function BrazilMapLayer({ projection }: Props) {
@@ -16,14 +14,15 @@ export function BrazilMapLayer({ projection }: Props) {
     d3.json<Topology>('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
       .then(world => {
         if (!world) return
-        const countries = topojson.feature(world, world.objects.countries as topojson.Objects['countries'])
+        const countries = topojson.feature(world, world.objects.countries as Objects['countries'])
         const brazil = (countries as GeoJSON.FeatureCollection).features.find(
           f => (f as GeoJSON.Feature).id === '076'
         ) ?? null
+
         setBrazilFeature(brazil)
       })
       .catch(() => {})
-  }, [])
+  }, [projection])
 
   const pathD = useMemo(() => {
     if (!brazilFeature) return null
