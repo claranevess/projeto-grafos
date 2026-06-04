@@ -1,3 +1,5 @@
+import React from 'react'
+
 interface Props {
   cx: number
   cy: number
