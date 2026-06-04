@@ -84,18 +84,27 @@ def parse_args(argv=None):
             kv[key] = True
             i += 1
 
-    # parâmetros obrigatórios
-    if "dataset" not in kv or "alg" not in kv or "source" not in kv:
-        print("Usage: --dataset PATH --alg ALG --source NODE [--target NODE] [--out DIR]")
+    # parâmetro obrigatório mínimo: dataset. '--alg' e '--source' são opcionais
+    if "dataset" not in kv:
+        print("Usage: --dataset PATH [--alg ALG --source NODE] [--target NODE] [--out DIR]")
         sys.exit(2)
 
     # aplicar validações e normalizações
     try:
         dataset = _validar_dataset(kv["dataset"])
-        alg = _validar_alg(kv["alg"])
-        source = kv["source"].strip().upper()
-        target = kv.get("target")
         out = _validar_out(kv.get("out", "./out/"))
+
+        # Se o usuário forneceu algoritmo, valida-se também 'alg' e 'source'
+        alg = None
+        source = None
+        target = None
+        if "alg" in kv:
+            alg = _validar_alg(kv["alg"])
+            if "source" not in kv:
+                raise ValueError("Quando --alg é fornecido, --source é obrigatório.")
+            source = kv["source"].strip().upper()
+            target = kv.get("target")
+
     except Exception as exc:
         print(f"Argument error: {exc}", file=sys.stderr)
         sys.exit(2)
@@ -119,26 +128,27 @@ def _executar(args):
 
     dataset_path = Path(args.dataset)
     print(f"[cli] Carregando dataset: {args.dataset}")
-
-    # Escolher loader com heurística mínima: se for diretório e contiver CSVs
-    # compatíveis com Parte 2 usamos carregar_dataset_parte2, caso contrário
-    # usamos o loader legacy carregar_grafo.
+    # Roteamento determinístico: se o caminho contém o diretório
+    # 'dataset_parte2' (qualquer posição na hierarquia), usamos sempre
+    # `carregar_dataset_parte2`. Caso contrário preservamos o fluxo
+    # legacy de carregamento de aeroportos (com fallback dentro de um
+    # diretório para escolher o CSV apropriado).
     try:
-        if dataset_path.is_dir():
-            # detecção explícita de Parte 2: presença do arquivo 'marvel_movies.csv'
-            parte2_marker = dataset_path / "marvel_movies.csv"
-            if parte2_marker.exists():
-                try:
-                    from src.graphs.io import carregar_dataset_parte2
-                except Exception:
-                    carregar_dataset_parte2 = None
+        if any(part.lower() == "dataset_parte2" for part in dataset_path.parts):
+            try:
+                from src.graphs.io import carregar_dataset_parte2
+            except Exception:
+                carregar_dataset_parte2 = None
 
-                if carregar_dataset_parte2 is None:
-                    raise RuntimeError("Loader de Parte 2 não disponível no módulo 'src.graphs.io'.")
+            if carregar_dataset_parte2 is None:
+                raise RuntimeError("Loader de Parte 2 não disponível no módulo 'src.graphs.io'.")
 
-                print("[cli] Detectado dataset Parte 2 — usando loader específico.")
-                grafo = carregar_dataset_parte2(dataset_path)
-            else:
+            print("[cli] Dataset parece ser Parte 2 (dataset_parte2) — usando loader específico.")
+            grafo = carregar_dataset_parte2(dataset_path)
+
+        else:
+            # Mantém o comportamento anterior para diretórios/arquivos não-Parte2
+            if dataset_path.is_dir():
                 # fallback: tentar escolher um CSV de aeroportos no diretório
                 csvs = [p for p in dataset_path.iterdir() if p.is_file() and p.suffix.lower() == '.csv']
                 try:
@@ -162,19 +172,27 @@ def _executar(args):
                 print(f"[cli] Usando '{airports_csv.name}' como arquivo de aeroportos (fallback).")
                 grafo = carregar_grafo(airports_csv)
 
-        else:
-            from src.graphs.io import carregar_grafo
-            grafo = carregar_grafo(args.dataset)
+            else:
+                # dataset_path é um arquivo qualquer — usar loader legacy
+                from src.graphs.io import carregar_grafo
+                grafo = carregar_grafo(args.dataset)
     except Exception as exc:
         print(f"[erro] Falha ao carregar dataset: {exc}", file=sys.stderr)
         sys.exit(2)
 
     # --- Métricas estruturais (sempre geradas ao carregar o grafo) -----------
     try:
-        # Se detectamos explicitamente Parte 2 (marvel_movies.csv) geramos
-        # a descrição específica do dataset; caso contrário mantemos fluxo
-        # legacy de métricas para aeroportos.
-        if dataset_path.is_dir() and (dataset_path / "marvel_movies.csv").exists():
+        # Se detectamos explicitamente Parte 2 (arquivo MARVEL.csv ou
+        # marvel_movies.csv) geramos a descrição específica do dataset;
+        # caso contrário mantemos fluxo legacy de métricas para aeroportos.
+        part2_indicator = False
+        if dataset_path.is_dir():
+            for p in dataset_path.iterdir():
+                if p.is_file() and p.name in ("marvel_movies.csv", "MARVEL.csv", "marvel.csv"):
+                    part2_indicator = True
+                    break
+
+        if part2_indicator:
             try:
                 from src.graphs.io import save_dataset_description
                 save_dataset_description(grafo, args.out)
@@ -182,10 +200,15 @@ def _executar(args):
             except Exception as exc:
                 print(f"[aviso] Falha ao gerar descrição Parte 2: {exc}", file=sys.stderr)
         else:
-                salvar_metricas(grafo, args.out)
-                print(f"[cli] Métricas salvas em '{args.out}' (global.png, regioes.png)")
+            salvar_metricas(grafo, args.out)
+            print(f"[cli] Métricas salvas em '{args.out}' (global.png, regioes.png)")
     except Exception as exc:
         print(f"[aviso] Falha ao salvar métricas: {exc}", file=sys.stderr)
+
+    # Se nenhum algoritmo foi solicitado, encerramos após gerar as métricas
+    if args.alg is None:
+        print("[cli] Nenhum algoritmo solicitado; operação de dataset concluída.")
+        return
 
     # --- Despacha para o algoritmo -------------------------------------------
     print(f"[cli] Executando {args.alg} | origem={args.source} | destino={args.target}")

@@ -1,142 +1,212 @@
 [
   {
-    "aeroporto": "REC",
-    "grau": 10,
-    "ordem_ego": 11,
-    "tamanho_ego": 37,
-    "densidade_ego": 0.6727272727272727
-  },
-  {
-    "aeroporto": "SSA",
-    "grau": 6,
-    "ordem_ego": 7,
-    "tamanho_ego": 21,
+    "aeroporto": "FILM_ANT-MAN",
+    "grau": 1,
+    "ordem_ego": 2,
+    "tamanho_ego": 1,
     "densidade_ego": 1.0
   },
   {
-    "aeroporto": "FOR",
-    "grau": 10,
-    "ordem_ego": 11,
-    "tamanho_ego": 39,
-    "densidade_ego": 0.7090909090909091
-  },
-  {
-    "aeroporto": "NAT",
-    "grau": 4,
-    "ordem_ego": 5,
-    "tamanho_ego": 8,
-    "densidade_ego": 0.8
-  },
-  {
-    "aeroporto": "JPA",
-    "grau": 3,
-    "ordem_ego": 4,
-    "tamanho_ego": 5,
-    "densidade_ego": 0.8333333333333334
-  },
-  {
-    "aeroporto": "GRU",
-    "grau": 18,
-    "ordem_ego": 19,
-    "tamanho_ego": 69,
-    "densidade_ego": 0.40350877192982454
-  },
-  {
-    "aeroporto": "CGH",
-    "grau": 2,
-    "ordem_ego": 3,
-    "tamanho_ego": 3,
+    "aeroporto": "FILM_ANT-MAN-THE-WASP",
+    "grau": 1,
+    "ordem_ego": 2,
+    "tamanho_ego": 1,
     "densidade_ego": 1.0
   },
   {
-    "aeroporto": "GIG",
-    "grau": 12,
-    "ordem_ego": 13,
-    "tamanho_ego": 43,
-    "densidade_ego": 0.5512820512820513
-  },
-  {
-    "aeroporto": "CNF",
-    "grau": 6,
-    "ordem_ego": 7,
-    "tamanho_ego": 18,
-    "densidade_ego": 0.8571428571428571
-  },
-  {
-    "aeroporto": "VIX",
+    "aeroporto": "FILM_AVENGERS-AGE-OF-ULTRON",
     "grau": 3,
     "ordem_ego": 4,
     "tamanho_ego": 6,
     "densidade_ego": 1.0
   },
   {
-    "aeroporto": "BSB",
-    "grau": 15,
-    "ordem_ego": 16,
-    "tamanho_ego": 61,
-    "densidade_ego": 0.5083333333333333
+    "aeroporto": "FILM_AVENGERS-END-GAME",
+    "grau": 3,
+    "ordem_ego": 4,
+    "tamanho_ego": 6,
+    "densidade_ego": 1.0
   },
   {
-    "aeroporto": "GYN",
-    "grau": 6,
-    "ordem_ego": 7,
-    "tamanho_ego": 19,
-    "densidade_ego": 0.9047619047619048
+    "aeroporto": "FILM_AVENGERS-INFINITY-WAR",
+    "grau": 3,
+    "ordem_ego": 4,
+    "tamanho_ego": 6,
+    "densidade_ego": 1.0
   },
   {
-    "aeroporto": "CWB",
-    "grau": 7,
-    "ordem_ego": 8,
-    "tamanho_ego": 23,
-    "densidade_ego": 0.8214285714285714
+    "aeroporto": "FILM_BLACK-PANTHER",
+    "grau": 1,
+    "ordem_ego": 2,
+    "tamanho_ego": 1,
+    "densidade_ego": 1.0
   },
   {
-    "aeroporto": "FLN",
+    "aeroporto": "FILM_BLACK-PANTHER-2",
+    "grau": 1,
+    "ordem_ego": 2,
+    "tamanho_ego": 1,
+    "densidade_ego": 1.0
+  },
+  {
+    "aeroporto": "FILM_BLACK-WIDOW",
     "grau": 4,
     "ordem_ego": 5,
     "tamanho_ego": 10,
     "densidade_ego": 1.0
   },
   {
-    "aeroporto": "POA",
-    "grau": 5,
-    "ordem_ego": 6,
-    "tamanho_ego": 14,
-    "densidade_ego": 0.9333333333333333
+    "aeroporto": "FILM_CAPTAIN-AMERICA",
+    "grau": 2,
+    "ordem_ego": 3,
+    "tamanho_ego": 3,
+    "densidade_ego": 1.0
   },
   {
-    "aeroporto": "MAO",
-    "grau": 10,
-    "ordem_ego": 11,
-    "tamanho_ego": 40,
-    "densidade_ego": 0.7272727272727273
+    "aeroporto": "FILM_CAPTAIN-AMERICA-CIVIL-WAR",
+    "grau": 2,
+    "ordem_ego": 3,
+    "tamanho_ego": 3,
+    "densidade_ego": 1.0
   },
   {
-    "aeroporto": "BEL",
-    "grau": 8,
-    "ordem_ego": 9,
-    "tamanho_ego": 32,
-    "densidade_ego": 0.8888888888888888
+    "aeroporto": "FILM_CAPTAIN-AMERICA-WINTER-SOLDIER",
+    "grau": 2,
+    "ordem_ego": 3,
+    "tamanho_ego": 3,
+    "densidade_ego": 1.0
   },
   {
-    "aeroporto": "PVH",
-    "grau": 6,
-    "ordem_ego": 7,
-    "tamanho_ego": 19,
-    "densidade_ego": 0.9047619047619048
-  },
-  {
-    "aeroporto": "RBR",
+    "aeroporto": "FILM_CAPTAIN-MARVEL",
     "grau": 4,
     "ordem_ego": 5,
     "tamanho_ego": 10,
     "densidade_ego": 1.0
   },
   {
-    "aeroporto": "THE",
-    "grau": 5,
-    "ordem_ego": 6,
-    "tamanho_ego": 12,
-    "densidade_ego": 0.8
+    "aeroporto": "FILM_DR-STRANGE",
+    "grau": 1,
+    "ordem_ego": 2,
+    "tamanho_ego": 1,
+    "densidade_ego": 1.0
+  },
+  {
+    "aeroporto": "FILM_DR-STRANGE-MULTIVERSE-OF-MADNESS",
+    "grau": 1,
+    "ordem_ego": 2,
+    "tamanho_ego": 1,
+    "densidade_ego": 1.0
+  },
+  {
+    "aeroporto": "FILM_ETERNALS",
+    "grau": 4,
+    "ordem_ego": 5,
+    "tamanho_ego": 10,
+    "densidade_ego": 1.0
+  },
+  {
+    "aeroporto": "FILM_GUARDIANS-OF-THE-GALAXY",
+    "grau": 1,
+    "ordem_ego": 2,
+    "tamanho_ego": 1,
+    "densidade_ego": 1.0
+  },
+  {
+    "aeroporto": "FILM_GUARDIANS-OF-THE-GALAXY-2",
+    "grau": 1,
+    "ordem_ego": 2,
+    "tamanho_ego": 1,
+    "densidade_ego": 1.0
+  },
+  {
+    "aeroporto": "FILM_INCREDIBLE-HULK",
+    "grau": 4,
+    "ordem_ego": 5,
+    "tamanho_ego": 10,
+    "densidade_ego": 1.0
+  },
+  {
+    "aeroporto": "FILM_IRON-MAN",
+    "grau": 2,
+    "ordem_ego": 3,
+    "tamanho_ego": 3,
+    "densidade_ego": 1.0
+  },
+  {
+    "aeroporto": "FILM_IRON-MAN-2",
+    "grau": 2,
+    "ordem_ego": 3,
+    "tamanho_ego": 3,
+    "densidade_ego": 1.0
+  },
+  {
+    "aeroporto": "FILM_IRON-MAN-3",
+    "grau": 2,
+    "ordem_ego": 3,
+    "tamanho_ego": 3,
+    "densidade_ego": 1.0
+  },
+  {
+    "aeroporto": "FILM_SHANG-CHI",
+    "grau": 4,
+    "ordem_ego": 5,
+    "tamanho_ego": 10,
+    "densidade_ego": 1.0
+  },
+  {
+    "aeroporto": "FILM_SPIDER-MAN-FAR-FROM-HOME",
+    "grau": 2,
+    "ordem_ego": 3,
+    "tamanho_ego": 3,
+    "densidade_ego": 1.0
+  },
+  {
+    "aeroporto": "FILM_SPIDER-MAN-HOMECOMING",
+    "grau": 2,
+    "ordem_ego": 3,
+    "tamanho_ego": 3,
+    "densidade_ego": 1.0
+  },
+  {
+    "aeroporto": "FILM_SPIDER-MAN-NO-WAY-HOME",
+    "grau": 2,
+    "ordem_ego": 3,
+    "tamanho_ego": 3,
+    "densidade_ego": 1.0
+  },
+  {
+    "aeroporto": "FILM_THE-AVENGERS",
+    "grau": 3,
+    "ordem_ego": 4,
+    "tamanho_ego": 6,
+    "densidade_ego": 1.0
+  },
+  {
+    "aeroporto": "FILM_THOR-DARK-WORLD",
+    "grau": 3,
+    "ordem_ego": 4,
+    "tamanho_ego": 6,
+    "densidade_ego": 1.0
+  },
+  {
+    "aeroporto": "FILM_THOR-LOVE-THUNDER",
+    "grau": 3,
+    "ordem_ego": 4,
+    "tamanho_ego": 6,
+    "densidade_ego": 1.0
+  },
+  {
+    "aeroporto": "FILM_THOR-RAGNAROK",
+    "grau": 3,
+    "ordem_ego": 4,
+    "tamanho_ego": 6,
+    "densidade_ego": 1.0
+  },
+  {
+    "aeroporto": "FILM_THOR",
+    "grau": 3,
+    "ordem_ego": 4,
+    "tamanho_ego": 6,
+    "densidade_ego": 1.0
   }
 ]

@@ -19,7 +19,7 @@ pandas>=2.2.0,<3.0.0          # Leitura e validação dos arquivos CSV (io.py)
 # Visualização — estática
 # -----------------------------------------------------------------------------
 matplotlib>=3.8.0,<4.0.0      # Gráficos analíticos (histogramas, barras, etc.)
-                               # e out/arvore_percurso.png
+                               # (usado também para gerar imagens de árvore)
 
 # -----------------------------------------------------------------------------
 # Visualização — interativa
@@ -29,7 +29,7 @@ plotly>=5.20.0,<6.0.0          # Gráficos interativos (distribuição de graus,
 kaleido>=0.2.1                 # Exportação de figuras Plotly para .png/.pdf
                                # (necessário para salvar em out/ sem browser)
 pyvis>=0.3.2,<1.0.0            # Grafo HTML interativo → out/grafo_interativo.html
-                               # e out/arvore_percurso.html
+                               # (também gera visualizações de rotas obrigatórias)
 
 # -----------------------------------------------------------------------------
 # UX / App interativo (bônus)
