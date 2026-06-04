@@ -201,8 +201,7 @@ def dijkstra(
     return dist[target], caminho
 
 
-def bellman_ford(graph: Graph, raiz: str, target: str | None = None) -> tuple[dict[str, float], dict[str, str | None], bool] | \
-                                                                        tuple[float, list[str]]:
+def bellman_ford(graph, raiz, target=None):
     """
     Executa o algoritmo de Bellman-Ford a partir de um nó raiz.
 
@@ -216,12 +215,11 @@ def bellman_ford(graph: Graph, raiz: str, target: str | None = None) -> tuple[di
     raiz : str
         O código IATA do nó inicial.
 
-    Retorno
+    Returns
     -------
-    tuple[dict[str, float], dict[str, Pai], bool]
-        - Um dicionário mapeando cada nó à sua distância mínima a partir da raiz.
-        - Um dicionário mapeando cada nó ao seu pai no caminho mínimo.
-        - Um booleano que indica se um ciclo negativo foi detectado.
+    tuple
+        - Se `target` for None: (distancias: dict[node, float], pais: dict[node, parent], tem_ciclo: bool)
+        - Se `target` for informado: (custo: float, caminho: list[node])
 
     Raises
     ------

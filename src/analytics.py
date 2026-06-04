@@ -606,10 +606,25 @@ def gerar_todas_visualizacoes(out_dir: str | Path = "out") -> None:
     print("[analytics] Gerando viz 5 - Mapa geografico do grafo (bonus)...")
     viz_mapa_grafo(ego_df, graph, out_dir)
 
-    print("[analytics] Gerando arvore de percurso - Secao 7 (HTML interativo)...")
+    print("[analytics] Gerando visualizações de rotas obrigatórias - Secao 7 (HTML interativo)...")
     from src.viz import render_routes
-    highlighted = {("REC", "POA"), ("MAO", "GRU")}
-    render_routes(graph, all_paths, highlighted, out_dir / "arvore_percurso.html")
+    # Gerar arquivos separados para as rotas obrigatórias
+    rec_key = "REC -> POA"
+    mao_key = "MAO -> GRU"
+
+    rec_path = paths_obrigatorios.get(rec_key, [])
+    if rec_path:
+        try:
+            render_routes(graph, [rec_path], {("REC", "POA")}, out_dir / "arvore_rec_poa.html")
+        except Exception as exc:
+            logger.warning("Falha ao gerar %s: %s", out_dir / "arvore_rec_poa.html", exc)
+
+    mao_path = paths_obrigatorios.get(mao_key, [])
+    if mao_path:
+        try:
+            render_routes(graph, [mao_path], {("MAO", "GRU")}, out_dir / "arvore_mao_gru.html")
+        except Exception as exc:
+            logger.warning("Falha ao gerar %s: %s", out_dir / "arvore_mao_gru.html", exc)
 
     print("[analytics] Gerando grafo interativo (Secao 9)...")
     render_grafo_interativo(ego_df, graph, paths_obrigatorios, out_dir / "grafo_interativo.html")

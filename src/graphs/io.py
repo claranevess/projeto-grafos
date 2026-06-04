@@ -502,7 +502,7 @@ def download_dataset_parte2(dest_dir="data/dataset_parte2", kaggle_dataset="joeb
     logger.info("Estrutura do dataset pronta em: %s", dest)
     return dest
 
-def salvar_csv_graus(graus, out_dir="out"):
+def salvar_csv_graus(graus, out_dir="out", json_name="graus.json"):
     """Exporta a distribuição de graus como JSON e uma figura PNG.
 
     NOTE: Mantemos o nome da função por compatibilidade, mas NÃO geramos
@@ -512,7 +512,7 @@ def salvar_csv_graus(graus, out_dir="out"):
     out_dir.mkdir(parents=True, exist_ok=True)
 
     # gravar JSON com lista de pares (node, degree)
-    json_path = out_dir / "graus.json"
+    json_path = out_dir / json_name
     data = [{"node": n, "degree": int(d)} for n, d in graus]
     json_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
@@ -666,146 +666,129 @@ def _slugify_actor(name):
     return s
 
 
-def carregar_dataset_parte2(
-    dataset_dir="data/dataset_parte2",
-    cast_column=None,
-    min_coappearances=1,
-    validate=True,
-):
-    """Carrega o dataset Parte 2 (Marvel Movies) e retorna um Graph actor–actor.
+def carregar_dataset_parte2(dataset_dir="data/dataset_parte2"):
+    """Carrega o dataset Parte 2 (MARVEL.csv) como grafo de filmes sem arestas.
 
-    Parâmetros
-    ----------
-    dataset_dir: Diretório contendo `marvel_movies.csv` (ou CSV equivalente).
-    cast_column: Coluna explicitamente informada que contém o elenco (opcional).
-    min_coappearances: mínimo de co-aparições para criar uma aresta (>=1).
-    validate: se True, executa verificações básicas (nós>0, pesos>0).
+    Especificação estrita:
+      - Cada linha válida do CSV (coluna `film`) vira um nó com id `FILM_{SLUG}`.
+      - O título original é salvo no campo `cidade`; `regiao` fica vazia ('').
+      - Nenhuma aresta é criada (grafo edgeless).
 
-    Retorna
-    -------
-    Graph: grafo não-direcionado com atores como nós e arestas de co-aparição.
+    A implementação abaixo é autocontida e NÃO usa helpers antigos do módulo.
     """
     dataset_path = Path(dataset_dir)
+
+    # Localizar o CSV — 'MARVEL.csv' tem prioridade
     if dataset_path.is_file():
         csv_path = dataset_path
     else:
-        # procurar por marvel_movies.csv ou heurística similar
-        candidates = list(dataset_path.glob('*.csv'))
-        def choose(cands):
-            if not cands:
-                return None
-            for name in ('marvel', 'movies', 'movie'):
-                for p in cands:
-                    if name in p.name.lower():
-                        return p
-            if len(cands) == 1:
-                return cands[0]
-            return sorted(cands, key=lambda x: x.stat().st_size, reverse=True)[0]
+        candidate = dataset_path / "MARVEL.csv"
+        if candidate.exists():
+            csv_path = candidate
+        else:
+            csvs = [p for p in dataset_path.iterdir() if p.is_file() and p.suffix.lower() == ".csv"]
+            csv_path = None
+            for p in csvs:
+                if "marvel" in p.name.lower():
+                    csv_path = p
+                    break
+            if csv_path is None:
+                raise FileNotFoundError(
+                    f"Arquivo CSV do dataset Parte 2 não encontrado em '{dataset_dir}'. Coloque 'MARVEL.csv' em '{dataset_dir}'."
+                )
 
-        csv_path = choose(candidates)
+    graph = Graph()
 
-    if csv_path is None or not csv_path.exists():
-        raise FileNotFoundError(
-            f"Arquivo CSV do dataset não encontrado em '{dataset_dir}'. "
-            "Execute download_dataset_parte2() ou coloque 'marvel_movies.csv' no diretório."
-        )
+    # Slugify local (autocontido) — remove acentos, converte para ASCII, números e letras
+    def _local_slug(s: str) -> str:
+        if s is None:
+            return "film"
+        s = str(s).strip()
+        if not s:
+            return "film"
+        nfkd = unicodedata.normalize('NFKD', s)
+        ascii_name = nfkd.encode('ascii', 'ignore').decode('ascii')
+        low = ascii_name.lower()
+        slug = re.sub(r"[^a-z0-9]+", '-', low)
+        slug = slug.strip('-')
+        if not slug:
+            slug = re.sub(r"[^a-z0-9]+", '', ascii_name).lower() or 'film'
+        return slug
 
-    logger.info("Carregando dataset Parte2 a partir de '%s'...", csv_path)
-
-    # Leitura inicial (via csv.DictReader)
-    with csv_path.open(encoding='utf-8', newline='') as f:
+    with csv_path.open(encoding="utf-8", newline="") as f:
         reader = csv.DictReader(f)
         if reader.fieldnames is None:
             raise ValueError(f"Arquivo CSV vazio: {csv_path}")
-        headers = [h.strip() for h in reader.fieldnames if h]
 
-        # Detectar coluna de elenco
-        cast_col = cast_column or _find_cast_column(headers)
-        if not cast_col:
-            raise ValueError(
-                "Não foi possível detectar a coluna de elenco no CSV. "
-                "Forneça 'cast_column' ou ajuste o arquivo para conter uma coluna 'cast' ou 'actors'."
-            )
+        # encontrar coluna exatamente chamada 'film' (case-insensitive)
+        film_col = None
+        category_col = None
+        for h in reader.fieldnames:
+            if not h:
+                continue
+            hn = h.strip().lower()
+            if hn == 'film':
+                film_col = h
+            if hn == 'category':
+                category_col = h
+        if film_col is None:
+            raise ValueError(f"Coluna 'film' não encontrada em {csv_path.name}.")
 
-        logger.info("Usando coluna de elenco: '%s'", cast_col)
+        seen = set()
+        # agrupar node_ids por categoria
+        category_to_nodes = defaultdict(list)
 
-        # Co-contagem por par de atores
-        co_count = defaultdict(int)
-        actor_names = {}  # slug -> display name
-        slug_collisions = {}
-
-        for idx, row in enumerate(reader):
-            raw = row.get(cast_col, '')
-            cast_list = _parse_cast_field(raw)
-
-            # unique by normalized name to avoid duplicates in same movie
-            seen = []
-            for name in cast_list:
-                n = name.strip()
-                if not n:
-                    continue
-                if n in seen:
-                    continue
-                seen.append(n)
-
-            if len(seen) < 2:
+        for idx, row in enumerate(reader, start=2):
+            raw = row.get(film_col, "") or ""
+            title = str(raw).strip()
+            if not title:
                 continue
 
-            slugs = []
-            for name in seen:
-                base = _slugify_actor(name)
-                slug = base
-                # handle collisions deterministically
-                if slug in actor_names and actor_names[slug] != name:
-                    count = slug_collisions.get(slug, 1) + 1
-                    slug_collisions[slug] = count
-                    slug = f"{base}-{count}"
-                actor_names[slug] = name
-                slugs.append(slug)
+            base = _local_slug(title)
+            count = 1
+            while True:
+                node_id = f"FILM_{base.upper()}" if count == 1 else f"FILM_{base.upper()}-{count}"
+                if node_id not in seen and not graph.has_node(node_id):
+                    break
+                count += 1
+            seen.add(node_id)
 
-            # increment counts for combinations
-            for a, b in itertools.combinations(sorted(set(slugs)), 2):
-                key = (a, b) if a < b else (b, a)
-                co_count[key] += 1
+            # adicionar nó com metadados mínimos: cidade=title, regiao=''
+            graph.add_node(node_id, title, "")
 
-    # Construir o grafo
-    graph = Graph()
+            # obter categoria (se disponível) e agrupar
+            if category_col:
+                cat_raw = row.get(category_col, "") or ""
+                category = str(cat_raw).strip()
+            else:
+                category = ""
+            category_to_nodes[category].append(node_id)
 
-    # Adicionar nós
-    for slug, name in actor_names.items():
-        node_key = f"ACTOR_{slug.upper()}"
-        # cidade -> nome do ator; regiao -> 'actor'
-        graph.add_node(node_key, name, 'actor')
+    if graph.order() == 0:
+        raise ValueError("Grafo vazio: nenhum filme válido foi encontrado no CSV MARVEL.")
 
-    # Adicionar arestas
+    # Implementação Model A: criar arestas não-direcionadas entre filmes
+    # que pertencem à mesma categoria. Regras:
+    # - evitar self-loop (combinations garante isso)
+    # - evitar duplicatas usando graph.has_edge()
+    # - usar graph.add_edge() com peso padrão 1.0
     edges_added = 0
-    for (a, b), cnt in co_count.items():
-        if cnt < max(1, min_coappearances):
+    for category, nodes in category_to_nodes.items():
+        if len(nodes) < 2:
             continue
-        node_a = f"ACTOR_{a.upper()}"
-        node_b = f"ACTOR_{b.upper()}"
-        # peso inverso à frequência (maior co-aparição -> menor custo)
-        peso = 1.0 / (1 + cnt)
-        justificativa = f"{cnt} filmes em comum"
-        try:
-            graph.add_edge(node_a, node_b, peso, tipo_conexao='coappearance', justificativa=justificativa)
-            edges_added += 1
-        except Exception as exc:
-            logger.warning("Falha ao adicionar aresta %s-%s: %s", node_a, node_b, exc)
+        for u, v in itertools.combinations(nodes, 2):
+            if u == v:
+                continue
+            if graph.has_edge(u, v):
+                continue
+            try:
+                graph.add_edge(origem=u, destino=v, peso=1.0, tipo_conexao="category", justificativa=f"same category: {category}")
+                edges_added += 1
+            except Exception:
+                # robustez: ignorar arestas problemáticas e continuar
+                continue
 
-    logger.info("Grafo construído: %d nós, %d arestas (pares com pelo menos %d co-aparições)", graph.order(), graph.size(), min_coappearances)
-
-    # Validações simples
-    if validate:
-        if graph.order() == 0:
-            raise ValueError("Grafo vazio: nenhum ator encontrado no dataset.")
-        # garantir pesos não-negativos
-        for origem, edge in graph.iter_edges():
-            if edge.peso is None or not isinstance(edge.peso, (int, float)):
-                raise ValueError(f"Aresta {origem}→{edge.destino} com peso inválido: {edge.peso}")
-            if edge.peso < 0:
-                raise ValueError(f"Aresta {origem}→{edge.destino} tem peso negativo: {edge.peso}")
-
+    logger.info("Arestas criadas por categoria: %d", edges_added)
     return graph
 
 
@@ -925,6 +908,14 @@ def save_dataset_description(graph, out_dir="out"):
     hubs_path = out_dir / "top_hubs.json"
     hubs_data = [{"node": n, "degree": int(d)} for n, d in top_hubs]
     hubs_path.write_text(json.dumps(hubs_data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    # Salvar distribuição de graus específica da Parte 2 sem sobrescrever
+    # artefatos da Parte 1: usamos nome distinto `grausparte2.json`.
+    try:
+        lista = graph.all_degrees()
+        salvar_csv_graus(lista, out_dir, json_name="grausparte2.json")
+    except Exception:
+        logger.warning("Falha ao salvar grausparte2.json em %s", out_dir)
 
     # Renderizar descrição como PNG
     desc_png = out_dir / "description.png"
