@@ -1,0 +1,122 @@
+[
+  {
+    "node": "FILM_ANT-MAN",
+    "degree": 1
+  },
+  {
+    "node": "FILM_ANT-MAN-THE-WASP",
+    "degree": 1
+  },
+  {
+    "node": "FILM_AVENGERS-AGE-OF-ULTRON",
+    "degree": 3
+  },
+  {
+    "node": "FILM_AVENGERS-END-GAME",
+    "degree": 3
+  },
+  {
+    "node": "FILM_AVENGERS-INFINITY-WAR",
+    "degree": 3
+  },
+  {
+    "node": "FILM_BLACK-PANTHER",
+    "degree": 1
+  },
+  {
+    "node": "FILM_BLACK-PANTHER-2",
+    "degree": 1
+  },
+  {
+    "node": "FILM_BLACK-WIDOW",
+    "degree": 4
+  },
+  {
+    "node": "FILM_CAPTAIN-AMERICA",
+    "degree": 2
+  },
+  {
+    "node": "FILM_CAPTAIN-AMERICA-CIVIL-WAR",
+    "degree": 2
+  },
+  {
+    "node": "FILM_CAPTAIN-AMERICA-WINTER-SOLDIER",
+    "degree": 2
+  },
+  {
+    "node": "FILM_CAPTAIN-MARVEL",
+    "degree": 4
+  },
+  {
+    "node": "FILM_DR-STRANGE",
+    "degree": 1
+  },
+  {
+    "node": "FILM_DR-STRANGE-MULTIVERSE-OF-MADNESS",
+    "degree": 1
+  },
+  {
+    "node": "FILM_ETERNALS",
+    "degree": 4
+  },
+  {
+    "node": "FILM_GUARDIANS-OF-THE-GALAXY",
+    "degree": 1
+  },
+  {
+    "node": "FILM_GUARDIANS-OF-THE-GALAXY-2",
+    "degree": 1
+  },
+  {
+    "node": "FILM_INCREDIBLE-HULK",
+    "degree": 4
+  },
+  {
+    "node": "FILM_IRON-MAN",
+    "degree": 2
+  },
+  {
+    "node": "FILM_IRON-MAN-2",
+    "degree": 2
+  },
+  {
+    "node": "FILM_IRON-MAN-3",
+    "degree": 2
+  },
+  {
+    "node": "FILM_SHANG-CHI",
+    "degree": 4
+  },
+  {
+    "node": "FILM_SPIDER-MAN-FAR-FROM-HOME",
+    "degree": 2
+  },
+  {
+    "node": "FILM_SPIDER-MAN-HOMECOMING",
+    "degree": 2
+  },
+  {
+    "node": "FILM_SPIDER-MAN-NO-WAY-HOME",
+    "degree": 2
+  },
+  {
+    "node": "FILM_THE-AVENGERS",
+    "degree": 3
+  },
+  {
+    "node": "FILM_THOR-DARK-WORLD",
+    "degree": 3
+  },
+  {
+    "node": "FILM_THOR-LOVE-THUNDER",
+    "degree": 3
+  },
+  {
+    "node": "FILM_THOR-RAGNAROK",
+    "degree": 3
+  },
+  {
+    "node": "FILM_THOR",
+    "degree": 3
+  }
+]

@@ -147,7 +147,7 @@ python -m pytest tests/
 | `ego_aeroportos.csv`    | Ego-rede de cada aeroporto                        |
 | `graus.csv`             | Grau de cada aeroporto                            |
 | `distancias_rotas.csv`  | Custos e caminhos calculados                      |
-| `arvore_percurso.html`  | Visualização interativa dos caminhos obrigatórios |
+| `arvore_rec_poa.html` / `arvore_mao_gru.html` | Visualizações interativas dos caminhos obrigatórias (REC → POA, MAO → GRU) |
 | `grafo_interativo.html` | Grafo completo interativo (pyvis)                 |
 | `parte2_report.json`    | Métricas de desempenho da Parte 2                 |
 
@@ -171,6 +171,16 @@ Arquivos criados como stubs para testes do pipeline:
 - `negative_edges.csv` — cabeçalho: `origin,destination,weight,tipo_conexao,justificativa`
 - `negative_cycle.csv` — cabeçalho: `origin,destination,weight,tipo_conexao,justificativa`
  ---
+
+## Descrição do dataset — Parte 2 (Marvel Movies)
+Fonte: data/dataset_parte2/MARVEL.csv (carregado pelo pipeline Parte 2)
+|V| (número de vértices): 30
+|E| (número de arestas): 35
+Tipo de grafo: não direcionado
+Ponderado: sim (as arestas armazenam atributo de peso; no dataset principal as arestas possuem peso 1.0).
+Distribuição de graus: lista de graus por nó em out/grausparte2.json e tabela degree→frequency em out/degree_distribution.json
+Histograma / figura legível: out/degree_hist.png
+Observação de consistência: soma dos graus = 70 = 2·|E| (consistente com grafo não-direcionado)
 
 ## Dependências
 
