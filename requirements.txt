@@ -43,3 +43,13 @@ streamlit>=1.35.0,<2.0.0       # Interface web para explorar o grafo,
 pytest>=8.2.0,<9.0.0           # Framework de testes (test_bfs, test_dfs,
                                # test_dijkstra, test_bellman_ford)
 pytest-cov>=5.0.0,<6.0.0       # Relatório de cobertura de código
+
+# -----------------------------------------------------------------------------
+# API — FastAPI (Parte 1 + Parte 2)
+# -----------------------------------------------------------------------------
+fastapi>=0.115.0               # Framework ASGI para a camada de API REST
+uvicorn[standard]>=0.30.0      # Servidor ASGI (uvloop + httptools)
+pydantic>=2.7.0                # Validação e serialização dos schemas
+pydantic-settings>=2.3.0       # Configuração via variáveis de ambiente
+httpx>=0.27.0                  # Cliente HTTP para testes assíncronos
+pytest-asyncio>=0.23.0         # Suporte a testes async com pytest
