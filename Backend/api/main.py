@@ -1,7 +1,9 @@
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from Backend.api.routers import algorithms as alg_router
 from Backend.api.routers import graph as graph_router
@@ -38,6 +40,11 @@ app.add_middleware(
 app.include_router(graph_router.router, prefix="/api")
 app.include_router(alg_router.router, prefix="/api")
 app.include_router(metrics_router.router, prefix="/api")
+
+# Serve analytics charts
+out_dir = Path(__file__).parent.parent.parent / "out"
+if out_dir.exists():
+    app.mount("/charts", StaticFiles(directory=str(out_dir)), name="charts")
 
 
 @app.get("/health", tags=["health"])
