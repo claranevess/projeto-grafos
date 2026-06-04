@@ -1,12 +1,15 @@
+import { useState } from 'react'
 import { TopBar } from '@shared/TopBar'
 import { BridgeAlert } from '@shared/BridgeAlert'
 import { SidePanel } from '@aeroportos/panels/SidePanel'
 import { MapCanvas } from '@aeroportos/viz/MapCanvas'
 import { AlgorithmDial } from '@aeroportos/controls/AlgorithmDial'
+import { DashboardOverlay } from '@aeroportos/panels/DashboardOverlay'
 import { useStore } from '@/store'
 import { Badge } from '@/components/ui/badge'
 
 export function AppShell() {
+  const [dashboardOpen, setDashboardOpen] = useState(false)
   const { source, target } = useStore(s => ({ source: s.source, target: s.target }))
 
   return (
@@ -24,7 +27,8 @@ export function AppShell() {
 
         <main className="flex-1 relative overflow-hidden min-h-0">
           <MapCanvas />
-          <AlgorithmDial />
+          <AlgorithmDial dashboardOpen={dashboardOpen} onToggleDashboard={() => setDashboardOpen(v => !v)} />
+          {dashboardOpen && <DashboardOverlay onClose={() => setDashboardOpen(false)} />}
         </main>
       </div>
 
