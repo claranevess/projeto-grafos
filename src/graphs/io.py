@@ -926,3 +926,7 @@ def save_dataset_description(graph, out_dir="out"):
 
     logger.info("Descrição do dataset salva em: %s", out_dir)
     return description
+
+def salvar_report_parte_2(resultados: dict):
+    with open("out/parte2_report.json", "w", encoding="utf-8") as f:
+        json.dump(resultados, f, indent=4)

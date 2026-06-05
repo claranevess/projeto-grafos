@@ -22,6 +22,7 @@ def bfs(graph: Graph, raiz):
     pais = {no: None for no in graph.iter_nodes()}
     distancia = {no: float('inf') for no in graph.iter_nodes()}
     distancia[raiz] = 0
+    ordem_visitacao = []
 
     estados[raiz] = VISITADO
 
@@ -30,6 +31,7 @@ def bfs(graph: Graph, raiz):
 
     while fila:
         no_atual = fila.popleft()
+        ordem_visitacao.append(no_atual)
 
         for aresta in graph.get_neighbors(no_atual):
             vizinho = aresta.destino
@@ -42,7 +44,7 @@ def bfs(graph: Graph, raiz):
             
         estados[no_atual] = ENCERRADO
     
-    return distancia, pais
+    return distancia, pais, ordem_visitacao
 
 def dfs(graph, raiz):
     """
