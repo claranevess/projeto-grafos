@@ -124,7 +124,7 @@ def _executar(args):
     `--help` funcione mesmo com stubs ainda não implementados.
     """
     from src.graphs.algorithms import bfs, dfs, dijkstra, bellman_ford
-    from src.solve import salvar_metricas
+    from src.solve import salvar_metricas, calcular_tempo_execucao
 
     dataset_path = Path(args.dataset)
     print(f"[cli] Carregando dataset: {args.dataset}")
@@ -202,6 +202,10 @@ def _executar(args):
         else:
             salvar_metricas(grafo, args.out)
             print(f"[cli] Métricas salvas em '{args.out}' (global.png, regioes.png)")
+        
+        resultados = calcular_tempo_execucao()
+        print(resultados)
+
     except Exception as exc:
         print(f"[aviso] Falha ao salvar métricas: {exc}", file=sys.stderr)
 

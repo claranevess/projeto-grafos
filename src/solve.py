@@ -32,6 +32,7 @@ from src.graphs.io import (
     salvar_ego_aeroporto_csv,
     grau_ego_aeroporto,
     densidade_ego_aeroporto,
+    salvar_report_parte_2
 )
 from src.viz import render_global, render_regioes
 from src.graphs.io import carregar_dataset_parte2
@@ -304,24 +305,25 @@ def compute_routes(
 def calcular_tempo_execucao():
     grafo = carregar_dataset_parte2("data/dataset_parte2")
 
-    lista_nos = ["FILM_ANT-MAN", "FILM_CAPTAIN-AMERICA", "FILM-IRON_MAN "]
+    lista_nos = ["FILM_ANT-MAN", "FILM_CAPTAIN-AMERICA", "FILM_IRON-MAN"]
 
     bfs_dfs = {"bfs": {}, "dfs" : {}}
 
-    for no in lista_nos:
-        origem = grafo.get_node(no)
+    for no_origem in lista_nos:
 
         start = time.perf_counter()
-        distancia_bfs, pais_bfs, ordem_bfs = bfs(grafo,origem)
+        distancia_bfs, pais_bfs, ordem_bfs = bfs(grafo, no_origem)
         end = time.perf_counter()
         tempo_total_bfs = end - start
-        bfs_dfs[bfs][no] = {"node": no, "time": tempo_total_bfs}
+        bfs_dfs["bfs"][no_origem] = {"node": no_origem, "time": tempo_total_bfs}
         
         start = time.perf_counter()
-        retorno_dfs = dfs(grafo, origem)
+        ordem_dfs, ciclo_dfs, classificacao_arestas_dfs = dfs(grafo, no_origem)
         end = time.perf_counter()
         tempo_total_dfs = end - start
-        bfs_dfs[dfs][no] = {"node": no, "time": tempo_total_dfs}
+        bfs_dfs["dfs"][no_origem] = {"node": no_origem, "time": tempo_total_dfs}
 
-    return bfs_dfs
+        salvar_report_parte_2(bfs_dfs)
+
+        return distancia_bfs, pais_bfs, ordem_bfs, ordem_dfs, ciclo_dfs, classificacao_arestas_dfs
        
