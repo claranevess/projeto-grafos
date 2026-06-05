@@ -23,6 +23,7 @@ import json
 import logging
 from pathlib import Path
 import csv
+import time
 
 from src.graphs.graph import Graph
 from src.graphs.io import (
@@ -33,6 +34,8 @@ from src.graphs.io import (
     densidade_ego_aeroporto,
 )
 from src.viz import render_global, render_regioes
+from src.graphs.io import carregar_dataset_parte2
+from src.graphs.algorithms import bfs, dfs
 
 logger = logging.getLogger(__name__)
 
@@ -297,3 +300,28 @@ def compute_routes(
 
     logging.getLogger(__name__).info("Gravado: %s", out_path)
     return resultados
+
+def calcular_tempo_execucao():
+    grafo = carregar_dataset_parte2("data/dataset_parte2")
+
+    lista_nos = ["FILM_ANT-MAN", "FILM_CAPTAIN-AMERICA", "FILM-IRON_MAN "]
+
+    bfs_dfs = {"bfs": {}, "dfs" : {}}
+
+    for no in lista_nos:
+        origem = grafo.get_node(no)
+
+        start = time.perf_counter()
+        distancia_bfs, pais_bfs, ordem_bfs = bfs(grafo,origem)
+        end = time.perf_counter()
+        tempo_total_bfs = end - start
+        bfs_dfs[bfs][no] = {"node": no, "time": tempo_total_bfs}
+        
+        start = time.perf_counter()
+        retorno_dfs = dfs(grafo, origem)
+        end = time.perf_counter()
+        tempo_total_dfs = end - start
+        bfs_dfs[dfs][no] = {"node": no, "time": tempo_total_dfs}
+
+    return bfs_dfs
+       
