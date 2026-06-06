@@ -1,7 +1,7 @@
 import pytest
 
-from graphs.algorithms import bellman_ford
-from graphs.graph import Graph
+from Backend.src.graphs.algorithms import bellman_ford
+from Backend.src.graphs.graph import Graph
 
 
 def test_bellman_ford_com_pesos_negativos_sem_ciclo():

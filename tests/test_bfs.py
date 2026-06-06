@@ -1,7 +1,7 @@
 import pytest
 
-from graphs.algorithms import bfs
-from graphs.graph import Graph
+from Backend.src.graphs.algorithms import bfs
+from Backend.src.graphs.graph import Graph
 
 
 @pytest.fixture
@@ -40,7 +40,7 @@ def sample_graph() -> Graph:
 def test_bfs_basic(sample_graph: Graph):
     """Testa a execução básica do BFS a partir da raiz 'A'."""
     raiz = "A"
-    niveis, ordem_visitacao = bfs(sample_graph, raiz)
+    niveis, _, ordem_visitacao = bfs(sample_graph, raiz)
 
     # Verifica os níveis (distâncias)
     expected_niveis = {
@@ -63,7 +63,7 @@ def test_bfs_basic(sample_graph: Graph):
 def test_bfs_different_root(sample_graph: Graph):
     """Testa a execução do BFS a partir de uma raiz diferente ('D')."""
     raiz = "D"
-    niveis, _ = bfs(sample_graph, raiz)
+    niveis, _, _ = bfs(sample_graph, raiz)
 
     expected_niveis = {
         "D": 0,
@@ -90,11 +90,12 @@ def test_bfs_disconnected_graph():
 
     g.add_edge("A", "B", 1.0, "regional", "justificativa")
 
-    niveis, ordem_visitacao = bfs(g, "A")
+    niveis, _, ordem_visitacao = bfs(g, "A")
 
-    # Apenas nós alcançáveis devem estar no resultado
+    # bfs retorna distâncias para todos os nós; filtramos os inalcançáveis (inf)
     expected_niveis = {"A": 0, "B": 1}
     expected_ordem = ["A", "B"]
 
-    assert niveis == expected_niveis
+    alcancaveis = {k: v for k, v in niveis.items() if v != float("inf")}
+    assert alcancaveis == expected_niveis
     assert set(ordem_visitacao) == set(expected_ordem)

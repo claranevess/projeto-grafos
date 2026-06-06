@@ -1,7 +1,7 @@
 import pytest
 
-from graphs.algorithms import dfs
-from graphs.graph import Graph
+from Backend.src.graphs.algorithms import dfs
+from Backend.src.graphs.graph import Graph
 
 
 @pytest.fixture
