@@ -503,12 +503,8 @@ def download_dataset_parte2(dest_dir="data/dataset_parte2", kaggle_dataset="joeb
     logger.info("Estrutura do dataset pronta em: %s", dest)
     return dest
 
-<<<<<<< HEAD
-def salvar_csv_graus(graus, out_dir="out", json_name="graus.json"):
-=======
 
-def salvar_csv_graus(graus, out_dir="out"):
->>>>>>> 019e1699b563c0d1b37f2c12efe5c70609eb4785
+def salvar_csv_graus(graus, out_dir="out", json_name="graus.json"):
     """Exporta a distribuição de graus como JSON e uma figura PNG.
 
     NOTE: Mantemos o nome da função por compatibilidade, mas NÃO geramos
@@ -675,18 +671,8 @@ def _slugify_actor(name):
     return s
 
 
-<<<<<<< HEAD
 def carregar_dataset_parte2(dataset_dir="data/dataset_parte2"):
     """Carrega o dataset Parte 2 (MARVEL.csv) como grafo de filmes sem arestas.
-=======
-def carregar_dataset_parte2(
-        dataset_dir="data/dataset_parte2",
-        cast_column=None,
-        min_coappearances=1,
-        validate=True,
-):
-    """Carrega o dataset Parte 2 (Marvel Movies) e retorna um Graph actor–actor.
->>>>>>> 019e1699b563c0d1b37f2c12efe5c70609eb4785
 
     Especificação estrita:
       - Cada linha válida do CSV (coluna `film`) vira um nó com id `FILM_{SLUG}`.
@@ -701,7 +687,6 @@ def carregar_dataset_parte2(
     if dataset_path.is_file():
         csv_path = dataset_path
     else:
-<<<<<<< HEAD
         candidate = dataset_path / "MARVEL.csv"
         if candidate.exists():
             csv_path = candidate
@@ -716,21 +701,6 @@ def carregar_dataset_parte2(
                 raise FileNotFoundError(
                     f"Arquivo CSV do dataset Parte 2 não encontrado em '{dataset_dir}'. Coloque 'MARVEL.csv' em '{dataset_dir}'."
                 )
-=======
-        # procurar por marvel_movies.csv ou heurística similar
-        candidates = list(dataset_path.glob('*.csv'))
-
-        def choose(cands):
-            if not cands:
-                return None
-            for name in ('marvel', 'movies', 'movie'):
-                for p in cands:
-                    if name in p.name.lower():
-                        return p
-            if len(cands) == 1:
-                return cands[0]
-            return sorted(cands, key=lambda x: x.stat().st_size, reverse=True)[0]
->>>>>>> 019e1699b563c0d1b37f2c12efe5c70609eb4785
 
     graph = Graph()
 
@@ -811,44 +781,17 @@ def carregar_dataset_parte2(
     for category, nodes in category_to_nodes.items():
         if len(nodes) < 2:
             continue
-<<<<<<< HEAD
         for u, v in itertools.combinations(nodes, 2):
             if u == v:
                 continue
             if graph.has_edge(u, v):
                 continue
             try:
-                graph.add_edge(origem=u, destino=v, peso=1.0, tipo_conexao="category", justificativa=f"same category: {category}")
+                graph.add_edge(origem=u, destino=v, peso=1.0, tipo_conexao="category",
+                               justificativa=f"same category: {category}")
                 edges_added += 1
             except Exception:
-                # robustez: ignorar arestas problemáticas e continuar
                 continue
-=======
-        node_a = f"ACTOR_{a.upper()}"
-        node_b = f"ACTOR_{b.upper()}"
-        # peso inverso à frequência (maior co-aparição -> menor custo)
-        peso = 1.0 / (1 + cnt)
-        justificativa = f"{cnt} filmes em comum"
-        try:
-            graph.add_edge(node_a, node_b, peso, tipo_conexao='coappearance', justificativa=justificativa)
-            edges_added += 1
-        except Exception as exc:
-            logger.warning("Falha ao adicionar aresta %s-%s: %s", node_a, node_b, exc)
-
-    logger.info("Grafo construído: %d nós, %d arestas (pares com pelo menos %d co-aparições)", graph.order(),
-                graph.size(), min_coappearances)
-
-    # Validações simples
-    if validate:
-        if graph.order() == 0:
-            raise ValueError("Grafo vazio: nenhum ator encontrado no dataset.")
-        # garantir pesos não-negativos
-        for origem, edge in graph.iter_edges():
-            if edge.peso is None or not isinstance(edge.peso, (int, float)):
-                raise ValueError(f"Aresta {origem}→{edge.destino} com peso inválido: {edge.peso}")
-            if edge.peso < 0:
-                raise ValueError(f"Aresta {origem}→{edge.destino} tem peso negativo: {edge.peso}")
->>>>>>> 019e1699b563c0d1b37f2c12efe5c70609eb4785
 
     logger.info("Arestas criadas por categoria: %d", edges_added)
     return graph
@@ -989,10 +932,8 @@ def save_dataset_description(graph, out_dir="out"):
 
     logger.info("Descrição do dataset salva em: %s", out_dir)
     return description
-<<<<<<< HEAD
+
 
 def salvar_report_parte_2(resultados: dict):
     with open("out/parte2_report.json", "w", encoding="utf-8") as f:
         json.dump(resultados, f, indent=4)
-=======
->>>>>>> 019e1699b563c0d1b37f2c12efe5c70609eb4785
