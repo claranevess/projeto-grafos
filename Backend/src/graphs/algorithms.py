@@ -1,7 +1,33 @@
+<<<<<<< HEAD
 
 from .graph import Graph
 from collections import deque
 
+=======
+from collections import deque
+
+# NOTE: typing annotations removed from core algorithm module to comply with
+# discipline rules; types are documented in docstrings and comments.
+
+# Suporte para import quando o módulo é executado diretamente (sem package)
+try:
+    from .graph import Graph
+except Exception:
+    # Ao executar o arquivo diretamente, o contexto de pacote pode não existir.
+    # Insere o diretório do projeto no sys.path e tenta import absoluto.
+    import os
+    import sys
+
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+    if project_root not in sys.path:
+        sys.path.insert(0, project_root)
+
+    from graphs.graph import Graph
+
+# Tipos documentados apenas nos docstrings; removeram-se aliases e
+# anotações para obedecer à política do núcleo (sem typing).
+
+>>>>>>> 019e1699b563c0d1b37f2c12efe5c70609eb4785
 # Constantes para estados dos nós
 NAO_VISITADO = "NAO_VISITADO"
 VISITADO = "VISITADO"
@@ -203,7 +229,13 @@ def dijkstra(
     return dist[target], caminho
 
 
+<<<<<<< HEAD
 def bellman_ford(graph, raiz, target=None):
+=======
+def bellman_ford(graph: Graph, raiz: str, target: str | None = None) -> tuple[dict[str, float], dict[
+    str, str | None], bool] | \
+                                                                        tuple[float, list[str]]:
+>>>>>>> 019e1699b563c0d1b37f2c12efe5c70609eb4785
     """
     Executa o algoritmo de Bellman-Ford a partir de um nó raiz.
 
