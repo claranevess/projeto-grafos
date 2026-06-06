@@ -34,9 +34,9 @@ from .graphs.io import (
     densidade_ego_aeroporto,
     salvar_report_parte_2
 )
-from src.viz import render_global, render_regioes
-from src.graphs.io import carregar_dataset_parte2
-from src.graphs.algorithms import bfs, dfs
+from .viz import render_global, render_regioes
+from .graphs.io import carregar_dataset_parte2
+from .graphs.algorithms import bfs, dfs
 
 logger = logging.getLogger(__name__)
 

@@ -7,13 +7,14 @@ def run_bfs(graph, source: str) -> BfsResult:
     from Backend.src.graphs.algorithms import bfs
 
     start = time.perf_counter()
-    niveis, visited_order = bfs(graph, source)
+    niveis, _pais, visited_order = bfs(graph, source)
     elapsed_ms = (time.perf_counter() - start) * 1000
 
-    # Agrupa nós por nível BFS; chaves como string para compatibilidade JSON
+    # Agrupa nós alcançáveis por nível BFS; chaves como string para compatibilidade JSON
     layers: dict[str, list[str]] = {}
     for node, level in niveis.items():
-        layers.setdefault(str(level), []).append(node)
+        if level != float("inf"):
+            layers.setdefault(str(level), []).append(node)
 
     return BfsResult(
         source=source,
