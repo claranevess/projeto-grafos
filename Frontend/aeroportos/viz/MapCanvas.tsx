@@ -6,7 +6,6 @@ import { NodeLayer } from './NodeLayer'
 import { PathHighlightLayer } from './PathHighlightLayer'
 import { BfsWaveLayer } from './BfsWaveLayer'
 import { PlaneAnimator } from './PlaneAnimator'
-import { RadarSweep } from './RadarSweep'
 import { useProjection } from '@/hooks/useProjection'
 import { useStore } from '@/store'
 import type { NodeSchema } from '@/lib/types'
@@ -113,7 +112,6 @@ export function MapCanvas() {
           viewBox={`0 0 ${dims.w} ${dims.h}`}
           style={{ width: '100%', height: '100%', display: 'block' }}
         >
-          <RadarSweep cx={dims.w / 2} cy={dims.h / 2} r={Math.min(dims.w, dims.h) * 0.45} />
           <g
             transform={zoomAttr}
             style={{ transition: 'transform 0.9s cubic-bezier(0.4, 0, 0.2, 1)' }}
