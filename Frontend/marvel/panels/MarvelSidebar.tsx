@@ -7,7 +7,7 @@ import { useStore } from '@/store'
 import { useMarvelMovies, useMarvelGraph } from '@/hooks/useMarvelGraph'
 import { useRunMarvelAlgorithm } from '@/hooks/useMarvelAlgorithm'
 import { ALGORITHM_LABELS, MARVEL_CATEGORIES, CATEGORY_COLORS } from '@/lib/constants'
-import type { AlgorithmName } from '@/lib/types'
+import type { AlgorithmName, MarvelMovieSchema } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { RevenueBarChart } from '../charts/RevenueBarChart'
 import { CategoryCompareChart } from '../charts/CategoryCompareChart'
@@ -65,8 +65,8 @@ export function MarvelSidebar() {
             ))}
           </TabsList>
 
-          <ScrollArea className="flex-1 mt-3">
-            <TabsContent value="algoritmo" className="mt-0 space-y-3 pr-1">
+          <TabsContent value="algoritmo" className="mt-3 flex-1 min-h-0 flex flex-col gap-3 overflow-hidden">
+            <div className="space-y-3 shrink-0 pr-1">
               <div className="grid grid-cols-2 gap-1">
                 {ALGORITHMS.map(alg => (
                   <button
@@ -134,51 +134,59 @@ export function MarvelSidebar() {
               >
                 {isPending ? 'Executando…' : 'Executar'}
               </Button>
+            </div>
 
-              {result && <ResultSummary result={result as Record<string, unknown>} />}
-            </TabsContent>
+            {result && <ResultSummary result={result as Record<string, unknown>} movies={movies ?? []} />}
+          </TabsContent>
 
-            <TabsContent value="graficos" className="mt-0 space-y-4 pr-1">
-              <RevenueBarChart />
-              <Separator style={{ background: 'black', height: 2 }} />
-              <CategoryCompareChart />
-              <Separator style={{ background: 'black', height: 2 }} />
-              <DegreeHistogram />
-              <Separator style={{ background: 'black', height: 2 }} />
-              <ROIScatterPlot />
-              <Separator style={{ background: 'black', height: 2 }} />
-              <AlgoCompareChart />
-            </TabsContent>
+          <TabsContent value="graficos" className="mt-3 flex-1 min-h-0 overflow-hidden">
+            <ScrollArea className="h-full">
+              <div className="space-y-4 pr-1">
+                <RevenueBarChart />
+                <Separator style={{ background: 'black', height: 2 }} />
+                <CategoryCompareChart />
+                <Separator style={{ background: 'black', height: 2 }} />
+                <DegreeHistogram />
+                <Separator style={{ background: 'black', height: 2 }} />
+                <ROIScatterPlot />
+                <Separator style={{ background: 'black', height: 2 }} />
+                <AlgoCompareChart />
+              </div>
+            </ScrollArea>
+          </TabsContent>
 
-            <TabsContent value="grafo" className="mt-0 space-y-3 pr-1">
-              {graph && (
-                <div className="space-y-1.5 text-[11px] font-mono">
-                  <MetricRow label="Filmes" value={graph.order} />
-                  <MetricRow label="Conexões" value={graph.size} />
-                </div>
-              )}
+          <TabsContent value="grafo" className="mt-3 flex-1 min-h-0 overflow-hidden">
+            <ScrollArea className="h-full">
+              <div className="space-y-3 pr-1">
+                {graph && (
+                  <div className="space-y-1.5 text-[11px] font-mono">
+                    <MetricRow label="Filmes" value={graph.order} />
+                    <MetricRow label="Conexões" value={graph.size} />
+                  </div>
+                )}
 
-              <Separator style={{ background: 'black', height: 2 }} />
+                <Separator style={{ background: 'black', height: 2 }} />
 
-              <p className="text-[9px] font-mono text-[var(--muted-foreground)] uppercase tracking-widest">
-                Legenda de categorias
-              </p>
-              {MARVEL_CATEGORIES.map(c => (
-                <div key={c} className="flex items-center gap-2 text-[10px] font-mono">
-                  <span
-                    className="w-3 h-3 shrink-0"
-                    style={{ background: CATEGORY_COLORS[c], outline: '1.5px solid black' }}
-                  />
-                  <span className="text-[var(--foreground)]">{c}</span>
-                </div>
-              ))}
+                <p className="text-[9px] font-mono text-[var(--muted-foreground)] uppercase tracking-widest">
+                  Legenda de categorias
+                </p>
+                {MARVEL_CATEGORIES.map(c => (
+                  <div key={c} className="flex items-center gap-2 text-[10px] font-mono">
+                    <span
+                      className="w-3 h-3 shrink-0"
+                      style={{ background: CATEGORY_COLORS[c], outline: '1.5px solid black' }}
+                    />
+                    <span className="text-[var(--foreground)]">{c}</span>
+                  </div>
+                ))}
 
-              <Separator style={{ background: 'black', height: 2 }} />
-              <p className="text-[9px] font-mono text-[var(--muted-foreground)]">
-                Clique num nó para definir origem; clique de novo para definir destino.
-              </p>
-            </TabsContent>
-          </ScrollArea>
+                <Separator style={{ background: 'black', height: 2 }} />
+                <p className="text-[9px] font-mono text-[var(--muted-foreground)]">
+                  Clique num nó para definir origem; clique de novo para definir destino.
+                </p>
+              </div>
+            </ScrollArea>
+          </TabsContent>
         </Tabs>
       </div>
     </aside>
@@ -228,30 +236,119 @@ function MetricRow({ label, value }: { label: string; value: string | number }) 
   )
 }
 
-function ResultSummary({ result }: { result: Record<string, unknown> }) {
-  const algo        = result.algorithm as string | undefined
-  const execTime    = result.execution_time_ms as number | undefined
-  const visited     = (result.visited_order as unknown[])?.length
-  const pathArr     = result.path as number[] | undefined
-  const cost        = result.cost as number | null | undefined
+function ResultSummary({ result, movies }: { result: Record<string, unknown>; movies: MarvelMovieSchema[] }) {
+  const algo     = result.algorithm as string | undefined
+  const execTime = result.execution_time_ms as number | undefined
 
   return (
     <div
-      className="border-2 border-black p-2 space-y-1 text-[10px] font-mono"
+      className="border-2 border-black p-2 space-y-1.5 text-[10px] font-mono flex-1 min-h-0 overflow-y-auto flex flex-col"
       style={{ background: 'var(--background-card)', boxShadow: '3px 3px 0px #000' }}
     >
-      <div className="font-bold text-[var(--foreground)]">{algo}</div>
-      {execTime !== undefined && (
-        <div className="text-[var(--muted-foreground)]">{execTime.toFixed(2)}ms</div>
+      <div className="flex items-center justify-between">
+        <span className="font-bold text-[var(--foreground)]">{algo}</span>
+        {execTime !== undefined && (
+          <span className="text-[var(--muted-foreground)]">{execTime.toFixed(2)}ms</span>
+        )}
+      </div>
+
+      {'path' in result && (
+        <PathResultView result={result} movies={movies} />
       )}
-      {visited !== undefined && (
-        <div>Visitados: <span className="text-[var(--foreground)]">{visited}</span></div>
+      {'layers' in result && (
+        <BfsResultView result={result} movies={movies} />
       )}
-      {pathArr && pathArr.length > 0 && (
-        <div>Caminho: <span className="text-[var(--foreground)]">{pathArr.length} nós</span></div>
+      {'edge_types' in result && (
+        <DfsResultView result={result} />
       )}
-      {cost !== undefined && cost !== null && (
-        <div>Custo: <span className="text-[var(--primary)]">{cost.toFixed(1)}</span></div>
+    </div>
+  )
+}
+
+function PathResultView({ result, movies }: { result: Record<string, unknown>; movies: MarvelMovieSchema[] }) {
+  const cost        = result.cost as number | null | undefined
+  const path        = (result.path as number[] | undefined) ?? []
+  const reachable   = result.reachable as boolean | undefined
+  const negCycle    = result.has_negative_cycle as boolean | undefined
+  const titleOf     = (id: number) => movies.find(m => m.movie_id === id)?.title ?? `#${id}`
+
+  return (
+    <div className="space-y-1.5">
+      <div>
+        Custo: <span className="text-[var(--primary)]">{cost !== null && cost !== undefined ? cost.toFixed(1) : '∞'}</span>
+      </div>
+
+      {reachable === false && (
+        <div className="text-[var(--destructive)]">Sem rota disponível</div>
+      )}
+
+      {path.length > 0 && (
+        <div className="flex flex-wrap gap-x-1 gap-y-0.5 leading-relaxed">
+          {path.map((id, i) => (
+            <span key={i} className="text-[var(--foreground)]">
+              {titleOf(id)}
+              {i < path.length - 1 && <span className="text-[var(--muted-foreground)] mx-0.5">→</span>}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {negCycle && (
+        <div className="text-[var(--destructive)] font-bold">⚠ Ciclo negativo detectado</div>
+      )}
+    </div>
+  )
+}
+
+function BfsResultView({ result, movies }: { result: Record<string, unknown>; movies: MarvelMovieSchema[] }) {
+  const visited = (result.visited_order as number[] | undefined) ?? []
+  const layers  = (result.layers as Record<string, number[]> | undefined) ?? {}
+  const entries = Object.entries(layers)
+  const titleOf = (id: number) => movies.find(m => m.movie_id === id)?.title ?? `#${id}`
+
+  return (
+    <div className="space-y-1.5">
+      <div>Visitados: <span className="text-[var(--foreground)]">{visited.length}</span></div>
+      <div className="space-y-1">
+        {entries.map(([layer, ids]) => (
+          <div key={layer} className="text-[9px] leading-snug">
+            <span className="text-[var(--muted-foreground)]">L{layer}: </span>
+            <span className="text-[var(--foreground)]">{ids.map(titleOf).join(', ')}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function DfsResultView({ result }: { result: Record<string, unknown> }) {
+  const visited   = (result.visited_order as number[] | undefined) ?? []
+  const hasCycle  = result.has_cycle as boolean | undefined
+  const edgeTypes = (result.edge_types as Record<string, string> | undefined) ?? {}
+
+  const counts = Object.values(edgeTypes).reduce<Record<string, number>>((acc, t) => {
+    acc[t] = (acc[t] ?? 0) + 1
+    return acc
+  }, {})
+
+  return (
+    <div className="space-y-1.5">
+      <div>Visitados: <span className="text-[var(--foreground)]">{visited.length}</span></div>
+      <div>
+        Ciclo: <span className={hasCycle ? 'text-[var(--destructive)] font-bold' : 'text-[var(--foreground)]'}>
+          {hasCycle ? 'sim' : 'não'}
+        </span>
+      </div>
+      {Object.keys(counts).length > 0 && (
+        <div className="text-[var(--muted-foreground)] leading-relaxed">
+          Arestas:{' '}
+          {Object.entries(counts).map(([type, n], i) => (
+            <span key={type}>
+              {i > 0 && ', '}
+              {type}: <span className="text-[var(--foreground)]">{n}</span>
+            </span>
+          ))}
+        </div>
       )}
     </div>
   )
