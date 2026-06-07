@@ -193,7 +193,7 @@ def _executar(args):
 
         if part2_indicator:
             try:
-                from graphs.io import save_dataset_description
+                from src.graphs.io import save_dataset_description
                 save_dataset_description(grafo, args.out)
                 print(f"[cli] Descrição do dataset Parte 2 salva em '{args.out}'")
             except Exception as exc:
