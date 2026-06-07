@@ -303,3 +303,36 @@ def bellman_ford(graph: Graph, raiz: str, target: str | None = None):
     caminho.reverse()
 
     return distancias[target], caminho
+
+
+def componentes_conexos(graph: Graph) -> list[list[str]]:
+    """Encontra os componentes conexos de um grafo não-direcionado.
+
+    Percorre todos os nós e, para cada um ainda não visitado, reaproveita o
+    BFS para descobrir seu componente inteiro de uma vez (a ordem de
+    visitação retornada por `bfs` é exatamente o conjunto de nós alcançáveis
+    a partir da raiz). Nós sem nenhuma aresta formam, sozinhos, um componente
+    de tamanho 1 — ou seja, são os "nós isolados" do grafo.
+
+    Retorna uma lista de componentes, cada um como lista de nós na ordem em
+    que foram descobertos. A lista vem ordenada do maior para o menor
+    componente, o que facilita identificar rapidamente o "núcleo" do grafo e
+    as ilhas isoladas.
+    """
+    visitados: set[str] = set()
+    componentes: list[list[str]] = []
+
+    for no in graph.iter_nodes():
+        if no in visitados:
+            continue
+        _distancia, _pais, ordem = bfs(graph, no)
+        componentes.append(ordem)
+        visitados.update(ordem)
+
+    componentes.sort(key=len, reverse=True)
+    return componentes
+
+
+def nos_isolados(graph: Graph) -> list[str]:
+    """Retorna os nós sem nenhuma aresta (grau 0) — as "ilhas" do grafo."""
+    return [no for no in graph.iter_nodes() if graph.degree(no) == 0]

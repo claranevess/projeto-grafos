@@ -27,6 +27,7 @@ from pathlib import Path
 
 import unicodedata
 
+from .algorithms import componentes_conexos, nos_isolados
 from .graph import Graph
 # Plotagem e visualização ficam centralizadas em src.viz (apenas viz.py
 # pode importar matplotlib/pyvis/plotly). Importa-se apenas as funções de
@@ -917,6 +918,18 @@ def save_dataset_description(graph, out_dir="out"):
     # Distribuição de graus (degree -> frequency)
     degree_counter = Counter(degrees)
 
+    # Componentes conexos e nós isolados — métrica pedida na arquitetura da
+    # Parte 2 ("Componentes conexos: detectar filmes 'isolados'")
+    componentes = componentes_conexos(graph)
+    isolados = nos_isolados(graph)
+    components_summary = {
+        "total": len(componentes),
+        "tamanhos": [len(c) for c in componentes],
+        "maior_componente": len(componentes[0]) if componentes else 0,
+        "isolados": isolados,
+        "qtd_isolados": len(isolados),
+    }
+
     # Validação de consistência: para grafo não-direcionado soma dos graus = 2*|E|
     sum_degrees = sum(degrees)
     expected_sum = 2 * num_edges if not directed else None
@@ -955,7 +968,13 @@ def save_dataset_description(graph, out_dir="out"):
         "sum_degrees": sum_degrees,
         "consistency": consistency,
         "consistency_message": consistency_message,
+        "components": components_summary,
     }
+
+    # Persistir description.json — o docstring desta função já prometia esse
+    # arquivo, mas ele nunca era de fato gravado (só o dict era retornado)
+    description_path = out_dir / "description.json"
+    description_path.write_text(json.dumps(description, ensure_ascii=False, indent=2), encoding="utf-8")
 
     # Salvar top hubs (20) em JSON (mantido como auxiliar)
     top_hubs = sorted(graph.all_degrees(), key=lambda x: x[1], reverse=True)[:20]
