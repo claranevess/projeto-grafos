@@ -982,13 +982,22 @@ def save_dataset_description(graph, out_dir="out"):
     return description
 
 
-def salvar_report_parte_2(resultados: dict, out_dir="out/parte2"):
+# Raiz do projeto (ex.: C:/.../projeto-grafos), resolvida a partir deste
+# arquivo (Backend/src/graphs/io.py) e não do cwd — assim `out/parte2/`
+# sempre aponta para a mesma pasta, seja a função chamada a partir da raiz
+# (`python -m Backend.src.cli ...`) ou de dentro de `Backend/`.
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+
+
+def salvar_report_parte_2(resultados: dict, out_dir=None):
     """Persiste o relatório de desempenho da Parte 2 em `<out_dir>/parte2_report.json`.
 
-    Usa `out/parte2/` por padrão para acompanhar os demais artefatos da
-    Parte 2 (`description.png`, `grausparte2.json`), conforme documentado
-    no README.
+    Usa `<raiz_do_projeto>/out/parte2/` por padrão para acompanhar os demais
+    artefatos da Parte 2 (`description.png`, `grausparte2.json`), conforme
+    documentado no README.
     """
+    if out_dir is None:
+        out_dir = _PROJECT_ROOT / "out" / "parte2"
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / "parte2_report.json"
