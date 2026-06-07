@@ -797,6 +797,54 @@ def carregar_dataset_parte2(dataset_dir="data/dataset_parte2"):
     return graph
 
 
+def carregar_cenario_bellman_ford(dataset_dir, nome_arquivo):
+    """Carrega o grafo base da Parte 2 e sobrepõe arestas extras (com peso
+    possivelmente negativo) definidas em `nome_arquivo` — usado para montar os
+    cenários obrigatórios do Bellman-Ford (peso negativo sem ciclo / ciclo
+    negativo), exigidos no item 2 da Parte 2.
+
+    As arestas extras são adicionadas como DIRIGIDAS (sem espelhamento) para
+    não criar, de forma acidental, um ciclo de ida-e-volta no grafo
+    não-direcionado base — o que invalidaria o cenário "sem ciclo negativo".
+
+    Linhas cujo `origin`/`destination` não existam no grafo base são
+    ignoradas com aviso no log (defensivo contra inconsistências no CSV).
+    """
+    graph = carregar_dataset_parte2(dataset_dir)
+
+    csv_path = Path(dataset_dir) / nome_arquivo
+    if not csv_path.exists():
+        raise FileNotFoundError(f"Arquivo de cenário não encontrado: {csv_path}")
+
+    with csv_path.open(encoding="utf-8", newline="") as f:
+        reader = csv.DictReader(f)
+        if reader.fieldnames is None:
+            raise ValueError(f"Arquivo de cenário vazio: {csv_path}")
+
+        for row in reader:
+            origem = (row.get("origin") or "").strip()
+            destino = (row.get("destination") or "").strip()
+            if not origem or not destino:
+                continue
+
+            peso = float(row["weight"])
+            tipo_conexao = (row.get("tipo_conexao") or "cenario_negativo").strip()
+            justificativa = (row.get("justificativa") or "").strip()
+
+            if not graph.has_node(origem) or not graph.has_node(destino):
+                logger.warning(
+                    "Cenário '%s': aresta %s→%s ignorada (nó ausente no grafo base).",
+                    nome_arquivo, origem, destino,
+                )
+                continue
+
+            graph.add_directed_edge(
+                origem, destino, peso, tipo_conexao, justificativa, allow_negative=True,
+            )
+
+    return graph
+
+
 # ---------------------------------------------------------------------------
 # Dataset description (metrics, degree distribution, plots)
 # ---------------------------------------------------------------------------
@@ -934,6 +982,16 @@ def save_dataset_description(graph, out_dir="out"):
     return description
 
 
-def salvar_report_parte_2(resultados: dict):
-    with open("out/parte2_report.json", "w", encoding="utf-8") as f:
-        json.dump(resultados, f, indent=4)
+def salvar_report_parte_2(resultados: dict, out_dir="out/parte2"):
+    """Persiste o relatório de desempenho da Parte 2 em `<out_dir>/parte2_report.json`.
+
+    Usa `out/parte2/` por padrão para acompanhar os demais artefatos da
+    Parte 2 (`description.png`, `grausparte2.json`), conforme documentado
+    no README.
+    """
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_path = out_dir / "parte2_report.json"
+    with out_path.open("w", encoding="utf-8") as f:
+        json.dump(resultados, f, ensure_ascii=False, indent=4)
+    logger.info("Relatório de desempenho da Parte 2 salvo em: %s", out_path)

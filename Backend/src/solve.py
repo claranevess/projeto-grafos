@@ -35,13 +35,20 @@ from .graphs.io import (
     salvar_report_parte_2
 )
 from .viz import render_global, render_regioes
-from .graphs.io import carregar_dataset_parte2
-from .graphs.algorithms import bfs, dfs
+from .graphs.io import carregar_dataset_parte2, carregar_cenario_bellman_ford
+from .graphs.algorithms import bfs, dfs, dijkstra, bellman_ford
 
 logger = logging.getLogger(__name__)
 
 # Ordem canônica das regiões nos arquivos de saída
 REGIOES = ["Norte", "Nordeste", "Sudeste", "Sul", "Centro-Oeste"]
+
+# Caminho absoluto para o dataset da Parte 2 — resolvido a partir deste
+# arquivo (não do cwd), pois `calcular_tempo_execucao` é chamado tanto a
+# partir da raiz do projeto (`python -m Backend.src.cli ...`) quanto de
+# dentro de `Backend/`, e o caminho relativo "data/dataset_parte2" só
+# existe relativo a `Backend/`.
+DATASET_PARTE2_DIR = Path(__file__).resolve().parent.parent / "data" / "dataset_parte2"
 
 
 # ---------------------------------------------------------------------------
@@ -302,28 +309,110 @@ def compute_routes(
     logging.getLogger(__name__).info("Gravado: %s", out_path)
     return resultados
 
-def calcular_tempo_execucao():
-    grafo = carregar_dataset_parte2("data/dataset_parte2")
+def calcular_tempo_execucao(dataset_dir=DATASET_PARTE2_DIR):
+    """
+    Roda BFS, DFS, Dijkstra e Bellman-Ford sobre o dataset da Parte 2,
+    medindo tempo de execução e registrando corretude (camadas/ciclos/
+    caminhos/detecção de ciclo negativo). Persiste o relatório completo em
+    `out/parte2_report.json`.
 
-    lista_nos = ["FILM_ANT-MAN", "FILM_CAPTAIN-AMERICA", "FILM_IRON-MAN"]
+    Cobertura exigida pelo enunciado da Parte 2:
+      - BFS/DFS a partir de >= 3 fontes distintas (ordem, camadas, ciclos).
+      - Dijkstra com pesos >= 0 para >= 5 pares origem-destino.
+      - Bellman-Ford em dois cenários: peso negativo sem ciclo (distâncias
+        corretas) e ciclo negativo (detectado e sinalizado).
+    """
+    grafo = carregar_dataset_parte2(dataset_dir)
 
-    bfs_dfs = {"bfs": {}, "dfs" : {}}
+    fontes = ["FILM_ANT-MAN", "FILM_CAPTAIN-AMERICA", "FILM_IRON-MAN"]
 
-    for no_origem in lista_nos:
+    pares_dijkstra = [
+        ("FILM_IRON-MAN", "FILM_IRON-MAN-3"),
+        ("FILM_THE-AVENGERS", "FILM_AVENGERS-END-GAME"),
+        ("FILM_BLACK-WIDOW", "FILM_SHANG-CHI"),
+        ("FILM_THOR", "FILM_THOR-RAGNAROK"),
+        ("FILM_CAPTAIN-AMERICA", "FILM_CAPTAIN-AMERICA-WINTER-SOLDIER"),
+    ]
 
+    resultados = {"bfs": {}, "dfs": {}, "dijkstra": {}, "bellman_ford": {}}
+
+    # --- BFS / DFS a partir de >= 3 fontes distintas -------------------------
+    for no_origem in fontes:
         start = time.perf_counter()
-        distancia_bfs, pais_bfs, ordem_bfs = bfs(grafo, no_origem)
-        end = time.perf_counter()
-        tempo_total_bfs = end - start
-        bfs_dfs["bfs"][no_origem] = {"node": no_origem, "time": tempo_total_bfs}
-        
+        distancia_bfs, _pais_bfs, ordem_bfs = bfs(grafo, no_origem)
+        tempo_bfs = time.perf_counter() - start
+
+        camadas = {}
+        for no, dist in distancia_bfs.items():
+            if dist != float("inf"):
+                camadas.setdefault(int(dist), []).append(no)
+
+        resultados["bfs"][no_origem] = {
+            "node": no_origem,
+            "time": tempo_bfs,
+            "nos_alcancados": len(ordem_bfs),
+            "camadas": {str(nivel): nos for nivel, nos in sorted(camadas.items())},
+        }
+
         start = time.perf_counter()
         ordem_dfs, ciclo_dfs, classificacao_arestas_dfs = dfs(grafo, no_origem)
-        end = time.perf_counter()
-        tempo_total_dfs = end - start
-        bfs_dfs["dfs"][no_origem] = {"node": no_origem, "time": tempo_total_dfs}
+        tempo_dfs = time.perf_counter() - start
 
-        salvar_report_parte_2(bfs_dfs)
+        resultados["dfs"][no_origem] = {
+            "node": no_origem,
+            "time": tempo_dfs,
+            "nos_visitados": len(ordem_dfs),
+            "tem_ciclo": ciclo_dfs,
+            "arestas_classificadas": dict(
+                (f"{a}-{b}", tipo) for (a, b), tipo in classificacao_arestas_dfs.items()
+            ),
+        }
 
-        return distancia_bfs, pais_bfs, ordem_bfs, ordem_dfs, ciclo_dfs, classificacao_arestas_dfs
-       
+    # --- Dijkstra para >= 5 pares origem-destino (pesos >= 0) ----------------
+    for origem, destino in pares_dijkstra:
+        start = time.perf_counter()
+        custo, caminho = dijkstra(grafo, origem, destino)
+        tempo_dijkstra = time.perf_counter() - start
+
+        resultados["dijkstra"][f"{origem}->{destino}"] = {
+            "origem": origem,
+            "destino": destino,
+            "time": tempo_dijkstra,
+            "custo": custo if custo != float("inf") else None,
+            "caminho": caminho,
+        }
+
+    # --- Bellman-Ford: cenário com peso negativo (sem ciclo negativo) --------
+    grafo_peso_negativo = carregar_cenario_bellman_ford(dataset_dir, "negative_edges.csv")
+    fonte_bf1 = "FILM_IRON-MAN"
+    start = time.perf_counter()
+    distancias_bf1, _pais_bf1, ciclo_bf1 = bellman_ford(grafo_peso_negativo, fonte_bf1)
+    tempo_bf1 = time.perf_counter() - start
+
+    resultados["bellman_ford"]["peso_negativo_sem_ciclo"] = {
+        "fonte": fonte_bf1,
+        "time": tempo_bf1,
+        "tem_ciclo_negativo": ciclo_bf1,
+        "distancias": {
+            no: (dist if dist != float("inf") else None)
+            for no, dist in distancias_bf1.items()
+            if dist != float("inf")
+        },
+    }
+
+    # --- Bellman-Ford: cenário com ciclo negativo -----------------------------
+    grafo_ciclo_negativo = carregar_cenario_bellman_ford(dataset_dir, "negative_cycle.csv")
+    fonte_bf2 = "FILM_THE-AVENGERS"
+    start = time.perf_counter()
+    _distancias_bf2, _pais_bf2, ciclo_bf2 = bellman_ford(grafo_ciclo_negativo, fonte_bf2)
+    tempo_bf2 = time.perf_counter() - start
+
+    resultados["bellman_ford"]["ciclo_negativo"] = {
+        "fonte": fonte_bf2,
+        "time": tempo_bf2,
+        "tem_ciclo_negativo": ciclo_bf2,
+    }
+
+    salvar_report_parte_2(resultados)
+
+    return resultados
