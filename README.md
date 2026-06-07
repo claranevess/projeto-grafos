@@ -249,6 +249,37 @@ kaggle datasets download -d joebeachcapital/marvel-movies \
   -p Backend/data/dataset_parte2 --unzip
 ```
 
+### Modelagem das arestas (conexões entre filmes)
+
+O `MARVEL.csv` traz dados ricos de bilheteria/orçamento/desempenho (`category`,
+`budget`, `worldwide gross ($m)`, `% budget recovered`, `year` etc.), mas **não**
+possui nenhuma coluna de elenco/personagens — por isso o modelo de arestas
+"personagens compartilhados" (cogitado inicialmente) não é viável com este
+dataset, e foi descartado.
+
+Conectamos os filmes (arestas não-direcionadas, peso uniforme `1.0`) por dois
+critérios reais e diretamente derivados do CSV — **"Model A+"**:
+
+1. **Mesma categoria/franquia** (`category`) — ex.: todos os filmes do "Iron
+   Man" se conectam entre si.
+2. **Mesmo ano de lançamento** (`year`) — filmes lançados no mesmo ano
+   competiram pela mesma janela de bilheteria/atenção do público, uma relação
+   real e justificável sem precisar inventar nenhum dado novo.
+
+Cada aresta registra o motivo da conexão em `tipo_conexao`/`justificativa`
+(`"same category: <franquia>"` ou `"same release year: <ano>"`).
+
+**Por que somar o critério de ano:** usando só `category` ("Model A" original),
+o grafo resultante (30 nós) tinha apenas **35 arestas**, ficava **fragmentado em
+10 componentes conexos isolados** (ex.: "Thor" nunca se conectava a "Iron Man")
+e era menor/mais esparso que o grafo da Parte 1 (20 nós / 73 arestas) — o que
+tornava a comparação de algoritmos pouco significativa (tudo roda em
+microssegundos, BFS/Dijkstra nunca atravessam fronteiras de cluster). Somando
+o critério de ano, o grafo passa a ter **56 arestas** e **um único componente
+conexo** (sem nós isolados), aproximando-o da densidade da Parte 1 e permitindo
+que os quatro algoritmos (BFS, DFS, Dijkstra, Bellman-Ford) percorram o grafo
+inteiro de ponta a ponta.
+
 ---
 
 ## Autores

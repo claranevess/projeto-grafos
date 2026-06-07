@@ -577,10 +577,14 @@ def densidade_ego_aeroporto(out_dir="out"):
 def carregar_dataset_parte2(dataset_dir="data/dataset_parte2"):
     """Carrega o dataset Parte 2 (MARVEL.csv) como grafo de filmes sem arestas.
 
-    Especificação estrita:
+    Especificação:
       - Cada linha válida do CSV (coluna `film`) vira um nó com id `FILM_{SLUG}`.
       - O título original é salvo no campo `cidade`; `regiao` fica vazia ('').
-      - Nenhuma aresta é criada (grafo edgeless).
+      - Arestas não-direcionadas são criadas pelo "Model A+" (ver comentário
+        acima da criação das arestas, mais abaixo): filmes que compartilham
+        `category` (franquia/grupo) OU `year` (ano de lançamento) são
+        conectados — peso 1.0, com `tipo_conexao`/`justificativa` registrando
+        o motivo da conexão.
 
     A implementação abaixo é autocontida e NÃO usa helpers antigos do módulo.
     """
@@ -631,6 +635,7 @@ def carregar_dataset_parte2(dataset_dir="data/dataset_parte2"):
         # encontrar coluna exatamente chamada 'film' (case-insensitive)
         film_col = None
         category_col = None
+        year_col = None
         for h in reader.fieldnames:
             if not h:
                 continue
@@ -639,12 +644,15 @@ def carregar_dataset_parte2(dataset_dir="data/dataset_parte2"):
                 film_col = h
             if hn == 'category':
                 category_col = h
+            if hn == 'year':
+                year_col = h
         if film_col is None:
             raise ValueError(f"Coluna 'film' não encontrada em {csv_path.name}.")
 
         seen = set()
-        # agrupar node_ids por categoria
+        # agrupar node_ids por categoria e por ano de lançamento
         category_to_nodes = defaultdict(list)
+        year_to_nodes = defaultdict(list)
 
         for idx, row in enumerate(reader, start=2):
             raw = row.get(film_col, "") or ""
@@ -664,7 +672,7 @@ def carregar_dataset_parte2(dataset_dir="data/dataset_parte2"):
             # adicionar nó com metadados mínimos: cidade=title, regiao=''
             graph.add_node(node_id, title, "")
 
-            # obter categoria (se disponível) e agrupar
+            # obter categoria e ano (se disponíveis) e agrupar
             if category_col:
                 cat_raw = row.get(category_col, "") or ""
                 category = str(cat_raw).strip()
@@ -672,15 +680,33 @@ def carregar_dataset_parte2(dataset_dir="data/dataset_parte2"):
                 category = ""
             category_to_nodes[category].append(node_id)
 
+            if year_col:
+                year_raw = row.get(year_col, "") or ""
+                year = str(year_raw).strip()
+            else:
+                year = ""
+            if year:
+                year_to_nodes[year].append(node_id)
+
     if graph.order() == 0:
         raise ValueError("Grafo vazio: nenhum filme válido foi encontrado no CSV MARVEL.")
 
-    # Implementação Model A: criar arestas não-direcionadas entre filmes
-    # que pertencem à mesma categoria. Regras:
+    # Implementação "Model A+": arestas não-direcionadas entre filmes que
+    # compartilham (1) categoria/franquia OU (2) ano de lançamento. Regras:
     # - evitar self-loop (combinations garante isso)
     # - evitar duplicatas usando graph.has_edge()
     # - usar graph.add_edge() com peso padrão 1.0
-    edges_added = 0
+    #
+    # Por que somar o critério de ano: o "Model A" original (só categoria)
+    # produz um grafo esparso e fragmentado em clusters isolados por
+    # franquia (ex.: "Thor" nunca se conecta a "Iron Man") — ver auditoria
+    # item #8/#10. Filmes lançados no mesmo ano competiram pela mesma janela
+    # de bilheteria/atenção do público, uma relação real e derivável
+    # diretamente do dataset (coluna `year`), sem inventar dado nenhum.
+    # O resultado une o grafo num único componente conexo (era fragmentado
+    # em 10), tornando BFS/DFS/Dijkstra/Bellman-Ford comparáveis em escala
+    # mais próxima da Parte 1.
+    edges_added_categoria = 0
     for category, nodes in category_to_nodes.items():
         if len(nodes) < 2:
             continue
@@ -692,11 +718,30 @@ def carregar_dataset_parte2(dataset_dir="data/dataset_parte2"):
             try:
                 graph.add_edge(origem=u, destino=v, peso=1.0, tipo_conexao="category",
                                justificativa=f"same category: {category}")
-                edges_added += 1
+                edges_added_categoria += 1
             except Exception:
                 continue
 
-    logger.info("Arestas criadas por categoria: %d", edges_added)
+    edges_added_ano = 0
+    for year, nodes in year_to_nodes.items():
+        if len(nodes) < 2:
+            continue
+        for u, v in itertools.combinations(nodes, 2):
+            if u == v:
+                continue
+            if graph.has_edge(u, v):
+                continue
+            try:
+                graph.add_edge(origem=u, destino=v, peso=1.0, tipo_conexao="year",
+                               justificativa=f"same release year: {year}")
+                edges_added_ano += 1
+            except Exception:
+                continue
+
+    logger.info(
+        "Arestas criadas — categoria: %d, ano de lançamento: %d (total: %d)",
+        edges_added_categoria, edges_added_ano, edges_added_categoria + edges_added_ano,
+    )
     return graph
 
 

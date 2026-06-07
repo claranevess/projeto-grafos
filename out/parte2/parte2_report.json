@@ -2,42 +2,154 @@
     "bfs": {
         "FILM_ANT-MAN": {
             "node": "FILM_ANT-MAN",
-            "time": 3.2599957194179296e-05,
-            "nos_alcancados": 2,
+            "time": 3.840000135824084e-05,
+            "nos_alcancados": 30,
             "camadas": {
                 "0": [
                     "FILM_ANT-MAN"
                 ],
                 "1": [
-                    "FILM_ANT-MAN-THE-WASP"
+                    "FILM_ANT-MAN-THE-WASP",
+                    "FILM_AVENGERS-AGE-OF-ULTRON"
+                ],
+                "2": [
+                    "FILM_AVENGERS-END-GAME",
+                    "FILM_AVENGERS-INFINITY-WAR",
+                    "FILM_BLACK-PANTHER",
+                    "FILM_THE-AVENGERS"
+                ],
+                "3": [
+                    "FILM_BLACK-PANTHER-2",
+                    "FILM_CAPTAIN-MARVEL",
+                    "FILM_SPIDER-MAN-FAR-FROM-HOME"
+                ],
+                "4": [
+                    "FILM_BLACK-WIDOW",
+                    "FILM_DR-STRANGE-MULTIVERSE-OF-MADNESS",
+                    "FILM_ETERNALS",
+                    "FILM_INCREDIBLE-HULK",
+                    "FILM_SHANG-CHI",
+                    "FILM_SPIDER-MAN-HOMECOMING",
+                    "FILM_SPIDER-MAN-NO-WAY-HOME",
+                    "FILM_THOR-LOVE-THUNDER"
+                ],
+                "5": [
+                    "FILM_DR-STRANGE",
+                    "FILM_GUARDIANS-OF-THE-GALAXY-2",
+                    "FILM_IRON-MAN",
+                    "FILM_THOR-DARK-WORLD",
+                    "FILM_THOR-RAGNAROK",
+                    "FILM_THOR"
+                ],
+                "6": [
+                    "FILM_CAPTAIN-AMERICA",
+                    "FILM_CAPTAIN-AMERICA-CIVIL-WAR",
+                    "FILM_GUARDIANS-OF-THE-GALAXY",
+                    "FILM_IRON-MAN-2",
+                    "FILM_IRON-MAN-3"
+                ],
+                "7": [
+                    "FILM_CAPTAIN-AMERICA-WINTER-SOLDIER"
                 ]
             }
         },
         "FILM_CAPTAIN-AMERICA": {
             "node": "FILM_CAPTAIN-AMERICA",
-            "time": 2.0599982235580683e-05,
-            "nos_alcancados": 3,
+            "time": 2.7399975806474686e-05,
+            "nos_alcancados": 30,
             "camadas": {
                 "0": [
                     "FILM_CAPTAIN-AMERICA"
                 ],
                 "1": [
                     "FILM_CAPTAIN-AMERICA-CIVIL-WAR",
-                    "FILM_CAPTAIN-AMERICA-WINTER-SOLDIER"
+                    "FILM_CAPTAIN-AMERICA-WINTER-SOLDIER",
+                    "FILM_THOR"
+                ],
+                "2": [
+                    "FILM_DR-STRANGE",
+                    "FILM_GUARDIANS-OF-THE-GALAXY",
+                    "FILM_THOR-DARK-WORLD",
+                    "FILM_THOR-LOVE-THUNDER",
+                    "FILM_THOR-RAGNAROK"
+                ],
+                "3": [
+                    "FILM_BLACK-PANTHER-2",
+                    "FILM_DR-STRANGE-MULTIVERSE-OF-MADNESS",
+                    "FILM_GUARDIANS-OF-THE-GALAXY-2",
+                    "FILM_IRON-MAN-3",
+                    "FILM_SPIDER-MAN-HOMECOMING"
+                ],
+                "4": [
+                    "FILM_BLACK-PANTHER",
+                    "FILM_IRON-MAN",
+                    "FILM_IRON-MAN-2",
+                    "FILM_SPIDER-MAN-FAR-FROM-HOME",
+                    "FILM_SPIDER-MAN-NO-WAY-HOME"
+                ],
+                "5": [
+                    "FILM_ANT-MAN-THE-WASP",
+                    "FILM_AVENGERS-END-GAME",
+                    "FILM_AVENGERS-INFINITY-WAR",
+                    "FILM_BLACK-WIDOW",
+                    "FILM_CAPTAIN-MARVEL",
+                    "FILM_ETERNALS",
+                    "FILM_INCREDIBLE-HULK",
+                    "FILM_SHANG-CHI"
+                ],
+                "6": [
+                    "FILM_ANT-MAN",
+                    "FILM_AVENGERS-AGE-OF-ULTRON",
+                    "FILM_THE-AVENGERS"
                 ]
             }
         },
         "FILM_IRON-MAN": {
             "node": "FILM_IRON-MAN",
-            "time": 1.8300022929906845e-05,
-            "nos_alcancados": 3,
+            "time": 2.5799963623285294e-05,
+            "nos_alcancados": 30,
             "camadas": {
                 "0": [
                     "FILM_IRON-MAN"
                 ],
                 "1": [
+                    "FILM_INCREDIBLE-HULK",
                     "FILM_IRON-MAN-2",
                     "FILM_IRON-MAN-3"
+                ],
+                "2": [
+                    "FILM_BLACK-WIDOW",
+                    "FILM_CAPTAIN-MARVEL",
+                    "FILM_ETERNALS",
+                    "FILM_SHANG-CHI",
+                    "FILM_THOR-DARK-WORLD"
+                ],
+                "3": [
+                    "FILM_AVENGERS-END-GAME",
+                    "FILM_SPIDER-MAN-FAR-FROM-HOME",
+                    "FILM_SPIDER-MAN-NO-WAY-HOME",
+                    "FILM_THOR-LOVE-THUNDER",
+                    "FILM_THOR-RAGNAROK",
+                    "FILM_THOR"
+                ],
+                "4": [
+                    "FILM_AVENGERS-AGE-OF-ULTRON",
+                    "FILM_AVENGERS-INFINITY-WAR",
+                    "FILM_BLACK-PANTHER-2",
+                    "FILM_CAPTAIN-AMERICA",
+                    "FILM_DR-STRANGE-MULTIVERSE-OF-MADNESS",
+                    "FILM_GUARDIANS-OF-THE-GALAXY-2",
+                    "FILM_SPIDER-MAN-HOMECOMING",
+                    "FILM_THE-AVENGERS"
+                ],
+                "5": [
+                    "FILM_ANT-MAN",
+                    "FILM_ANT-MAN-THE-WASP",
+                    "FILM_BLACK-PANTHER",
+                    "FILM_CAPTAIN-AMERICA-CIVIL-WAR",
+                    "FILM_CAPTAIN-AMERICA-WINTER-SOLDIER",
+                    "FILM_DR-STRANGE",
+                    "FILM_GUARDIANS-OF-THE-GALAXY"
                 ]
             }
         }
@@ -45,33 +157,194 @@
     "dfs": {
         "FILM_ANT-MAN": {
             "node": "FILM_ANT-MAN",
-            "time": 2.0599982235580683e-05,
-            "nos_visitados": 2,
-            "tem_ciclo": false,
+            "time": 5.7500030379742384e-05,
+            "nos_visitados": 30,
+            "tem_ciclo": true,
             "arestas_classificadas": {
-                "FILM_ANT-MAN-FILM_ANT-MAN-THE-WASP": "ARVORE"
+                "FILM_ANT-MAN-FILM_ANT-MAN-THE-WASP": "ARVORE",
+                "FILM_ANT-MAN-THE-WASP-FILM_AVENGERS-INFINITY-WAR": "ARVORE",
+                "FILM_AVENGERS-AGE-OF-ULTRON-FILM_AVENGERS-INFINITY-WAR": "ARVORE",
+                "FILM_AVENGERS-AGE-OF-ULTRON-FILM_AVENGERS-END-GAME": "ARVORE",
+                "FILM_AVENGERS-END-GAME-FILM_AVENGERS-INFINITY-WAR": "RETORNO",
+                "FILM_AVENGERS-END-GAME-FILM_THE-AVENGERS": "ARVORE",
+                "FILM_AVENGERS-AGE-OF-ULTRON-FILM_THE-AVENGERS": "RETORNO",
+                "FILM_AVENGERS-INFINITY-WAR-FILM_THE-AVENGERS": "RETORNO",
+                "FILM_AVENGERS-END-GAME-FILM_CAPTAIN-MARVEL": "ARVORE",
+                "FILM_BLACK-WIDOW-FILM_CAPTAIN-MARVEL": "ARVORE",
+                "FILM_BLACK-WIDOW-FILM_ETERNALS": "ARVORE",
+                "FILM_CAPTAIN-MARVEL-FILM_ETERNALS": "RETORNO",
+                "FILM_ETERNALS-FILM_INCREDIBLE-HULK": "ARVORE",
+                "FILM_BLACK-WIDOW-FILM_INCREDIBLE-HULK": "RETORNO",
+                "FILM_CAPTAIN-MARVEL-FILM_INCREDIBLE-HULK": "RETORNO",
+                "FILM_INCREDIBLE-HULK-FILM_SHANG-CHI": "ARVORE",
+                "FILM_BLACK-WIDOW-FILM_SHANG-CHI": "RETORNO",
+                "FILM_CAPTAIN-MARVEL-FILM_SHANG-CHI": "RETORNO",
+                "FILM_ETERNALS-FILM_SHANG-CHI": "RETORNO",
+                "FILM_SHANG-CHI-FILM_SPIDER-MAN-NO-WAY-HOME": "ARVORE",
+                "FILM_SPIDER-MAN-FAR-FROM-HOME-FILM_SPIDER-MAN-NO-WAY-HOME": "ARVORE",
+                "FILM_SPIDER-MAN-FAR-FROM-HOME-FILM_SPIDER-MAN-HOMECOMING": "ARVORE",
+                "FILM_SPIDER-MAN-HOMECOMING-FILM_SPIDER-MAN-NO-WAY-HOME": "RETORNO",
+                "FILM_GUARDIANS-OF-THE-GALAXY-2-FILM_SPIDER-MAN-HOMECOMING": "ARVORE",
+                "FILM_GUARDIANS-OF-THE-GALAXY-FILM_GUARDIANS-OF-THE-GALAXY-2": "ARVORE",
+                "FILM_CAPTAIN-AMERICA-WINTER-SOLDIER-FILM_GUARDIANS-OF-THE-GALAXY": "ARVORE",
+                "FILM_CAPTAIN-AMERICA-FILM_CAPTAIN-AMERICA-WINTER-SOLDIER": "ARVORE",
+                "FILM_CAPTAIN-AMERICA-FILM_CAPTAIN-AMERICA-CIVIL-WAR": "ARVORE",
+                "FILM_CAPTAIN-AMERICA-CIVIL-WAR-FILM_CAPTAIN-AMERICA-WINTER-SOLDIER": "RETORNO",
+                "FILM_CAPTAIN-AMERICA-CIVIL-WAR-FILM_DR-STRANGE": "ARVORE",
+                "FILM_DR-STRANGE-FILM_DR-STRANGE-MULTIVERSE-OF-MADNESS": "ARVORE",
+                "FILM_BLACK-PANTHER-2-FILM_DR-STRANGE-MULTIVERSE-OF-MADNESS": "ARVORE",
+                "FILM_BLACK-PANTHER-FILM_BLACK-PANTHER-2": "ARVORE",
+                "FILM_ANT-MAN-THE-WASP-FILM_BLACK-PANTHER": "RETORNO",
+                "FILM_AVENGERS-INFINITY-WAR-FILM_BLACK-PANTHER": "RETORNO",
+                "FILM_BLACK-PANTHER-2-FILM_THOR-LOVE-THUNDER": "ARVORE",
+                "FILM_THOR-DARK-WORLD-FILM_THOR-LOVE-THUNDER": "ARVORE",
+                "FILM_THOR-DARK-WORLD-FILM_THOR-RAGNAROK": "ARVORE",
+                "FILM_THOR-LOVE-THUNDER-FILM_THOR-RAGNAROK": "RETORNO",
+                "FILM_THOR-FILM_THOR-RAGNAROK": "ARVORE",
+                "FILM_THOR-FILM_THOR-DARK-WORLD": "RETORNO",
+                "FILM_THOR-FILM_THOR-LOVE-THUNDER": "RETORNO",
+                "FILM_CAPTAIN-AMERICA-FILM_THOR": "RETORNO",
+                "FILM_GUARDIANS-OF-THE-GALAXY-2-FILM_THOR-RAGNAROK": "RETORNO",
+                "FILM_SPIDER-MAN-HOMECOMING-FILM_THOR-RAGNAROK": "RETORNO",
+                "FILM_IRON-MAN-3-FILM_THOR-DARK-WORLD": "ARVORE",
+                "FILM_IRON-MAN-FILM_IRON-MAN-3": "ARVORE",
+                "FILM_IRON-MAN-FILM_IRON-MAN-2": "ARVORE",
+                "FILM_IRON-MAN-2-FILM_IRON-MAN-3": "RETORNO",
+                "FILM_INCREDIBLE-HULK-FILM_IRON-MAN": "RETORNO",
+                "FILM_DR-STRANGE-MULTIVERSE-OF-MADNESS-FILM_THOR-LOVE-THUNDER": "RETORNO",
+                "FILM_AVENGERS-END-GAME-FILM_SPIDER-MAN-FAR-FROM-HOME": "RETORNO",
+                "FILM_CAPTAIN-MARVEL-FILM_SPIDER-MAN-FAR-FROM-HOME": "RETORNO",
+                "FILM_BLACK-WIDOW-FILM_SPIDER-MAN-NO-WAY-HOME": "RETORNO",
+                "FILM_ETERNALS-FILM_SPIDER-MAN-NO-WAY-HOME": "RETORNO",
+                "FILM_ANT-MAN-FILM_AVENGERS-AGE-OF-ULTRON": "RETORNO"
             }
         },
         "FILM_CAPTAIN-AMERICA": {
             "node": "FILM_CAPTAIN-AMERICA",
-            "time": 1.9600032828748226e-05,
-            "nos_visitados": 3,
+            "time": 5.1200040616095066e-05,
+            "nos_visitados": 30,
             "tem_ciclo": true,
             "arestas_classificadas": {
                 "FILM_CAPTAIN-AMERICA-FILM_CAPTAIN-AMERICA-CIVIL-WAR": "ARVORE",
                 "FILM_CAPTAIN-AMERICA-CIVIL-WAR-FILM_CAPTAIN-AMERICA-WINTER-SOLDIER": "ARVORE",
-                "FILM_CAPTAIN-AMERICA-FILM_CAPTAIN-AMERICA-WINTER-SOLDIER": "RETORNO"
+                "FILM_CAPTAIN-AMERICA-FILM_CAPTAIN-AMERICA-WINTER-SOLDIER": "RETORNO",
+                "FILM_CAPTAIN-AMERICA-WINTER-SOLDIER-FILM_GUARDIANS-OF-THE-GALAXY": "ARVORE",
+                "FILM_GUARDIANS-OF-THE-GALAXY-FILM_GUARDIANS-OF-THE-GALAXY-2": "ARVORE",
+                "FILM_GUARDIANS-OF-THE-GALAXY-2-FILM_SPIDER-MAN-HOMECOMING": "ARVORE",
+                "FILM_SPIDER-MAN-FAR-FROM-HOME-FILM_SPIDER-MAN-HOMECOMING": "ARVORE",
+                "FILM_SPIDER-MAN-FAR-FROM-HOME-FILM_SPIDER-MAN-NO-WAY-HOME": "ARVORE",
+                "FILM_SPIDER-MAN-HOMECOMING-FILM_SPIDER-MAN-NO-WAY-HOME": "RETORNO",
+                "FILM_BLACK-WIDOW-FILM_SPIDER-MAN-NO-WAY-HOME": "ARVORE",
+                "FILM_BLACK-WIDOW-FILM_CAPTAIN-MARVEL": "ARVORE",
+                "FILM_CAPTAIN-MARVEL-FILM_ETERNALS": "ARVORE",
+                "FILM_BLACK-WIDOW-FILM_ETERNALS": "RETORNO",
+                "FILM_ETERNALS-FILM_INCREDIBLE-HULK": "ARVORE",
+                "FILM_BLACK-WIDOW-FILM_INCREDIBLE-HULK": "RETORNO",
+                "FILM_CAPTAIN-MARVEL-FILM_INCREDIBLE-HULK": "RETORNO",
+                "FILM_INCREDIBLE-HULK-FILM_SHANG-CHI": "ARVORE",
+                "FILM_BLACK-WIDOW-FILM_SHANG-CHI": "RETORNO",
+                "FILM_CAPTAIN-MARVEL-FILM_SHANG-CHI": "RETORNO",
+                "FILM_ETERNALS-FILM_SHANG-CHI": "RETORNO",
+                "FILM_SHANG-CHI-FILM_SPIDER-MAN-NO-WAY-HOME": "RETORNO",
+                "FILM_INCREDIBLE-HULK-FILM_IRON-MAN": "ARVORE",
+                "FILM_IRON-MAN-FILM_IRON-MAN-2": "ARVORE",
+                "FILM_IRON-MAN-2-FILM_IRON-MAN-3": "ARVORE",
+                "FILM_IRON-MAN-FILM_IRON-MAN-3": "RETORNO",
+                "FILM_IRON-MAN-3-FILM_THOR-DARK-WORLD": "ARVORE",
+                "FILM_THOR-DARK-WORLD-FILM_THOR-LOVE-THUNDER": "ARVORE",
+                "FILM_THOR-LOVE-THUNDER-FILM_THOR-RAGNAROK": "ARVORE",
+                "FILM_THOR-DARK-WORLD-FILM_THOR-RAGNAROK": "RETORNO",
+                "FILM_THOR-FILM_THOR-RAGNAROK": "ARVORE",
+                "FILM_THOR-FILM_THOR-DARK-WORLD": "RETORNO",
+                "FILM_THOR-FILM_THOR-LOVE-THUNDER": "RETORNO",
+                "FILM_CAPTAIN-AMERICA-FILM_THOR": "RETORNO",
+                "FILM_GUARDIANS-OF-THE-GALAXY-2-FILM_THOR-RAGNAROK": "RETORNO",
+                "FILM_SPIDER-MAN-HOMECOMING-FILM_THOR-RAGNAROK": "RETORNO",
+                "FILM_BLACK-PANTHER-2-FILM_THOR-LOVE-THUNDER": "ARVORE",
+                "FILM_BLACK-PANTHER-FILM_BLACK-PANTHER-2": "ARVORE",
+                "FILM_ANT-MAN-THE-WASP-FILM_BLACK-PANTHER": "ARVORE",
+                "FILM_ANT-MAN-FILM_ANT-MAN-THE-WASP": "ARVORE",
+                "FILM_ANT-MAN-FILM_AVENGERS-AGE-OF-ULTRON": "ARVORE",
+                "FILM_AVENGERS-AGE-OF-ULTRON-FILM_AVENGERS-END-GAME": "ARVORE",
+                "FILM_AVENGERS-END-GAME-FILM_AVENGERS-INFINITY-WAR": "ARVORE",
+                "FILM_AVENGERS-AGE-OF-ULTRON-FILM_AVENGERS-INFINITY-WAR": "RETORNO",
+                "FILM_AVENGERS-INFINITY-WAR-FILM_THE-AVENGERS": "ARVORE",
+                "FILM_AVENGERS-AGE-OF-ULTRON-FILM_THE-AVENGERS": "RETORNO",
+                "FILM_AVENGERS-END-GAME-FILM_THE-AVENGERS": "RETORNO",
+                "FILM_ANT-MAN-THE-WASP-FILM_AVENGERS-INFINITY-WAR": "RETORNO",
+                "FILM_AVENGERS-INFINITY-WAR-FILM_BLACK-PANTHER": "RETORNO",
+                "FILM_AVENGERS-END-GAME-FILM_CAPTAIN-MARVEL": "RETORNO",
+                "FILM_AVENGERS-END-GAME-FILM_SPIDER-MAN-FAR-FROM-HOME": "RETORNO",
+                "FILM_BLACK-PANTHER-2-FILM_DR-STRANGE-MULTIVERSE-OF-MADNESS": "ARVORE",
+                "FILM_DR-STRANGE-FILM_DR-STRANGE-MULTIVERSE-OF-MADNESS": "ARVORE",
+                "FILM_CAPTAIN-AMERICA-CIVIL-WAR-FILM_DR-STRANGE": "RETORNO",
+                "FILM_DR-STRANGE-MULTIVERSE-OF-MADNESS-FILM_THOR-LOVE-THUNDER": "RETORNO",
+                "FILM_ETERNALS-FILM_SPIDER-MAN-NO-WAY-HOME": "RETORNO",
+                "FILM_CAPTAIN-MARVEL-FILM_SPIDER-MAN-FAR-FROM-HOME": "RETORNO"
             }
         },
         "FILM_IRON-MAN": {
             "node": "FILM_IRON-MAN",
-            "time": 1.9700033590197563e-05,
-            "nos_visitados": 3,
+            "time": 4.8399961087852716e-05,
+            "nos_visitados": 30,
             "tem_ciclo": true,
             "arestas_classificadas": {
                 "FILM_IRON-MAN-FILM_IRON-MAN-2": "ARVORE",
                 "FILM_IRON-MAN-2-FILM_IRON-MAN-3": "ARVORE",
-                "FILM_IRON-MAN-FILM_IRON-MAN-3": "RETORNO"
+                "FILM_IRON-MAN-FILM_IRON-MAN-3": "RETORNO",
+                "FILM_IRON-MAN-3-FILM_THOR-DARK-WORLD": "ARVORE",
+                "FILM_THOR-DARK-WORLD-FILM_THOR-LOVE-THUNDER": "ARVORE",
+                "FILM_THOR-LOVE-THUNDER-FILM_THOR-RAGNAROK": "ARVORE",
+                "FILM_THOR-DARK-WORLD-FILM_THOR-RAGNAROK": "RETORNO",
+                "FILM_THOR-FILM_THOR-RAGNAROK": "ARVORE",
+                "FILM_THOR-FILM_THOR-DARK-WORLD": "RETORNO",
+                "FILM_THOR-FILM_THOR-LOVE-THUNDER": "RETORNO",
+                "FILM_CAPTAIN-AMERICA-FILM_THOR": "ARVORE",
+                "FILM_CAPTAIN-AMERICA-FILM_CAPTAIN-AMERICA-CIVIL-WAR": "ARVORE",
+                "FILM_CAPTAIN-AMERICA-CIVIL-WAR-FILM_CAPTAIN-AMERICA-WINTER-SOLDIER": "ARVORE",
+                "FILM_CAPTAIN-AMERICA-FILM_CAPTAIN-AMERICA-WINTER-SOLDIER": "RETORNO",
+                "FILM_CAPTAIN-AMERICA-WINTER-SOLDIER-FILM_GUARDIANS-OF-THE-GALAXY": "ARVORE",
+                "FILM_GUARDIANS-OF-THE-GALAXY-FILM_GUARDIANS-OF-THE-GALAXY-2": "ARVORE",
+                "FILM_GUARDIANS-OF-THE-GALAXY-2-FILM_SPIDER-MAN-HOMECOMING": "ARVORE",
+                "FILM_SPIDER-MAN-FAR-FROM-HOME-FILM_SPIDER-MAN-HOMECOMING": "ARVORE",
+                "FILM_SPIDER-MAN-FAR-FROM-HOME-FILM_SPIDER-MAN-NO-WAY-HOME": "ARVORE",
+                "FILM_SPIDER-MAN-HOMECOMING-FILM_SPIDER-MAN-NO-WAY-HOME": "RETORNO",
+                "FILM_BLACK-WIDOW-FILM_SPIDER-MAN-NO-WAY-HOME": "ARVORE",
+                "FILM_BLACK-WIDOW-FILM_CAPTAIN-MARVEL": "ARVORE",
+                "FILM_CAPTAIN-MARVEL-FILM_ETERNALS": "ARVORE",
+                "FILM_BLACK-WIDOW-FILM_ETERNALS": "RETORNO",
+                "FILM_ETERNALS-FILM_INCREDIBLE-HULK": "ARVORE",
+                "FILM_BLACK-WIDOW-FILM_INCREDIBLE-HULK": "RETORNO",
+                "FILM_CAPTAIN-MARVEL-FILM_INCREDIBLE-HULK": "RETORNO",
+                "FILM_INCREDIBLE-HULK-FILM_SHANG-CHI": "ARVORE",
+                "FILM_BLACK-WIDOW-FILM_SHANG-CHI": "RETORNO",
+                "FILM_CAPTAIN-MARVEL-FILM_SHANG-CHI": "RETORNO",
+                "FILM_ETERNALS-FILM_SHANG-CHI": "RETORNO",
+                "FILM_SHANG-CHI-FILM_SPIDER-MAN-NO-WAY-HOME": "RETORNO",
+                "FILM_INCREDIBLE-HULK-FILM_IRON-MAN": "RETORNO",
+                "FILM_ETERNALS-FILM_SPIDER-MAN-NO-WAY-HOME": "RETORNO",
+                "FILM_AVENGERS-END-GAME-FILM_CAPTAIN-MARVEL": "ARVORE",
+                "FILM_AVENGERS-AGE-OF-ULTRON-FILM_AVENGERS-END-GAME": "ARVORE",
+                "FILM_AVENGERS-AGE-OF-ULTRON-FILM_AVENGERS-INFINITY-WAR": "ARVORE",
+                "FILM_AVENGERS-END-GAME-FILM_AVENGERS-INFINITY-WAR": "RETORNO",
+                "FILM_AVENGERS-INFINITY-WAR-FILM_THE-AVENGERS": "ARVORE",
+                "FILM_AVENGERS-AGE-OF-ULTRON-FILM_THE-AVENGERS": "RETORNO",
+                "FILM_AVENGERS-END-GAME-FILM_THE-AVENGERS": "RETORNO",
+                "FILM_ANT-MAN-THE-WASP-FILM_AVENGERS-INFINITY-WAR": "ARVORE",
+                "FILM_ANT-MAN-FILM_ANT-MAN-THE-WASP": "ARVORE",
+                "FILM_ANT-MAN-FILM_AVENGERS-AGE-OF-ULTRON": "RETORNO",
+                "FILM_ANT-MAN-THE-WASP-FILM_BLACK-PANTHER": "ARVORE",
+                "FILM_BLACK-PANTHER-FILM_BLACK-PANTHER-2": "ARVORE",
+                "FILM_BLACK-PANTHER-2-FILM_DR-STRANGE-MULTIVERSE-OF-MADNESS": "ARVORE",
+                "FILM_DR-STRANGE-FILM_DR-STRANGE-MULTIVERSE-OF-MADNESS": "ARVORE",
+                "FILM_CAPTAIN-AMERICA-CIVIL-WAR-FILM_DR-STRANGE": "RETORNO",
+                "FILM_DR-STRANGE-MULTIVERSE-OF-MADNESS-FILM_THOR-LOVE-THUNDER": "RETORNO",
+                "FILM_BLACK-PANTHER-2-FILM_THOR-LOVE-THUNDER": "RETORNO",
+                "FILM_AVENGERS-INFINITY-WAR-FILM_BLACK-PANTHER": "RETORNO",
+                "FILM_AVENGERS-END-GAME-FILM_SPIDER-MAN-FAR-FROM-HOME": "RETORNO",
+                "FILM_CAPTAIN-MARVEL-FILM_SPIDER-MAN-FAR-FROM-HOME": "RETORNO",
+                "FILM_SPIDER-MAN-HOMECOMING-FILM_THOR-RAGNAROK": "RETORNO",
+                "FILM_GUARDIANS-OF-THE-GALAXY-2-FILM_THOR-RAGNAROK": "RETORNO"
             }
         }
     },
@@ -79,7 +352,7 @@
         "FILM_IRON-MAN->FILM_IRON-MAN-3": {
             "origem": "FILM_IRON-MAN",
             "destino": "FILM_IRON-MAN-3",
-            "time": 6.250001024454832e-05,
+            "time": 3.560003824532032e-05,
             "custo": 1.0,
             "caminho": [
                 "FILM_IRON-MAN",
@@ -89,7 +362,7 @@
         "FILM_THE-AVENGERS->FILM_AVENGERS-END-GAME": {
             "origem": "FILM_THE-AVENGERS",
             "destino": "FILM_AVENGERS-END-GAME",
-            "time": 5.2099989261478186e-05,
+            "time": 3.91000066883862e-05,
             "custo": 1.0,
             "caminho": [
                 "FILM_THE-AVENGERS",
@@ -99,7 +372,7 @@
         "FILM_BLACK-WIDOW->FILM_SHANG-CHI": {
             "origem": "FILM_BLACK-WIDOW",
             "destino": "FILM_SHANG-CHI",
-            "time": 5.1799986977130175e-05,
+            "time": 2.3500004317611456e-05,
             "custo": 1.0,
             "caminho": [
                 "FILM_BLACK-WIDOW",
@@ -109,7 +382,7 @@
         "FILM_THOR->FILM_THOR-RAGNAROK": {
             "origem": "FILM_THOR",
             "destino": "FILM_THOR-RAGNAROK",
-            "time": 3.809999907389283e-05,
+            "time": 2.989999484270811e-05,
             "custo": 1.0,
             "caminho": [
                 "FILM_THOR",
@@ -119,7 +392,7 @@
         "FILM_CAPTAIN-AMERICA->FILM_CAPTAIN-AMERICA-WINTER-SOLDIER": {
             "origem": "FILM_CAPTAIN-AMERICA",
             "destino": "FILM_CAPTAIN-AMERICA-WINTER-SOLDIER",
-            "time": 4.7499954234808683e-05,
+            "time": 2.889998722821474e-05,
             "custo": 1.0,
             "caminho": [
                 "FILM_CAPTAIN-AMERICA",
@@ -130,17 +403,44 @@
     "bellman_ford": {
         "peso_negativo_sem_ciclo": {
             "fonte": "FILM_IRON-MAN",
-            "time": 5.360000068321824e-05,
+            "time": 0.00012050004443153739,
             "tem_ciclo_negativo": false,
             "distancias": {
+                "FILM_ANT-MAN": 5.0,
+                "FILM_ANT-MAN-THE-WASP": 5.0,
+                "FILM_AVENGERS-AGE-OF-ULTRON": 4.0,
+                "FILM_AVENGERS-END-GAME": 3.0,
+                "FILM_AVENGERS-INFINITY-WAR": 4.0,
+                "FILM_BLACK-PANTHER": 4.0,
+                "FILM_BLACK-PANTHER-2": 3.0,
+                "FILM_BLACK-WIDOW": 2.0,
+                "FILM_CAPTAIN-AMERICA": 3.0,
+                "FILM_CAPTAIN-AMERICA-CIVIL-WAR": 2.5,
+                "FILM_CAPTAIN-AMERICA-WINTER-SOLDIER": 3.5,
+                "FILM_CAPTAIN-MARVEL": 2.0,
+                "FILM_DR-STRANGE": 3.5,
+                "FILM_DR-STRANGE-MULTIVERSE-OF-MADNESS": 3.0,
+                "FILM_ETERNALS": 2.0,
+                "FILM_GUARDIANS-OF-THE-GALAXY": 4.0,
+                "FILM_GUARDIANS-OF-THE-GALAXY-2": 3.0,
+                "FILM_INCREDIBLE-HULK": 1.0,
                 "FILM_IRON-MAN": 0.0,
                 "FILM_IRON-MAN-2": -1.0,
-                "FILM_IRON-MAN-3": 0.0
+                "FILM_IRON-MAN-3": 0.0,
+                "FILM_SHANG-CHI": 2.0,
+                "FILM_SPIDER-MAN-FAR-FROM-HOME": 3.0,
+                "FILM_SPIDER-MAN-HOMECOMING": 3.0,
+                "FILM_SPIDER-MAN-NO-WAY-HOME": 3.0,
+                "FILM_THE-AVENGERS": 4.0,
+                "FILM_THOR-DARK-WORLD": 1.0,
+                "FILM_THOR-LOVE-THUNDER": 2.0,
+                "FILM_THOR-RAGNAROK": 2.0,
+                "FILM_THOR": 2.0
             }
         },
         "ciclo_negativo": {
             "fonte": "FILM_THE-AVENGERS",
-            "time": 0.0015248999698087573,
+            "time": 0.0005642999894917011,
             "tem_ciclo_negativo": true
         }
     }
