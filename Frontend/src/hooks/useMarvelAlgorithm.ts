@@ -5,11 +5,12 @@ import { toast } from 'sonner'
 import type { AlgorithmName } from '@/lib/types'
 
 export function useRunMarvelAlgorithm() {
-  const { selectedAlgorithm, source, target, setResult } = useStore(s => ({
+  const { selectedAlgorithm, source, target, setResult, recordAlgoTiming } = useStore(s => ({
     selectedAlgorithm: s.selectedAlgorithm,
     source:            s.source as number | null,
     target:            s.target as number | null,
     setResult:         s.setResult,
+    recordAlgoTiming:  s.recordAlgoTiming,
   }))
 
   return useMutation({
@@ -17,7 +18,12 @@ export function useRunMarvelAlgorithm() {
       if (source === null) throw new Error('Selecione um filme de origem')
       return callMarvelAlgorithm(selectedAlgorithm, source, target ?? undefined)
     },
-    onSuccess: (data) => setResult(data),
+    onSuccess: (data: { execution_time_ms?: number }) => {
+      setResult(data)
+      if (typeof data?.execution_time_ms === 'number') {
+        recordAlgoTiming(selectedAlgorithm, data.execution_time_ms)
+      }
+    },
     onError: (err: unknown) => {
       const msg = err instanceof Error ? err.message : 'Erro ao executar algoritmo'
       toast.error(msg)

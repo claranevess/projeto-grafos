@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef, useState } from 'react'
 import { useStore } from '@/store'
 import type { MarvelMovieSchema } from '@/lib/types'
 
@@ -5,21 +6,48 @@ interface Props {
   nodes: MarvelMovieSchema[]
 }
 
+const MARGIN = 8
+
 export function MarvelNodeTooltip({ nodes }: Props) {
   const { tooltipMovieId, tooltipPos } = useStore(s => ({
     tooltipMovieId: s.tooltipMovieId,
     tooltipPos:     s.tooltipPos,
   }))
 
-  if (!tooltipMovieId || !tooltipPos) return null
+  const boxRef = useRef<HTMLDivElement>(null)
+  const [pos, setPos] = useState<{ left: number; top: number } | null>(null)
 
-  const movie = nodes.find(n => n.movie_id === tooltipMovieId)
-  if (!movie) return null
+  const movie = tooltipMovieId ? nodes.find(n => n.movie_id === tooltipMovieId) : undefined
+
+  useLayoutEffect(() => {
+    if (!movie || !tooltipPos || !boxRef.current) {
+      setPos(null)
+      return
+    }
+    const { width, height } = boxRef.current.getBoundingClientRect()
+
+    let left = tooltipPos.x + 12
+    if (left + width > window.innerWidth - MARGIN) left = tooltipPos.x - 12 - width
+    left = Math.min(Math.max(left, MARGIN), window.innerWidth - width - MARGIN)
+
+    let top = tooltipPos.y - 8
+    if (top + height > window.innerHeight - MARGIN) top = window.innerHeight - MARGIN - height
+    top = Math.max(top, MARGIN)
+
+    setPos({ left, top })
+  }, [movie, tooltipPos])
+
+  if (!movie || !tooltipPos) return null
 
   return (
     <div
+      ref={boxRef}
       className="fixed z-50 pointer-events-none"
-      style={{ left: tooltipPos.x + 12, top: tooltipPos.y - 8 }}
+      style={{
+        left:       pos?.left ?? tooltipPos.x + 12,
+        top:        pos?.top ?? tooltipPos.y - 8,
+        visibility: pos ? 'visible' : 'hidden',
+      }}
     >
       <div
         className="bg-[var(--background)] border-2 border-black p-2 text-[11px] font-mono w-48"

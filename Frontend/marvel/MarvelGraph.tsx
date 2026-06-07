@@ -69,11 +69,19 @@ export function MarvelGraph() {
       })
       .filter(Boolean) as SimEdge[]
 
+    const padding = 24
+
     const sim = d3.forceSimulation<SimNode>(nodes)
       .force('link', d3.forceLink<SimNode, SimEdge>(edges).id(d => d.movie_id).distance(70).strength(0.4))
       .force('charge', d3.forceManyBody<SimNode>().strength(-120))
       .force('center', d3.forceCenter(dims.w / 2, dims.h / 2))
       .force('collision', d3.forceCollide<SimNode>(18))
+      .force('bounds', () => {
+        for (const n of nodes) {
+          n.x = Math.max(padding, Math.min(dims.w - padding, n.x))
+          n.y = Math.max(padding, Math.min(dims.h - padding, n.y))
+        }
+      })
 
     for (let i = 0; i < 300; i++) sim.tick()
     sim.stop()
