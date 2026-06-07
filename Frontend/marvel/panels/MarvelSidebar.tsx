@@ -6,20 +6,16 @@ import { Button } from '@/components/ui/button'
 import { useStore } from '@/store'
 import { useMarvelMovies, useMarvelGraph } from '@/hooks/useMarvelGraph'
 import { useRunMarvelAlgorithm } from '@/hooks/useMarvelAlgorithm'
-import { ALGORITHM_LABELS } from '@/lib/constants'
+import { ALGORITHM_LABELS, MARVEL_CATEGORIES, CATEGORY_COLORS } from '@/lib/constants'
 import type { AlgorithmName } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { RevenueBarChart } from '../charts/RevenueBarChart'
-import { PhaseCompareChart } from '../charts/PhaseCompareChart'
+import { CategoryCompareChart } from '../charts/CategoryCompareChart'
 import { DegreeHistogram } from '../charts/DegreeHistogram'
 import { ROIScatterPlot } from '../charts/ROIScatterPlot'
 import { AlgoCompareChart } from '../charts/AlgoCompareChart'
 
 const ALGORITHMS: AlgorithmName[] = ['BFS', 'DFS', 'DIJKSTRA', 'BELLMAN_FORD']
-
-const PHASE_COLORS: Record<number, string> = {
-  1: '#4ade80', 2: '#fb923c', 3: '#c084fc', 4: '#22d3ee', 5: '#FFDE21',
-}
 
 export function MarvelSidebar() {
   const [tab, setTab] = useState('algoritmo')
@@ -111,7 +107,7 @@ export function MarvelSidebar() {
                     <div className="flex items-center gap-1.5">
                       <span
                         className="w-2 h-2 shrink-0"
-                        style={{ background: PHASE_COLORS[sourceMovie.phase] ?? '#888', outline: '1px solid black' }}
+                        style={{ background: CATEGORY_COLORS[sourceMovie.category] ?? '#888', outline: '1px solid black' }}
                       />
                       <span className="truncate text-[var(--foreground)]">{sourceMovie.title}</span>
                     </div>
@@ -145,7 +141,7 @@ export function MarvelSidebar() {
             <TabsContent value="graficos" className="mt-0 space-y-4 pr-1">
               <RevenueBarChart />
               <Separator style={{ background: 'black', height: 2 }} />
-              <PhaseCompareChart />
+              <CategoryCompareChart />
               <Separator style={{ background: 'black', height: 2 }} />
               <DegreeHistogram />
               <Separator style={{ background: 'black', height: 2 }} />
@@ -165,15 +161,15 @@ export function MarvelSidebar() {
               <Separator style={{ background: 'black', height: 2 }} />
 
               <p className="text-[9px] font-mono text-[var(--muted-foreground)] uppercase tracking-widest">
-                Legenda de fases
+                Legenda de categorias
               </p>
-              {[1, 2, 3, 4, 5].map(p => (
-                <div key={p} className="flex items-center gap-2 text-[10px] font-mono">
+              {MARVEL_CATEGORIES.map(c => (
+                <div key={c} className="flex items-center gap-2 text-[10px] font-mono">
                   <span
                     className="w-3 h-3 shrink-0"
-                    style={{ background: PHASE_COLORS[p], outline: '1.5px solid black' }}
+                    style={{ background: CATEGORY_COLORS[c], outline: '1.5px solid black' }}
                   />
-                  <span className="text-[var(--foreground)]">Fase {p}</span>
+                  <span className="text-[var(--foreground)]">{c}</span>
                 </div>
               ))}
 

@@ -27,7 +27,7 @@ export function MarvelNodeTooltip({ nodes }: Props) {
       >
         <div className="font-bold text-[var(--foreground)] leading-tight mb-1">{movie.title}</div>
         <div className="text-[var(--muted-foreground)]">
-          {movie.year} · Fase {movie.phase}
+          {movie.year} · {movie.category}
         </div>
         <div className="mt-1 space-y-0.5 text-[10px]">
           <div>

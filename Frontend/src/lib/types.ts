@@ -90,14 +90,10 @@ export interface MarvelMovieSchema {
   movie_id: number
   title: string
   year: number
-  phase: number
+  category: string
   budget_million: number
   worldwide_gross_million: number
-  opening_weekend_million: number
-  profit_million: number
   roi_percent: number
-  rotten_tomatoes: number
-  metacritic: number
   degree: number
   is_hub: boolean
 }
@@ -106,7 +102,6 @@ export interface MarvelEdgeSchema {
   source: number
   target: number
   connection_type: string
-  shared_characters: string
   weight: number
 }
 

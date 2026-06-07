@@ -1,9 +1,6 @@
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import { useMarvelMovies } from '@/hooks/useMarvelGraph'
-
-const PHASE_COLORS: Record<number, string> = {
-  1: '#4ade80', 2: '#fb923c', 3: '#c084fc', 4: '#22d3ee', 5: '#FFDE21',
-}
+import { CATEGORY_COLORS } from '@/lib/constants'
 
 export function RevenueBarChart() {
   const { data: movies } = useMarvelMovies()
@@ -15,7 +12,7 @@ export function RevenueBarChart() {
     .map(m => ({
       name:     m.title.replace(/:.+/, '').trim(),
       revenue:  m.worldwide_gross_million,
-      phase:    m.phase,
+      category: m.category,
     }))
 
   return (
@@ -33,7 +30,7 @@ export function RevenueBarChart() {
           />
           <Bar dataKey="revenue" radius={0}>
             {top.map((entry, i) => (
-              <Cell key={i} fill={PHASE_COLORS[entry.phase] ?? '#888'} stroke="black" strokeWidth={1} />
+              <Cell key={i} fill={CATEGORY_COLORS[entry.category] ?? '#888'} stroke="black" strokeWidth={1} />
             ))}
           </Bar>
         </BarChart>

@@ -48,4 +48,23 @@ export const ALGORITHM_COLORS: Record<string, string> = {
   BELLMAN_FORD:'var(--destructive)',
 }
 
-export const MCU_PHASES = [1, 2, 3, 4, 5] as const
+// Categorias presentes em MARVEL.csv (coluna `category`) — usadas para
+// agrupar/colorir filmes nos gráficos e no grafo. 'Unique' identifica
+// filmes sem franquia compartilhada (sem aresta sintética por categoria).
+export const MARVEL_CATEGORIES = [
+  'Avengers', 'Iron Man', 'Captain America', 'Thor', 'Spider-Man',
+  'Guardians', 'Black Panther', 'Ant-Man', 'Dr Strange', 'Unique',
+] as const
+
+export const CATEGORY_COLORS: Record<string, string> = {
+  'Avengers':        '#4ade80',
+  'Iron Man':        '#fb923c',
+  'Captain America': '#c084fc',
+  'Thor':            '#22d3ee',
+  'Spider-Man':      '#FFDE21',
+  'Guardians':       '#f472b6',
+  'Black Panther':   '#a3e635',
+  'Ant-Man':         '#fb7185',
+  'Dr Strange':      '#38bdf8',
+  'Unique':          '#94a3b8',
+}

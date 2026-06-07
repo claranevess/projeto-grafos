@@ -1,9 +1,6 @@
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import { useMarvelMovies } from '@/hooks/useMarvelGraph'
-
-const PHASE_COLORS: Record<number, string> = {
-  1: '#4ade80', 2: '#fb923c', 3: '#c084fc', 4: '#22d3ee', 5: '#FFDE21',
-}
+import { CATEGORY_COLORS } from '@/lib/constants'
 
 export function AlgoCompareChart() {
   const { data: movies } = useMarvelMovies()
@@ -13,9 +10,9 @@ export function AlgoCompareChart() {
     .sort((a, b) => b.degree - a.degree)
     .slice(0, 10)
     .map(m => ({
-      name:   m.title.replace(/:.+/, '').replace(/\s+\(.*\)/, '').trim().slice(0, 14),
-      degree: m.degree,
-      phase:  m.phase,
+      name:     m.title.replace(/:.+/, '').replace(/\s+\(.*\)/, '').trim().slice(0, 14),
+      degree:   m.degree,
+      category: m.category,
     }))
 
   return (
@@ -33,7 +30,7 @@ export function AlgoCompareChart() {
           />
           <Bar dataKey="degree" radius={0}>
             {top.map((entry, i) => (
-              <Cell key={i} fill={PHASE_COLORS[entry.phase] ?? '#888'} stroke="black" strokeWidth={1} />
+              <Cell key={i} fill={CATEGORY_COLORS[entry.category] ?? '#888'} stroke="black" strokeWidth={1} />
             ))}
           </Bar>
         </BarChart>

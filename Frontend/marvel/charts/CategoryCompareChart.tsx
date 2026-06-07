@@ -1,23 +1,19 @@
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import { useMarvelMovies } from '@/hooks/useMarvelGraph'
+import { CATEGORY_COLORS } from '@/lib/constants'
 
-const PHASE_COLORS: Record<number, string> = {
-  1: '#4ade80', 2: '#fb923c', 3: '#c084fc', 4: '#22d3ee', 5: '#FFDE21',
-}
-
-export function PhaseCompareChart() {
+export function CategoryCompareChart() {
   const { data: movies } = useMarvelMovies()
   if (!movies) return null
 
-  const byPhase: Record<number, number[]> = {}
+  const byCategory: Record<string, number[]> = {}
   movies.forEach(m => {
-    if (!byPhase[m.phase]) byPhase[m.phase] = []
-    byPhase[m.phase].push(m.roi_percent)
+    if (!byCategory[m.category]) byCategory[m.category] = []
+    byCategory[m.category].push(m.roi_percent)
   })
 
-  const data = Object.entries(byPhase).map(([phase, rois]) => ({
-    phase: `Fase ${phase}`,
-    phaseNum: Number(phase),
+  const data = Object.entries(byCategory).map(([category, rois]) => ({
+    category,
     avgROI: rois.reduce((a, b) => a + b, 0) / rois.length,
     count: rois.length,
   }))
@@ -25,11 +21,11 @@ export function PhaseCompareChart() {
   return (
     <div className="w-full">
       <p className="text-[9px] font-mono text-[var(--muted-foreground)] uppercase tracking-widest mb-2">
-        ROI médio por fase (%)
+        ROI médio por categoria (%)
       </p>
       <ResponsiveContainer width="100%" height={140}>
         <BarChart data={data} margin={{ left: 0, right: 8, top: 0, bottom: 0 }}>
-          <XAxis dataKey="phase" tick={{ fontSize: 8, fontFamily: 'monospace' }} tickLine={false} axisLine={false} />
+          <XAxis dataKey="category" tick={{ fontSize: 7, fontFamily: 'monospace' }} tickLine={false} axisLine={false} angle={-20} textAnchor="end" height={36} />
           <YAxis tick={{ fontSize: 8, fontFamily: 'monospace' }} tickLine={false} axisLine={false} />
           <Tooltip
             contentStyle={{ background: 'var(--background)', border: '2px solid black', borderRadius: 0, fontSize: 10, fontFamily: 'monospace' }}
@@ -37,7 +33,7 @@ export function PhaseCompareChart() {
           />
           <Bar dataKey="avgROI" radius={0}>
             {data.map((entry, i) => (
-              <Cell key={i} fill={PHASE_COLORS[entry.phaseNum] ?? '#888'} stroke="black" strokeWidth={1} />
+              <Cell key={i} fill={CATEGORY_COLORS[entry.category] ?? '#888'} stroke="black" strokeWidth={1} />
             ))}
           </Bar>
         </BarChart>

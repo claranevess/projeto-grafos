@@ -5,14 +5,7 @@ import { useStore } from '@/store'
 import { MarvelNodeTooltip } from './MarvelNodeTooltip'
 import { MarvelPathHighlight } from './MarvelPathHighlight'
 import type { MarvelMovieSchema, MarvelEdgeSchema } from '@/lib/types'
-
-const PHASE_COLORS: Record<number, string> = {
-  1: '#4ade80',
-  2: '#fb923c',
-  3: '#c084fc',
-  4: '#22d3ee',
-  5: '#FFDE21',
-}
+import { CATEGORY_COLORS } from '@/lib/constants'
 
 interface SimNode extends MarvelMovieSchema {
   x: number
@@ -147,7 +140,7 @@ export function MarvelGraph() {
             const isSource  = source === n.movie_id
             const isTarget  = target === n.movie_id
             const isOnPath  = resultPath.includes(n.movie_id)
-            const nodeColor = PHASE_COLORS[n.phase] ?? '#888'
+            const nodeColor = CATEGORY_COLORS[n.category] ?? '#888'
             const r         = n.is_hub ? 12 : 8
 
             return (
