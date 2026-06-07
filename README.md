@@ -179,6 +179,21 @@ python -m Backend.src.cli --dataset Backend/data/aeroportos_data.csv --alg BELLM
 > **Restrição do enunciado:** nenhuma lib de algoritmos prontos é utilizada
 > (sem NetworkX, igraph, etc.). Toda a lógica está em `Backend/src/graphs/algorithms.py`.
 
+> **Nota sobre a interface da Parte 1:** a UI expõe apenas BFS, DFS e Dijkstra. Bellman-Ford
+> está disponível via CLI e é utilizado na Parte 2, onde existem pesos negativos — seu uso
+> na Parte 1 não se aplica pois o grafo de aeroportos não possui arestas com peso negativo.
+
+---
+
+## Navegação entre Partes
+
+A transição da Parte 1 para a Parte 2 é feita de forma narrativa pela interface:
+
+1. Na rota `/`, selecione **Dijkstra** como algoritmo
+2. Defina **GIG** (Aeroporto Internacional do Galeão) como destino
+3. Execute a rota — após a animação do avião concluir, um modal de alerta será exibido
+4. Clique em **"Clique aqui para saber mais"** para ser redirecionado à Parte 2 (`/marvel`)
+
 ---
 
 ## Testes
