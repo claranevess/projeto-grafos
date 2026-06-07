@@ -42,8 +42,12 @@ export function PlaneAnimator({ projection, nodes }: Props) {
       <text
         textAnchor="middle"
         dominantBaseline="middle"
-        fontSize={16}
-        style={{ userSelect: 'none' }}
+        fontSize={28}
+        fill="#fb923c"
+        stroke="#0d0a0e"
+        strokeWidth={1}
+        paintOrder="stroke"
+        style={{ userSelect: 'none', filter: 'drop-shadow(0 0 6px #fb923c88)' }}
       >
         ✈
       </text>

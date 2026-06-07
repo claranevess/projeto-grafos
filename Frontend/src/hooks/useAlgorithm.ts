@@ -5,13 +5,14 @@ import { toast } from 'sonner'
 import type { AlgorithmName, AlgorithmRequest } from '@/lib/types'
 
 export function useRunAlgorithm() {
-  const { selected, source, target, setResult, setIsRunning, triggerBridgeAlert } = useStore(s => ({
-    selected:           s.selected,
-    source:             s.source,
-    target:             s.target,
-    setResult:          s.setResult,
-    setIsRunning:       s.setIsRunning,
-    triggerBridgeAlert: s.triggerBridgeAlert,
+  const { selected, source, target, setResult, setIsRunning, reset, play } = useStore(s => ({
+    selected:    s.selected,
+    source:      s.source,
+    target:      s.target,
+    setResult:   s.setResult,
+    setIsRunning:s.setIsRunning,
+    reset:       s.reset,
+    play:        s.play,
   }))
 
   const run = useMutation({
@@ -24,7 +25,10 @@ export function useRunAlgorithm() {
     onSuccess: (data) => {
       setResult(data)
       setIsRunning(false)
-      if (target === 'GIG') triggerBridgeAlert()
+      if ('path' in data && (data as { path: string[] }).path.length >= 2) {
+        reset()
+        play()
+      }
     },
     onError: (err: unknown) => {
       setIsRunning(false)

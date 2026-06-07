@@ -9,6 +9,7 @@ class NodeSchema(BaseModel):
     lat: float | None = None
     lon: float | None = None
     is_hub: bool = False
+    ego_density: float | None = None
 
 
 class EdgeSchema(BaseModel):

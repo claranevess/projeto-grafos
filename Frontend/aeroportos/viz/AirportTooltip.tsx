@@ -34,6 +34,11 @@ export function AirportTooltip() {
           <span className="ml-2 text-[var(--primary)]">● hub</span>
         )}
       </div>
+      {node.ego_density != null && (
+        <div className="text-[10px] text-[var(--muted-foreground)]">
+          Densidade ego: <span className="text-[var(--foreground)]">{(node.ego_density * 100).toFixed(1)}%</span>
+        </div>
+      )}
     </div>
   )
 }

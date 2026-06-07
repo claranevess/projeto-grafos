@@ -6,7 +6,7 @@ import { ALGORITHM_LABELS } from '@/lib/constants'
 import type { AlgorithmName } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
-const ALGORITHMS: AlgorithmName[] = ['BFS', 'DFS', 'DIJKSTRA', 'BELLMAN_FORD']
+const ALGORITHMS: AlgorithmName[] = ['BFS', 'DFS', 'DIJKSTRA']
 
 export function AlgorithmPanel() {
   const { selected, setSelected, isRunning, source, reset } = useStore(s => ({
@@ -19,7 +19,7 @@ export function AlgorithmPanel() {
 
   const { mutate: run } = useRunAlgorithm()
 
-  const needsTarget = selected === 'DIJKSTRA' || selected === 'BELLMAN_FORD'
+  const needsTarget = selected === 'DIJKSTRA'
 
   return (
     <div className="space-y-3">

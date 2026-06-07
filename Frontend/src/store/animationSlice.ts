@@ -21,7 +21,7 @@ export const createAnimationSlice = (set: (fn: (s: AnimationState) => Partial<An
   setSpeed: v => set(() => ({ speed: v })),
   tick: dt => set(s => {
     if (!s.playing) return {}
-    const next = s.t + dt * s.speed * 0.001
+    const next = s.t + dt * s.speed * 0.0002
     return next >= 1 ? { t: 1, playing: false } : { t: next }
   }),
 })

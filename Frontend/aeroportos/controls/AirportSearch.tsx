@@ -12,6 +12,7 @@ interface Props {
 
 export function AirportSearch({ mode }: Props) {
   const [query, setQuery] = useState('')
+  const [focused, setFocused] = useState(false)
   const { data: airports } = useAirports()
   const { setSource, setTarget, source, target } = useStore(s => ({
     setSource: s.setSource,
@@ -33,6 +34,7 @@ export function AirportSearch({ mode }: Props) {
   function select(iata: string) {
     mode === 'source' ? setSource(iata) : setTarget(iata)
     setQuery('')
+    setFocused(false)
   }
 
   return (
@@ -40,9 +42,10 @@ export function AirportSearch({ mode }: Props) {
       <div className="relative">
         <Search size={12} className="absolute left-2 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]" />
         <Input
-          value={query || value}
+          value={focused ? query : (query || value)}
           onChange={e => setQuery(e.target.value)}
-          onFocus={() => setQuery('')}
+          onFocus={() => { setFocused(true); setQuery('') }}
+          onBlur={() => { setFocused(false); setQuery('') }}
           placeholder={mode === 'source' ? 'Origem (IATA)' : 'Destino (IATA)'}
           className={cn(
             'h-7 pl-7 text-[11px] font-mono bg-transparent',
@@ -57,7 +60,7 @@ export function AirportSearch({ mode }: Props) {
           {filtered.map(a => (
             <button
               key={a.iata}
-              onClick={() => select(a.iata)}
+              onMouseDown={e => { e.preventDefault(); select(a.iata) }}
               className="w-full text-left px-3 py-1.5 text-[11px] font-mono hover:bg-[var(--muted)] flex gap-2"
             >
               <span className="font-bold text-[var(--foreground)] w-8">{a.iata}</span>

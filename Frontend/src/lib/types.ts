@@ -6,6 +6,7 @@ export interface NodeSchema {
   lat: number | null
   lon: number | null
   is_hub: boolean
+  ego_density: number | null
 }
 
 export interface EdgeSchema {

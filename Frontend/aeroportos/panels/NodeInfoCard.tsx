@@ -36,6 +36,12 @@ export function NodeInfoCard() {
         Grau: <span className="text-[var(--foreground)]">{node.degree}</span>
       </div>
 
+      {node.ego_density != null && (
+        <div className="text-[10px] font-mono text-[var(--muted-foreground)]">
+          Densidade ego: <span className="text-[var(--foreground)]">{(node.ego_density * 100).toFixed(1)}%</span>
+        </div>
+      )}
+
       {node.lat && node.lon && (
         <div className="text-[9px] font-mono text-[var(--muted-foreground)]">
           {node.lat.toFixed(4)}, {node.lon.toFixed(4)}

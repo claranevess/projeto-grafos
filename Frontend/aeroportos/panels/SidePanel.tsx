@@ -6,7 +6,6 @@ import { ResultPanel } from './ResultPanel'
 import { MetricsPanel } from './MetricsPanel'
 import { NodeInfoCard } from './NodeInfoCard'
 import { RegionFilter } from '@aeroportos/controls/RegionFilter'
-import { AnimationControls } from '@aeroportos/controls/AnimationControls'
 import { useStore } from '@/store'
 
 export function SidePanel() {
@@ -64,9 +63,8 @@ export function SidePanel() {
         </div>
 
         {/* rodapé fixo */}
-        <div className="shrink-0 px-3 py-2 space-y-2 border-t border-[var(--border)]">
+        <div className="shrink-0 px-3 py-2 border-t border-[var(--border)]">
           <NodeInfoCard />
-          <AnimationControls />
         </div>
       </Tabs>
     </aside>

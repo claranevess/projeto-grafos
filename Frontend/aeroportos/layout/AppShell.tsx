@@ -5,10 +5,12 @@ import { SidePanel } from '@aeroportos/panels/SidePanel'
 import { MapCanvas } from '@aeroportos/viz/MapCanvas'
 import { AlgorithmDial } from '@aeroportos/controls/AlgorithmDial'
 import { DashboardOverlay } from '@aeroportos/panels/DashboardOverlay'
+import { useAnimationLoop } from '@/hooks/useAnimation'
 import { useStore } from '@/store'
 import { Badge } from '@/components/ui/badge'
 
 export function AppShell() {
+  useAnimationLoop()
   const [dashboardOpen, setDashboardOpen] = useState(false)
   const { source, target } = useStore(s => ({ source: s.source, target: s.target }))
 

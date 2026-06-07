@@ -1,3 +1,4 @@
+import csv
 import functools
 
 from Backend.api.config import settings
@@ -33,6 +34,18 @@ HUB_THRESHOLD = 5
 
 
 @functools.lru_cache(maxsize=1)
+def _load_ego_density() -> dict[str, float]:
+    result: dict[str, float] = {}
+    try:
+        with open(settings.ego_csv, newline="", encoding="utf-8") as f:
+            for row in csv.DictReader(f):
+                result[row["aeroporto"]] = float(row["densidade_ego"])
+    except FileNotFoundError:
+        pass
+    return result
+
+
+@functools.lru_cache(maxsize=1)
 def _load_graph():
     from Backend.src.graphs.io import carregar_grafo
     airports_path = settings.data_dir / settings.airports_csv
@@ -45,6 +58,7 @@ def get_graph():
 
 def get_graph_schema() -> GraphSchema:
     graph = get_graph()
+    ego = _load_ego_density()
 
     nodes = []
     for iata in graph.iter_nodes():
@@ -59,6 +73,7 @@ def get_graph_schema() -> GraphSchema:
             lat=lat,
             lon=lon,
             is_hub=degree >= HUB_THRESHOLD,
+            ego_density=ego.get(iata),
         ))
 
     edges = []
@@ -81,6 +96,7 @@ def get_graph_schema() -> GraphSchema:
 
 def get_airports_list() -> list[NodeSchema]:
     graph = get_graph()
+    ego = _load_ego_density()
     airports = []
     for iata in graph.iter_nodes():
         nd = graph.get_node(iata)
@@ -94,5 +110,6 @@ def get_airports_list() -> list[NodeSchema]:
             lat=lat,
             lon=lon,
             is_hub=degree >= HUB_THRESHOLD,
+            ego_density=ego.get(iata),
         ))
     return sorted(airports, key=lambda a: a.iata)

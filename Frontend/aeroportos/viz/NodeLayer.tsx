@@ -11,9 +11,7 @@ interface Props {
 export function NodeLayer({ projection, nodes }: Props) {
   const selectedNode  = useStore(s => s.selectedNode)
   const setSelected   = useStore(s => s.setSelectedNode)
-  const setTooltip    = useStore(s => s.setTooltip)
   const setTarget     = useStore(s => s.setTarget)
-  const triggerBridge = useStore(s => s.triggerBridgeAlert)
   const activeRegions = useStore(s => s.activeRegions)
   const result        = useStore(s => s.result)
 
@@ -41,10 +39,7 @@ export function NodeLayer({ projection, nodes }: Props) {
               onClick={() => {
                 setSelected(n.iata)
                 setTarget(n.iata)
-                if (n.iata === 'GIG') triggerBridge()
               }}
-              onMouseEnter={e => setTooltip(n.iata, { x: e.clientX, y: e.clientY })}
-              onMouseLeave={() => setTooltip(null, null)}
             >
               {n.is_hub && (
                 <circle
