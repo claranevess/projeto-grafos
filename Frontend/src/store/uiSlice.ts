@@ -6,7 +6,6 @@ export interface UIState {
   tooltipPos:           { x: number; y: number } | null
   activeRegions:        Set<Region>
   bridgeAlertOpen:      boolean
-  bridgeAlertDismissed: boolean
   dialOpen:             boolean
   setSelectedNode:      (iata: string | null) => void
   setTooltip:           (node: string | null, pos: { x: number; y: number } | null) => void
@@ -23,7 +22,6 @@ export const createUISlice = (set: (fn: (s: UIState) => Partial<UIState>) => voi
   tooltipPos:           null,
   activeRegions:        new Set(['Norte', 'Nordeste', 'Sudeste', 'Sul', 'Centro-Oeste']),
   bridgeAlertOpen:      false,
-  bridgeAlertDismissed: false,
   dialOpen:             false,
   setSelectedNode: iata => set(() => ({ selectedNode: iata })),
   setTooltip:      (node, pos) => set(() => ({ tooltipNode: node, tooltipPos: pos })),
@@ -33,7 +31,7 @@ export const createUISlice = (set: (fn: (s: UIState) => Partial<UIState>) => voi
     return { activeRegions: next }
   }),
   setAllRegions: regions => set(() => ({ activeRegions: new Set(regions) })),
-  triggerBridgeAlert: () => set(s => s.bridgeAlertDismissed ? {} : { bridgeAlertOpen: true }),
-  dismissBridgeAlert: () => set(() => ({ bridgeAlertOpen: false, bridgeAlertDismissed: true })),
+  triggerBridgeAlert: () => set(() => ({ bridgeAlertOpen: true })),
+  dismissBridgeAlert: () => set(() => ({ bridgeAlertOpen: false })),
   setDialOpen:     v => set(() => ({ dialOpen: v })),
 })
