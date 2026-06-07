@@ -1,1 +1,4 @@
 origin,destination,weight,tipo_conexao,justificativa
+FILM_THE-AVENGERS,FILM_AVENGERS-AGE-OF-ULTRON,-5.0,same-category,exemplo de ciclo negativo (1/3) entre filmes Avengers
+FILM_AVENGERS-AGE-OF-ULTRON,FILM_AVENGERS-INFINITY-WAR,-5.0,same-category,exemplo de ciclo negativo (2/3) entre filmes Avengers
+FILM_AVENGERS-INFINITY-WAR,FILM_THE-AVENGERS,-5.0,same-category,exemplo de ciclo negativo (3/3) entre filmes Avengers

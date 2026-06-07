@@ -1,1 +1,3 @@
 origin,destination,weight,tipo_conexao,justificativa
+FILM_IRON-MAN,FILM_IRON-MAN-2,-1.0,same-category,exemplo de aresta com peso negativo entre Iron Man films
+FILM_CAPTAIN-AMERICA,FILM_CAPTAIN-AMERICA-CIVIL-WAR,-0.5,same-category,exemplo de aresta com peso negativo entre Captain America films
