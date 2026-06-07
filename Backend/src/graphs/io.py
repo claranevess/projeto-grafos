@@ -12,7 +12,6 @@ Responsabilidade deste módulo
 
 from __future__ import annotations
 
-import ast
 import csv
 import itertools
 import json
@@ -573,103 +572,6 @@ def densidade_ego_aeroporto(out_dir="out"):
 # ---------------------------------------------------------------------------
 # Parte 2: loader do dataset (parsing -> Graph)
 # ---------------------------------------------------------------------------
-
-
-def _find_cast_column(headers):
-    """Detecta a coluna mais provável que contém o elenco/atores a partir dos headers.
-
-    Estratégia leve baseada apenas nos nomes das colunas (headers).
-    """
-    if not headers:
-        return None
-    cols = [c for c in headers]
-    low = [c.strip().lower() for c in cols]
-
-    candidates = [
-        'cast', 'actors', 'cast_list', 'castings', 'acting', 'cast_names'
-    ]
-
-    for cand in candidates:
-        for c, lc in zip(cols, low):
-            if lc == cand:
-                return c
-
-    for c, lc in zip(cols, low):
-        if 'cast' in lc or 'actor' in lc or 'actors' in lc or 'cast_list' in lc:
-            return c
-
-    return None
-
-
-def _parse_cast_field(raw):
-    """Converte o conteúdo bruto de uma célula de elenco em lista de nomes.
-
-    Aceita formatos comuns: JSON array, Python list repr, strings separadas por '|', ';', '/', '\n' ou vírgula.
-    Remove entradas vazias e faz strip dos nomes.
-    """
-    if raw is None:
-        return []
-
-    if not isinstance(raw, str):
-        raw = str(raw)
-
-    s = raw.strip()
-    if not s or s.lower() in ('nan', 'none'):
-        return []
-
-    # Tenta JSON / Python literal (listas)
-    if (s.startswith('[') and s.endswith(']')) or s.startswith('(\"') or s.startswith("['"):
-        try:
-            parsed = ast.literal_eval(s)
-            if isinstance(parsed, (list, tuple)):
-                return [str(x).strip() for x in parsed if str(x).strip()]
-        except Exception:
-            pass
-        try:
-            parsed = json.loads(s)
-            if isinstance(parsed, list):
-                return [str(x).strip() for x in parsed if str(x).strip()]
-        except Exception:
-            pass
-
-    # Heurística de separadores preferenciais
-    for sep in ['|', ';', '\n', '/', ' // ', ' /// ', ' & ']:
-        if sep in s:
-            parts = [p.strip() for p in s.split(sep) if p.strip()]
-            if len(parts) > 1:
-                return parts
-
-    # Fallback para vírgula — cuidado com formatos "Last, First"; assume-se lista curta
-    if ',' in s:
-        parts = [p.strip() for p in s.split(',') if p.strip()]
-        # se a maioria dos tokens tiver mais de uma palavra, provavelmente é lista de nomes
-        count_multiword = sum(1 for p in parts if len(p.split()) > 1)
-        if count_multiword >= max(1, len(parts) // 2):
-            return parts
-
-    # último recurso: devolve a string inteira como único nome
-    return [s]
-
-
-def _slugify_actor(name):
-    """Gera um slug ASCII a partir do nome do ator.
-
-    Retorna em minúsculas sem acentos, espaços trocados por '-', caracteres não alfanuméricos removidos.
-    """
-    if not isinstance(name, str):
-        name = str(name)
-    name = name.strip()
-    # Normaliza acentos
-    nfkd = unicodedata.normalize('NFKD', name)
-    ascii_name = nfkd.encode('ascii', 'ignore').decode('ascii')
-    # minusculas
-    s = ascii_name.lower()
-    # substituir não alfanum por hífen
-    s = re.sub(r"[^a-z0-9]+", '-', s)
-    s = s.strip('-')
-    if not s:
-        s = re.sub(r"[^a-z0-9]+", '', ascii_name).lower() or 'unknown'
-    return s
 
 
 def carregar_dataset_parte2(dataset_dir="data/dataset_parte2"):
