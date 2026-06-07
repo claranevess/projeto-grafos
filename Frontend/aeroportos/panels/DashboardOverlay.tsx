@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { X, FilterX, BarChart3, Route, Cpu, Info } from 'lucide-react'
+import { X, FilterX, BarChart3, Route, Cpu, Info, Lightbulb } from 'lucide-react'
 import {
   BarChart,
   Bar,
@@ -9,16 +9,16 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
-  ScatterChart,
-  Scatter,
   Cell,
   Legend,
   ComposedChart,
-  Line
+  Line,
+  LineChart
 } from 'recharts'
 import { graphApi } from '@/lib/api'
 import { REGIONS, REGION_COLORS, type Region } from '@/lib/constants'
 import type { NodeSchema } from '@/lib/types'
+import React from 'react'
 
 interface DashboardOverlayProps {
   onClose: () => void
@@ -28,10 +28,6 @@ type TabId = 'macro' | 'routes' | 'benchmarking'
 type HubFilter = 'all' | 'hub' | 'non-hub'
 type DegreeFilter = number | null
 type DensityBucket = 'all' | 'low' | 'medium' | 'high'
-
-function formatPercent(value: number) {
-  return `${Math.round(value * 100)}%`
-}
 
 function regionColor(region: Region) {
   return REGION_COLORS[region] || '#cbd5e1'
@@ -61,23 +57,17 @@ function buildDensityByNode(nodes: NodeSchema[], edges: { source: string; target
         if (uNeighbors.has(neighbors[j])) internalEdges++
       }
     }
-
     const maxEdges = (m * (m - 1)) / 2
     return { ...node, density: maxEdges > 0 ? internalEdges / maxEdges : 0 }
   })
 }
 
 export function DashboardOverlay({ onClose }: DashboardOverlayProps) {
-  // Controle de Abas
   const [activeTab, setActiveTab] = useState<TabId>('macro')
-
-  // Filtros
   const [selectedRegion, setSelectedRegion] = useState<Region | 'All'>('All')
   const [hubFilter, setHubFilter] = useState<HubFilter>('all')
   const [selectedDegree, setSelectedDegree] = useState<DegreeFilter>(null)
   const [selectedDensity, setSelectedDensity] = useState<DensityBucket>('all')
-
-  // Estados da Aba de Rotas (AVD)
   const [routeOrigin, setRouteOrigin] = useState<string>('')
   const [routeDest, setRouteDest] = useState<string>('')
 
@@ -119,22 +109,41 @@ export function DashboardOverlay({ onClose }: DashboardOverlayProps) {
     return [...filteredNodes].sort((a, b) => b.degree - a.degree).slice(0, 8)
   }, [filteredNodes])
 
-  // =========================================================================
-  // NOVO: Processador dinâmico de Custo Cognitivo vs Tempo para o Gráfico AVD
-  // =========================================================================
+  // NOVO: Cálculo do Heatmap Inter-Regional O(E)
+  const heatmapData = useMemo(() => {
+    if (!graphQuery.data) return { matrix: {}, maxVal: 1 }
+    const matrix: Record<string, Record<string, number>> = {}
+    REGIONS.forEach(r1 => {
+      matrix[r1] = {}
+      REGIONS.forEach(r2 => matrix[r1][r2] = 0)
+    })
+    
+    let maxVal = 0
+    const nodeRegionMap = new Map(graphQuery.data.nodes.map(n => [n.iata, n.region]))
+    
+    graphQuery.data.edges.forEach(edge => {
+      const r1 = nodeRegionMap.get(edge.source)
+      const r2 = nodeRegionMap.get(edge.target)
+      if (r1 && r2) {
+        matrix[r1][r2] += 1
+        // Se o grafo não for direcionado, garante simetria visual
+        if (r1 !== r2) matrix[r2][r1] += 1 
+        maxVal = Math.max(maxVal, matrix[r1][r2], matrix[r2][r1])
+      }
+    })
+    return { matrix, maxVal }
+  }, [graphQuery.data])
+
   const routeChartData = useMemo(() => {
     if (!routeOrigin || !routeDest || routeOrigin === routeDest) return []
-
     const originNode = nodes.find(n => n.iata === routeOrigin)
     const destNode = nodes.find(n => n.iata === routeDest)
-
     if (!originNode || !destNode) return []
 
     const isSameRegion = originNode.region === destNode.region
     const originIsHub = originNode.is_hub
     const destIsHub = destNode.is_hub
 
-    // Lógica topológica base
     const baseTime = isSameRegion ? 85 : 210
     const salt = (routeOrigin.charCodeAt(0) + routeDest.charCodeAt(1)) % 35
     const penalty = (!originIsHub && !destIsHub && !isSameRegion) ? 120 : 0
@@ -148,11 +157,20 @@ export function DashboardOverlay({ onClose }: DashboardOverlayProps) {
     ]
   }, [routeOrigin, routeDest, nodes])
 
+  // DADOS ASSINTÓTICOS (Simulação para a Aba 3)
+  const asymptoticData = [
+    { v: 10, BFS: 10, Dijkstra: 15, BellmanFord: 45 },
+    { v: 50, BFS: 50, Dijkstra: 90, BellmanFord: 350 },
+    { v: 100, BFS: 100, Dijkstra: 210, BellmanFord: 1200 },
+    { v: 250, BFS: 250, Dijkstra: 580, BellmanFord: 6500 },
+    { v: 500, BFS: 500, Dijkstra: 1300, BellmanFord: 24000 },
+  ]
+
   const benchmarkData = [
-    { name: 'BFS', tempo: 120, complexidade: 'O(V + E)', cor: '#10B981', recomendacao: 'Excelente para contagem de saltos mínimos (arestas sem peso).' },
+    { name: 'BFS', tempo: 120, complexidade: 'O(V + E)', cor: '#10B981', recomendacao: 'Excelente para contagem de saltos mínimos.' },
     { name: 'DFS', tempo: 145, complexidade: 'O(V + E)', cor: '#3B82F6', recomendacao: 'Ruim para menor caminho. Útil para topologia basal.' },
-    { name: 'Dijkstra', tempo: 42, complexidade: 'O((V + E) log V)', cor: '#6366F1', recomendacao: 'Algoritmo ideal e definitivo para malha aérea (pesos positivos).' },
-    { name: 'Bellman-Ford', tempo: 890, complexidade: 'O(V * E)', cor: '#EF4444', recomendacao: 'Inadequado/Ineficiente. Não existem distâncias negativas aqui.' },
+    { name: 'Dijkstra', tempo: 42, complexidade: 'O((V + E) log V)', cor: '#6366F1', recomendacao: 'Algoritmo ideal e definitivo para malha aérea.' },
+    { name: 'Bellman', tempo: 890, complexidade: 'O(V * E)', cor: '#EF4444', recomendacao: 'Ineficiente. Não existem distâncias negativas.' },
   ]
 
   if (graphQuery.isLoading) {
@@ -166,45 +184,24 @@ export function DashboardOverlay({ onClose }: DashboardOverlayProps) {
     )
   }
 
-  function resetFilters() {
-    setSelectedRegion('All')
-    setHubFilter('all')
-    setSelectedDegree(null)
-    setSelectedDensity('all')
-  }
-
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-[#0B1120] text-slate-100 select-none">
-      
+    <div className="fixed inset-0 z-50 flex flex-col bg-[#0B1120] text-slate-100 select-none overflow-hidden">
       {/* HEADER PRINCIPAL */}
       <header className="flex shrink-0 items-center justify-between border-b border-slate-800 bg-[#0F172A] px-6 py-4">
         <div>
           <h2 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
             Análise Estrutural <span className="text-indigo-400">Malha Aérea</span>
           </h2>
+          <p className="text-xs text-slate-400">Dashboard Interativo integrado sob leis da Gestalt e AVD</p>
         </div>
-
-        {/* NAVEGAÇÃO ENTRE ABAS */}
         <nav className="flex bg-slate-900 rounded-lg p-1 border border-slate-800">
-          <button onClick={() => setActiveTab('macro')} className={`flex items-center gap-2 px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${activeTab === 'macro' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'}`}>
-            <BarChart3 size={14} /> Visão Macro
-          </button>
-          <button onClick={() => setActiveTab('routes')} className={`flex items-center gap-2 px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${activeTab === 'routes' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'}`}>
-            <Route size={14} /> Estudo de Rotas AVD
-          </button>
-          <button onClick={() => setActiveTab('benchmarking')} className={`flex items-center gap-2 px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${activeTab === 'benchmarking' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'}`}>
-            <Cpu size={14} /> Análise Técnica
-          </button>
+          <button onClick={() => setActiveTab('macro')} className={`flex items-center gap-2 px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${activeTab === 'macro' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'}`}><BarChart3 size={14} /> Visão Macro</button>
+          <button onClick={() => setActiveTab('routes')} className={`flex items-center gap-2 px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${activeTab === 'routes' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'}`}><Route size={14} /> Estudo de Rotas</button>
+          <button onClick={() => setActiveTab('benchmarking')} className={`flex items-center gap-2 px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${activeTab === 'benchmarking' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'}`}><Cpu size={14} /> Análise Técnica</button>
         </nav>
-
-        {/* CONTROLES DE FECHAR */}
         <div className="flex gap-3">
-          <button onClick={resetFilters} className="flex items-center gap-1.5 rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors">
-            <FilterX size={14} /> Limpar Filtros
-          </button>
-          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition-colors">
-            <X size={16} />
-          </button>
+          <button onClick={() => { setSelectedRegion('All'); setHubFilter('all'); setSelectedDegree(null); setSelectedDensity('all') }} className="flex items-center gap-1.5 rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"><FilterX size={14} /> Limpar</button>
+          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"><X size={16} /></button>
         </div>
       </header>
 
@@ -212,7 +209,7 @@ export function DashboardOverlay({ onClose }: DashboardOverlayProps) {
         <div className="mx-auto max-w-[1500px] space-y-6">
           
           {/* ================================================== */}
-          {/* ABA 1: VISÃO MACRO                                 */}
+          {/* ABA 1: VISÃO MACRO (EXPLORATÓRIA)                  */}
           {/* ================================================== */}
           {activeTab === 'macro' && (
             <>
@@ -239,10 +236,54 @@ export function DashboardOverlay({ onClose }: DashboardOverlayProps) {
 
               {/* GRÁFICOS MACRO */}
               <div className="grid gap-6 lg:grid-cols-2">
+                {/* Heatmap Nativo */}
+                <div className="rounded-xl border border-slate-800 bg-[#1E293B] p-5 flex flex-col">
+                  <div className="mb-4">
+                    <h3 className="text-sm font-bold text-white">Heatmap de Densidade Inter-Regional</h3>
+                    <p className="text-xs text-slate-400">Conexões diretas e concentração da malha aérea (Gestalt: Similaridade).</p>
+                  </div>
+                  <div className="flex-1 flex items-center justify-center">
+                    <div className="grid grid-cols-6 gap-1 w-full max-w-[500px]">
+                      {/* Cabecalhos Colunas */}
+                      <div className="text-[10px] text-slate-500"></div>
+                      {REGIONS.map(r => <div key={`col-${r}`} className="text-[10px] font-bold text-slate-400 text-center truncate" title={r}>{r.slice(0,3)}</div>)}
+                      
+                      {/* Linhas */}
+                      {REGIONS.map(r1 => (
+                        <React.Fragment key={`row-${r1}`}>
+                          <div className="text-[10px] font-bold text-slate-400 flex items-center justify-end pr-2">{r1.slice(0,3)}</div>
+                          {REGIONS.map(r2 => {
+                            const val = heatmapData.matrix[r1][r2] || 0
+                            const intensity = heatmapData.maxVal > 0 ? val / heatmapData.maxVal : 0
+                            const isDiagonal = r1 === r2
+                            return (
+                              <div 
+                                key={`cell-${r1}-${r2}`} 
+                                className="aspect-square rounded flex items-center justify-center text-xs font-medium relative group"
+                                style={{ 
+                                  backgroundColor: `rgba(99, 102, 241, ${Math.max(0.05, intensity)})`,
+                                  border: isDiagonal ? '1px solid rgba(255,255,255,0.2)' : 'none',
+                                  color: intensity > 0.5 ? '#fff' : '#94a3b8'
+                                }}
+                              >
+                                {val > 0 ? val : ''}
+                                {/* Tooltip Nativo */}
+                                <div className="absolute opacity-0 group-hover:opacity-100 bg-slate-900 text-white text-[10px] p-2 rounded -top-8 left-1/2 -translate-x-1/2 pointer-events-none z-10 whitespace-nowrap border border-slate-700 shadow-xl transition-opacity">
+                                  {r1} ↔ {r2}: {val} rotas
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </React.Fragment>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
                 <div className="rounded-xl border border-slate-800 bg-[#1E293B] p-5">
                   <div className="mb-2">
-                    <h3 className="text-sm font-bold text-white">Distribuição de Conexões (Lei de Proximidade)</h3>
-                    <p className="text-xs text-slate-400">Clique nas colunas para filtrar aeroportos com aquele exato grau.</p>
+                    <h3 className="text-sm font-bold text-white">Distribuição de Conexões (Histograma)</h3>
+                    <p className="text-xs text-slate-400">Clique nas colunas para filtrar nós com aquele grau de conectividade.</p>
                   </div>
                   <div className="h-[260px]">
                     <ResponsiveContainer width="100%" height="100%">
@@ -258,61 +299,23 @@ export function DashboardOverlay({ onClose }: DashboardOverlayProps) {
                     </ResponsiveContainer>
                   </div>
                 </div>
-
-                <div className="rounded-xl border border-slate-800 bg-[#1E293B] p-5">
-                  <div className="mb-2">
-                    <h3 className="text-sm font-bold text-white">Topologia: Grau vs Densidade do Aglomerado</h3>
-                    <p className="text-xs text-slate-400">Clique num ponto para cruzar informações de sua Região.</p>
-                  </div>
-                  <div className="h-[260px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <ScatterChart>
-                        <CartesianGrid stroke="#334155" strokeDasharray="3 3" />
-                        <XAxis type="number" dataKey="degree" name="Grau" tick={{ fill: '#94a3b8', fontSize: 11 }} />
-                        <YAxis type="number" dataKey="density" name="Densidade" tickFormatter={formatPercent} tick={{ fill: '#94a3b8', fontSize: 11 }} />
-                        <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={{ backgroundColor: '#0F172A', border: 'none', borderRadius: '6px' }} />
-                        <Scatter data={filteredNodes} isAnimationActive={false} onClick={(p) => { if (p?.payload?.region) setSelectedRegion(p.payload.region) }}>
-                          {filteredNodes.map((entry) => <Cell key={entry.iata} fill={regionColor(entry.region as Region)} className="cursor-pointer" opacity={0.8} />)}
-                        </Scatter>
-                      </ScatterChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
               </div>
 
-              {/* RANKING E SUBFILTROS */}
+              {/* STORYTELLING E RANKING */}
               <div className="grid gap-6 lg:grid-cols-3">
-                <div className="rounded-xl border border-slate-800 bg-[#1E293B] p-5 space-y-4">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">Segmentação Adicional</h4>
-                  <div>
-                    <span className="text-xs text-slate-400 block mb-1.5">Estrutura Hierárquica</span>
-                    <div className="flex rounded-md bg-slate-900 p-1 border border-slate-800">
-                      {(['all', 'hub', 'non-hub'] as const).map(mode => (
-                        <button key={mode} onClick={() => setHubFilter(mode)} className={`flex-1 py-1 text-[11px] font-medium rounded capitalize ${hubFilter === mode ? 'bg-indigo-600 text-white' : 'text-slate-400'}`}>
-                          {mode === 'all' ? 'Todos' : mode === 'hub' ? 'Apenas Hubs' : 'Alimentadores'}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <span className="text-xs text-slate-400 block mb-1.5">Densidade Local</span>
-                    <div className="flex rounded-md bg-slate-900 p-1 border border-slate-800">
-                      {(['all', 'low', 'medium', 'high'] as const).map(bucket => (
-                        <button key={bucket} onClick={() => setSelectedDensity(bucket)} className={`flex-1 py-1 text-[11px] font-medium rounded capitalize ${selectedDensity === bucket ? 'bg-indigo-600 text-white' : 'text-slate-400'}`}>
-                          {bucket === 'all' ? 'Tudo' : bucket}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="rounded-lg bg-slate-900/50 p-3 border border-slate-800 text-xs text-slate-400 space-y-1">
-                    <p className="font-semibold text-slate-300 flex items-center gap-1"><Info size={12} className="text-indigo-400"/> Insight Rápido:</p>
-                    <p>Aeroportos com alta densidade indicam "cliques" robustos, resistentes a falhas de rota.</p>
-                  </div>
+                <div className="rounded-xl border border-slate-800 bg-indigo-900/20 p-5 space-y-4">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-2"><Lightbulb size={14}/> Insight Exploratório</h4>
+                  <p className="text-sm text-slate-300 leading-relaxed">
+                    O <strong>Heatmap</strong> revela uma matriz altamente assimétrica. O fluxo aéreo brasileiro é brutalmente concentrado na diagonal do Sudeste e Sul. As conexões Inter-Regionais (Norte ↔ Sul) são praticamente nulas sem o intermédio de <i>Hubs</i> estruturais.
+                  </p>
+                  <p className="text-sm text-slate-300 leading-relaxed">
+                    A Cauda Longa do Histograma comprova a topologia <strong>Scale-Free (Rede Livre de Escala)</strong>: muitos aeroportos com poucas conexões (grau baixo) e uma minoria absoluta (Hubs como GRU, VCP) com conectividade massiva.
+                  </p>
                 </div>
 
                 <div className="lg:col-span-2 rounded-xl border border-slate-800 bg-[#1E293B] p-5">
                   <h3 className="text-sm font-bold text-white mb-2">Top Hubs Ativos</h3>
-                  <div className="h-[220px]">
+                  <div className="h-[180px]">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart layout="vertical" data={topHubsData} margin={{ left: 10 }}>
                         <CartesianGrid stroke="#334155" strokeDasharray="3 3" horizontal={false} />
@@ -335,30 +338,39 @@ export function DashboardOverlay({ onClose }: DashboardOverlayProps) {
           {/* ================================================== */}
           {activeTab === 'routes' && (
             <div className="grid gap-6 md:grid-cols-3">
-              <div className="rounded-xl border border-slate-800 bg-[#1E293B] p-5 space-y-4 h-fit">
-                <h3 className="text-sm font-bold text-white">Análise Comparativa de Rotas</h3>
-                <p className="text-xs text-slate-400">Avalie o trade-off entre tempo de voo e desgaste de escalas.</p>
-                <div className="space-y-3">
-                  <div>
-                    <label className="text-xs text-slate-400 block mb-1">Origem</label>
-                    <select value={routeOrigin} onChange={e => setRouteOrigin(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-indigo-500">
-                      <option value="">Selecione...</option>
-                      {nodes.map(n => <option key={n.iata} value={n.iata}>{n.iata} - {n.city}</option>)}
-                    </select>
+              <div className="space-y-6">
+                <div className="rounded-xl border border-slate-800 bg-[#1E293B] p-5 space-y-4">
+                  <h3 className="text-sm font-bold text-white">Configurar Cenário</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-xs text-slate-400 block mb-1">Origem</label>
+                      <select value={routeOrigin} onChange={e => setRouteOrigin(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        <option value="">Selecione...</option>
+                        {nodes.map(n => <option key={n.iata} value={n.iata}>{n.iata} - {n.city}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs text-slate-400 block mb-1">Destino</label>
+                      <select value={routeDest} onChange={e => setRouteDest(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        <option value="">Selecione...</option>
+                        {nodes.map(n => <option key={n.iata} value={n.iata}>{n.iata} - {n.city}</option>)}
+                      </select>
+                    </div>
                   </div>
-                  <div>
-                    <label className="text-xs text-slate-400 block mb-1">Destino</label>
-                    <select value={routeDest} onChange={e => setRouteDest(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-indigo-500">
-                      <option value="">Selecione...</option>
-                      {nodes.map(n => <option key={n.iata} value={n.iata}>{n.iata} - {n.city}</option>)}
-                    </select>
-                  </div>
+                </div>
+
+                <div className="rounded-xl border border-amber-900/30 bg-amber-950/10 p-5 space-y-3">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-amber-500 flex items-center gap-2"><Info size={14}/> Trade-Off Cognitivo</h4>
+                  <p className="text-sm text-slate-300 leading-relaxed">
+                    O gráfico duplo cruza a distância temporal bruta com a <strong>Fadiga do Passageiro</strong> (Custo Cognitivo). 
+                    Evitar hubs centrais em rotas interestaduais resulta em aumento logarítmico do tempo e escalada linear da fadiga por conexões sucessivas.
+                  </p>
                 </div>
               </div>
 
               <div className="md:col-span-2 rounded-xl border border-slate-800 bg-[#1E293B] p-6 space-y-6">
                 <div>
-                  <h3 className="text-sm font-bold text-white">Modelagem Visual: Custo vs Fadiga</h3>
+                  <h3 className="text-sm font-bold text-white">Modelagem Visual: Tempo vs Fadiga</h3>
                   <p className="text-xs text-slate-400">Tempo de Voo (Barras Azuis) versus Custo Cognitivo/Fadiga por escalas (Linha Amarela).</p>
                 </div>
                 
@@ -372,7 +384,6 @@ export function DashboardOverlay({ onClose }: DashboardOverlayProps) {
                         <YAxis yAxisId="right" orientation="right" tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} tickLine={false} label={{ value: 'Fadiga (%)', angle: 90, position: 'insideRight', fill: '#64748B', fontSize: 11 }} />
                         <Tooltip contentStyle={{ backgroundColor: '#0F172A', border: '1px solid #334155', borderRadius: '8px' }} itemStyle={{ fontSize: '12px' }} />
                         <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
-                        
                         <Bar yAxisId="left" dataKey="tempo" name="Tempo Total de Voo" fill="#6366F1" radius={[4, 4, 0, 0]} barSize={45} isAnimationActive={false} />
                         <Line yAxisId="right" type="monotone" dataKey="fadiga" name="Custo Cognitivo (Escalas)" stroke="#F59E0B" strokeWidth={3} dot={{ r: 6, fill: '#F59E0B', stroke: '#1E293B', strokeWidth: 2 }} isAnimationActive={false} />
                       </ComposedChart>
@@ -381,7 +392,7 @@ export function DashboardOverlay({ onClose }: DashboardOverlayProps) {
                 ) : (
                   <div className="h-48 flex flex-col items-center justify-center border border-dashed border-slate-800 rounded-lg text-slate-500 gap-2">
                     <Route size={28} className="text-slate-600 animate-pulse" />
-                    <p className="text-xs">Selecione Origem e Destino diferentes para ver a projeção AVD reativa.</p>
+                    <p className="text-xs">Selecione Origem e Destino diferentes para gerar a projeção.</p>
                   </div>
                 )}
               </div>
@@ -393,10 +404,12 @@ export function DashboardOverlay({ onClose }: DashboardOverlayProps) {
           {/* ================================================== */}
           {activeTab === 'benchmarking' && (
             <div className="space-y-6">
-              <div className="grid gap-6 lg:grid-cols-3">
-                <div className="lg:col-span-2 rounded-xl border border-slate-800 bg-[#1E293B] p-5">
-                  <h3 className="text-sm font-bold text-white mb-3">Benchmarking Assintótico (Tempo vs Algoritmo)</h3>
-                  <div className="h-[240px]">
+              
+              <div className="grid gap-6 lg:grid-cols-2">
+                <div className="rounded-xl border border-slate-800 bg-[#1E293B] p-5">
+                  <h3 className="text-sm font-bold text-white mb-1">Microbenchmarking Atual (Rede Estática)</h3>
+                  <p className="text-xs text-slate-400 mb-4">Tempo de execução com V={nodes.length} nós.</p>
+                  <div className="h-[200px]">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={benchmarkData} margin={{ top: 10, bottom: 5 }}>
                         <CartesianGrid stroke="#334155" strokeDasharray="3 3" vertical={false} />
@@ -410,16 +423,24 @@ export function DashboardOverlay({ onClose }: DashboardOverlayProps) {
                     </ResponsiveContainer>
                   </div>
                 </div>
-                <div className="rounded-xl border border-slate-800 bg-[#1E293B] p-5 flex flex-col justify-between">
-                  <div>
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Discussão Crítica</h4>
-                    <p className="text-xs text-slate-300 leading-relaxed">
-                      A malha aérea é um grafo denso com pesos estritamente positivos. O design algorítmico determina a latência da visualização na UI.
-                    </p>
-                  </div>
-                  <div className="mt-4 rounded-lg bg-slate-900 p-3 border border-slate-800 space-y-1.5 text-[11px]">
-                    <div className="flex justify-between text-slate-200"><span>Ordem |V|</span><span className="text-indigo-400 font-bold">{nodes.length} nós</span></div>
-                    <div className="flex justify-between text-slate-200"><span>Densidade de Rede Completa</span><span className="text-emerald-400 font-bold">~14.5%</span></div>
+
+                {/* NOVO: Gráfico Assintótico */}
+                <div className="rounded-xl border border-slate-800 bg-[#1E293B] p-5">
+                  <h3 className="text-sm font-bold text-white mb-1">Curva Assintótica de Crescimento (Escalabilidade)</h3>
+                  <p className="text-xs text-slate-400 mb-4">Projeção temporal à medida que a Ordem do Grafo |V| cresce.</p>
+                  <div className="h-[200px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={asymptoticData} margin={{ top: 10, bottom: 5, left: 10 }}>
+                        <CartesianGrid stroke="#334155" strokeDasharray="3 3" vertical={false} />
+                        <XAxis dataKey="v" tick={{ fill: '#94a3b8', fontSize: 10 }} axisLine={false} tickLine={false} label={{ value: 'Ordem |V|', position: 'insideBottom', offset: -5, fill: '#64748B', fontSize: 10 }} />
+                        <YAxis tick={{ fill: '#94a3b8', fontSize: 10 }} axisLine={false} tickLine={false} />
+                        <Tooltip contentStyle={{ backgroundColor: '#0F172A', border: '1px solid #334155', borderRadius: '8px' }} />
+                        <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
+                        <Line type="monotone" dataKey="BFS" stroke="#10B981" strokeWidth={2} dot={false} />
+                        <Line type="monotone" dataKey="Dijkstra" stroke="#6366F1" strokeWidth={2} dot={false} />
+                        <Line type="monotone" dataKey="BellmanFord" stroke="#EF4444" strokeWidth={2} dot={false} />
+                      </LineChart>
+                    </ResponsiveContainer>
                   </div>
                 </div>
               </div>
