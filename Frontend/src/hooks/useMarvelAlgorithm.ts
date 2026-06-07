@@ -31,6 +31,27 @@ export function useRunMarvelAlgorithm() {
   })
 }
 
+export function useRunMarvelBellmanFordScenario() {
+  const { setResult, recordAlgoTiming } = useStore(s => ({
+    setResult:        s.setResult,
+    recordAlgoTiming: s.recordAlgoTiming,
+  }))
+
+  return useMutation({
+    mutationFn: (scenario: 'peso_negativo' | 'ciclo_negativo') => marvelApi.bellmanFordScenario(scenario),
+    onSuccess: (data: { execution_time_ms?: number }) => {
+      setResult(data)
+      if (typeof data?.execution_time_ms === 'number') {
+        recordAlgoTiming('BELLMAN_FORD', data.execution_time_ms)
+      }
+    },
+    onError: (err: unknown) => {
+      const msg = err instanceof Error ? err.message : 'Erro ao executar cenário'
+      toast.error(msg)
+    },
+  })
+}
+
 async function callMarvelAlgorithm(alg: AlgorithmName, source: number, target?: number) {
   switch (alg) {
     case 'BFS':

@@ -5,7 +5,7 @@ import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
 import { useStore } from '@/store'
 import { useMarvelMovies, useMarvelGraph } from '@/hooks/useMarvelGraph'
-import { useRunMarvelAlgorithm } from '@/hooks/useMarvelAlgorithm'
+import { useRunMarvelAlgorithm, useRunMarvelBellmanFordScenario } from '@/hooks/useMarvelAlgorithm'
 import { ALGORITHM_LABELS, MARVEL_CATEGORIES, CATEGORY_COLORS } from '@/lib/constants'
 import type { AlgorithmName, MarvelMovieSchema } from '@/lib/types'
 import { cn } from '@/lib/utils'
@@ -33,6 +33,7 @@ export function MarvelSidebar() {
   }))
 
   const { mutate: run, isPending } = useRunMarvelAlgorithm()
+  const { mutate: runScenario, isPending: isScenarioPending } = useRunMarvelBellmanFordScenario()
   const needsTarget = selectedAlgorithm === 'DIJKSTRA' || selectedAlgorithm === 'BELLMAN_FORD'
 
   const sourceMovie = movies?.find(m => m.movie_id === source)
@@ -83,6 +84,38 @@ export function MarvelSidebar() {
                   </button>
                 ))}
               </div>
+
+              {selectedAlgorithm === 'BELLMAN_FORD' && (
+                <div
+                  className="border-2 border-black p-2 space-y-1.5"
+                  style={{ background: 'var(--background-card)', boxShadow: '3px 3px 0px #000' }}
+                >
+                  <p className="text-[9px] font-mono text-[var(--muted-foreground)] uppercase tracking-widest">
+                    Cenários obrigatórios (peso negativo)
+                  </p>
+                  <p className="text-[9px] font-mono text-[var(--muted-foreground)] leading-snug">
+                    No grafo padrão (Model A+) todas as arestas têm peso 1.0 — estes
+                    cenários sobrepõem arestas extras de peso negativo para demonstrar
+                    Bellman-Ford nesses casos.
+                  </p>
+                  <div className="space-y-1">
+                    <button
+                      onClick={() => runScenario('peso_negativo')}
+                      disabled={isScenarioPending}
+                      className="w-full text-left text-[10px] font-mono px-2 py-1.5 border-2 border-black font-bold transition-colors text-[var(--foreground)] hover:bg-[var(--primary)] hover:text-black disabled:opacity-40"
+                    >
+                      Sem ciclo: Iron Man → Iron Man 2
+                    </button>
+                    <button
+                      onClick={() => runScenario('ciclo_negativo')}
+                      disabled={isScenarioPending}
+                      className="w-full text-left text-[10px] font-mono px-2 py-1.5 border-2 border-black font-bold transition-colors text-[var(--foreground)] hover:bg-[var(--destructive)] hover:text-white disabled:opacity-40"
+                    >
+                      Ciclo negativo: trio Avengers
+                    </button>
+                  </div>
+                </div>
+              )}
 
               <div className="space-y-1.5">
                 <MovieSelect
@@ -136,7 +169,7 @@ export function MarvelSidebar() {
               </Button>
             </div>
 
-            {result && <ResultSummary result={result as Record<string, unknown>} movies={movies ?? []} />}
+            {result && <ResultSummary result={result as unknown as Record<string, unknown>} movies={movies ?? []} />}
           </TabsContent>
 
           <TabsContent value="graficos" className="mt-3 flex-1 min-h-0 overflow-hidden">
@@ -200,7 +233,7 @@ function MovieSelect({
   onChange,
 }: {
   label: string
-  movies: { movie_id: number; title: string; year: number; phase: number }[]
+  movies: { movie_id: number; title: string; year: number }[]
   value: number | null
   onChange: (id: number | null) => void
 }) {
@@ -278,7 +311,7 @@ function PathResultView({ result, movies }: { result: Record<string, unknown>; m
         Custo: <span className="text-[var(--primary)]">{cost !== null && cost !== undefined ? cost.toFixed(1) : '∞'}</span>
       </div>
 
-      {reachable === false && (
+      {reachable === false && !negCycle && (
         <div className="text-[var(--destructive)]">Sem rota disponível</div>
       )}
 

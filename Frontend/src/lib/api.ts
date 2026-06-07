@@ -31,4 +31,6 @@ export const marvelApi = {
   dfs:        (req: { source: number; target?: number }) => http.post('/marvel/algorithms/dfs', req).then(r => r.data),
   dijkstra:   (req: { source: number; target: number  }) => http.post('/marvel/algorithms/dijkstra', req).then(r => r.data),
   bellmanFord:(req: { source: number; target?: number }) => http.post('/marvel/algorithms/bellman-ford', req).then(r => r.data),
+  bellmanFordScenario: (scenario: 'peso_negativo' | 'ciclo_negativo') =>
+    http.post(`/marvel/algorithms/bellman-ford/scenario/${scenario}`).then(r => r.data),
 }

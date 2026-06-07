@@ -203,6 +203,96 @@ def run_dijkstra(source: int, target: int) -> MarvelPathResult:
     )
 
 
+# Cenários obrigatórios da Parte 2 (item 2 do enunciado): cada um sobrepõe arestas
+# dirigidas extras de peso negativo (definidas em CSVs próprios) ao grafo base —
+# o "Model A+" tem peso fixo 1.0, então sem essa sobreposição Bellman-Ford nunca
+# veria peso negativo nem ciclo negativo no grafo Marvel ao vivo. Os dois cenários
+# ficam em grafos sobrepostos SEPARADOS (cada um carregado isoladamente) porque o
+# grafo base é um único componente conexo não-dirigido: misturar as arestas dos
+# dois CSVs no mesmo grafo faria qualquer execução alcançar o ciclo de
+# "negative_cycle.csv", contaminando o cenário "peso negativo sem ciclo".
+_BELLMAN_FORD_SCENARIOS = {
+    "peso_negativo": {
+        "file": "negative_edges.csv",
+        "source_node": "FILM_IRON-MAN",
+        "target_node": "FILM_IRON-MAN-2",
+    },
+    "ciclo_negativo": {
+        "file": "negative_cycle.csv",
+        "source_node": "FILM_THE-AVENGERS",
+        "target_node": None,
+        # Sequência de nós do ciclo definido em negative_cycle.csv (cada aresta -5.0,
+        # soma -15.0) — usada para destacar o ciclo no grafo e listá-lo no resultado,
+        # já que o algoritmo corretamente não retorna `path`/`cost` num ciclo negativo.
+        "cycle_nodes": [
+            "FILM_THE-AVENGERS",
+            "FILM_AVENGERS-AGE-OF-ULTRON",
+            "FILM_AVENGERS-INFINITY-WAR",
+            "FILM_THE-AVENGERS",
+        ],
+    },
+}
+
+
+@functools.lru_cache(maxsize=2)
+def _load_scenario_graph(filename: str):
+    from Backend.src.graphs.io import carregar_cenario_bellman_ford
+    return carregar_cenario_bellman_ford(str(_DATASET_DIR), filename)
+
+
+def run_bellman_ford_scenario(scenario: str) -> MarvelPathResult:
+    """Roda Bellman-Ford sobre um dos grafos de cenário (peso negativo sem ciclo /
+    ciclo negativo), com fonte/destino fixos definidos pelos próprios CSVs de
+    cenário em `_BELLMAN_FORD_SCENARIOS`."""
+    from Backend.src.graphs.algorithms import bellman_ford
+
+    cfg = _BELLMAN_FORD_SCENARIOS.get(scenario)
+    if cfg is None:
+        raise ValueError(f"Cenário Bellman-Ford desconhecido: {scenario!r}")
+
+    graph = _load_scenario_graph(cfg["file"])
+    node_to_movie = _node_to_movie()
+    source_node = cfg["source_node"]
+    target_node = cfg["target_node"]
+
+    start = time.perf_counter()
+    has_negative_cycle = False
+    cost = None
+    path: list[str] = []
+    reachable = False
+
+    if target_node:
+        try:
+            cost, path = bellman_ford(graph, source_node, target_node)
+            reachable = cost != float("inf")
+        except ValueError:
+            has_negative_cycle = True
+    else:
+        _dists, _pais, has_negative_cycle = bellman_ford(graph, source_node)
+        reachable = not has_negative_cycle
+        if has_negative_cycle:
+            # Bellman-Ford corretamente não fornece `path`/`cost` confiáveis na
+            # presença de um ciclo negativo — usamos a sequência conhecida do
+            # ciclo (definida no CSV de cenário) só para destacá-lo no grafo,
+            # reaproveitando o mecanismo de highlight de caminho já existente
+            # (`MarvelPathHighlight`/`pathSet` desenham segmentos entre pares
+            # consecutivos, então um path que fecha em si mesmo vira um laço).
+            path = cfg.get("cycle_nodes", [])
+
+    elapsed_ms = (time.perf_counter() - start) * 1000
+
+    return MarvelPathResult(
+        algorithm="BELLMAN_FORD",
+        source=node_to_movie[source_node],
+        target=node_to_movie[target_node] if target_node else None,
+        cost=cost if reachable and cost is not None else None,
+        path=[node_to_movie[n] for n in path],
+        has_negative_cycle=has_negative_cycle,
+        execution_time_ms=round(elapsed_ms, 3),
+        reachable=reachable,
+    )
+
+
 def run_bellman_ford(source: int, target: int | None = None) -> MarvelPathResult:
     from Backend.src.graphs.algorithms import bellman_ford
 

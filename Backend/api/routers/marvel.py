@@ -78,3 +78,17 @@ def run_bellman_ford(req: MarvelAlgorithmRequest):
         return marvel_service.run_bellman_ford(source, target)
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
+
+
+@router.post("/algorithms/bellman-ford/scenario/{scenario}", response_model=MarvelPathResult)
+def run_bellman_ford_scenario(scenario: str):
+    """Roda um dos cenários obrigatórios de Bellman-Ford com pesos negativos
+    sobrepostos ao grafo base: 'peso_negativo' (sem ciclo, distâncias corretas)
+    ou 'ciclo_negativo' (detectado e sinalizado). Fonte/destino são fixos,
+    definidos pelos CSVs de cenário (`negative_edges.csv`/`negative_cycle.csv`)."""
+    try:
+        return marvel_service.run_bellman_ford_scenario(scenario)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
