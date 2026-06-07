@@ -7,14 +7,17 @@ from fastapi.staticfiles import StaticFiles
 
 from Backend.api.routers import algorithms as alg_router
 from Backend.api.routers import graph as graph_router
+from Backend.api.routers import marvel as marvel_router
 from Backend.api.routers import metrics as metrics_router
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Pré-carrega e cacheia o grafo na inicialização do servidor
-    from Backend.api.services.graph_service import get_graph
-    get_graph()
+    # Pré-carrega e cacheia os grafos na inicialização do servidor
+    from Backend.api.services.graph_service import get_graph as get_airports_graph
+    from Backend.api.services.marvel_service import get_graph as get_marvel_graph
+    get_airports_graph()
+    get_marvel_graph()
     yield
 
 
@@ -39,6 +42,7 @@ app.add_middleware(
 
 app.include_router(graph_router.router, prefix="/api")
 app.include_router(alg_router.router, prefix="/api")
+app.include_router(marvel_router.router, prefix="/api")
 app.include_router(metrics_router.router, prefix="/api")
 
 # Serve analytics charts
