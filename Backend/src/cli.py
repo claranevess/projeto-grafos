@@ -122,8 +122,8 @@ def _executar(args):
     Os módulos de I/O e algoritmos são importados aqui para que o
     `--help` funcione mesmo com stubs ainda não implementados.
     """
-    from src.graphs.algorithms import bfs, dfs, dijkstra, bellman_ford
-    from src.solve import salvar_metricas, calcular_tempo_execucao
+    from Backend.src.graphs.algorithms import bfs, dfs, dijkstra, bellman_ford
+    from Backend.src.solve import salvar_metricas, calcular_tempo_execucao
 
     dataset_path = Path(args.dataset)
     print(f"[cli] Carregando dataset: {args.dataset}")
@@ -135,7 +135,7 @@ def _executar(args):
     try:
         if any(part.lower() == "dataset_parte2" for part in dataset_path.parts):
             try:
-                from src.graphs.io import carregar_dataset_parte2
+                from Backend.src.graphs.io import carregar_dataset_parte2
             except Exception:
                 carregar_dataset_parte2 = None
 
@@ -173,7 +173,7 @@ def _executar(args):
 
             else:
                 # dataset_path é um arquivo qualquer — usar loader legacy
-                from src.graphs.io import carregar_grafo
+                from Backend.src.graphs.io import carregar_grafo
                 grafo = carregar_grafo(args.dataset)
     except Exception as exc:
         print(f"[erro] Falha ao carregar dataset: {exc}", file=sys.stderr)
@@ -193,7 +193,7 @@ def _executar(args):
 
         if part2_indicator:
             try:
-                from src.graphs.io import save_dataset_description
+                from Backend.src.graphs.io import save_dataset_description
                 save_dataset_description(grafo, args.out)
                 print(f"[cli] Descrição do dataset Parte 2 salva em '{args.out}'")
             except Exception as exc:
