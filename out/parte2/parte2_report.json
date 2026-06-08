@@ -2,7 +2,7 @@
     "bfs": {
         "FILM_ANT-MAN": {
             "node": "FILM_ANT-MAN",
-            "time": 7.360900053754449e-05,
+            "time": 8.362499920622213e-05,
             "nos_alcancados": 30,
             "camadas": {
                 "0": [
@@ -55,7 +55,7 @@
         },
         "FILM_CAPTAIN-AMERICA": {
             "node": "FILM_CAPTAIN-AMERICA",
-            "time": 6.663999920419883e-05,
+            "time": 5.641999996441882e-05,
             "nos_alcancados": 30,
             "camadas": {
                 "0": [
@@ -106,7 +106,7 @@
         },
         "FILM_IRON-MAN": {
             "node": "FILM_IRON-MAN",
-            "time": 7.169000036810758e-05,
+            "time": 5.186700036574621e-05,
             "nos_alcancados": 30,
             "camadas": {
                 "0": [
@@ -157,7 +157,7 @@
     "dfs": {
         "FILM_ANT-MAN": {
             "node": "FILM_ANT-MAN",
-            "time": 0.000243640000007872,
+            "time": 0.00011648899999272544,
             "nos_visitados": 30,
             "tem_ciclo": true,
             "arestas_classificadas": {
@@ -221,7 +221,7 @@
         },
         "FILM_CAPTAIN-AMERICA": {
             "node": "FILM_CAPTAIN-AMERICA",
-            "time": 0.00023832799979572883,
+            "time": 9.999100075219758e-05,
             "nos_visitados": 30,
             "tem_ciclo": true,
             "arestas_classificadas": {
@@ -285,7 +285,7 @@
         },
         "FILM_IRON-MAN": {
             "node": "FILM_IRON-MAN",
-            "time": 0.00011565299973881338,
+            "time": 9.629100077290786e-05,
             "nos_visitados": 30,
             "tem_ciclo": true,
             "arestas_classificadas": {
@@ -352,7 +352,7 @@
         "FILM_IRON-MAN->FILM_IRON-MAN-3": {
             "origem": "FILM_IRON-MAN",
             "destino": "FILM_IRON-MAN-3",
-            "time": 9.310800032835687e-05,
+            "time": 7.514000026276335e-05,
             "custo": 1.0,
             "caminho": [
                 "FILM_IRON-MAN",
@@ -362,7 +362,7 @@
         "FILM_THE-AVENGERS->FILM_AVENGERS-END-GAME": {
             "origem": "FILM_THE-AVENGERS",
             "destino": "FILM_AVENGERS-END-GAME",
-            "time": 6.338799994409783e-05,
+            "time": 7.413100047415355e-05,
             "custo": 1.0,
             "caminho": [
                 "FILM_THE-AVENGERS",
@@ -372,7 +372,7 @@
         "FILM_BLACK-WIDOW->FILM_SHANG-CHI": {
             "origem": "FILM_BLACK-WIDOW",
             "destino": "FILM_SHANG-CHI",
-            "time": 8.63739996930235e-05,
+            "time": 7.688900041102897e-05,
             "custo": 1.0,
             "caminho": [
                 "FILM_BLACK-WIDOW",
@@ -382,7 +382,7 @@
         "FILM_THOR->FILM_THOR-RAGNAROK": {
             "origem": "FILM_THOR",
             "destino": "FILM_THOR-RAGNAROK",
-            "time": 5.284400049276883e-05,
+            "time": 6.352299988066079e-05,
             "custo": 1.0,
             "caminho": [
                 "FILM_THOR",
@@ -392,7 +392,7 @@
         "FILM_CAPTAIN-AMERICA->FILM_CAPTAIN-AMERICA-WINTER-SOLDIER": {
             "origem": "FILM_CAPTAIN-AMERICA",
             "destino": "FILM_CAPTAIN-AMERICA-WINTER-SOLDIER",
-            "time": 6.723000024067005e-05,
+            "time": 7.036300030449638e-05,
             "custo": 1.0,
             "caminho": [
                 "FILM_CAPTAIN-AMERICA",
@@ -403,7 +403,7 @@
     "bellman_ford": {
         "peso_negativo_sem_ciclo": {
             "fonte": "FILM_IRON-MAN",
-            "time": 0.00025395400007255375,
+            "time": 0.0002383800001553027,
             "tem_ciclo_negativo": false,
             "distancias": {
                 "FILM_ANT-MAN": 5.0,
@@ -440,7 +440,7 @@
         },
         "ciclo_negativo": {
             "fonte": "FILM_THE-AVENGERS",
-            "time": 0.0012440830005289172,
+            "time": 0.0058591589995558024,
             "tem_ciclo_negativo": true
         }
     }

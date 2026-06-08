@@ -202,8 +202,8 @@ def _executar(args):
             salvar_metricas(grafo, args.out)
             print(f"[cli] Métricas salvas em '{args.out}' (global.png, regioes.png)")
         
-        resultados = calcular_tempo_execucao()
-        print(resultados)
+        #resultados = calcular_tempo_execucao()
+        #print(resultados)
 
     except Exception as exc:
         print(f"[aviso] Falha ao salvar métricas: {exc}", file=sys.stderr)
