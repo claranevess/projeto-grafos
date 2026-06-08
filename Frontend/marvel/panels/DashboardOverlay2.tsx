@@ -1,22 +1,14 @@
-import { useMemo, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { X, FilterX, BarChart3, Route, Cpu, Info, Lightbulb } from 'lucide-react'
-import {
-  BarChart,
-  Bar,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
-  Legend,
-  ComposedChart,
-  Line,
-  LineChart
+import { useState, useMemo } from 'react'
+import { X, FilterX, BarChart3, Route, Cpu, Info, SlidersHorizontal } from 'lucide-react'
+import { 
+  BarChart, Bar, ScatterChart, Scatter, 
+  XAxis, YAxis, Tooltip, ResponsiveContainer, Cell 
 } from 'recharts'
-import { graphApi } from '@/lib/api'
-import React from 'react'
+
+import { useMarvelMovies } from '@/hooks/useMarvelGraph'
+import { useStore } from '@/store'
+import { CATEGORY_COLORS, ALGORITHM_LABELS } from '@/lib/constants'
+import type { AlgorithmName } from '@/lib/types'
 
 interface DashboardOverlay2Props {
   onClose: () => void
@@ -24,221 +16,319 @@ interface DashboardOverlay2Props {
 
 type TabId = 'macro' | 'routes' | 'benchmarking'
 
+// --- CONSTANTES LOCAIS ---
+const ALGO_ORDER: AlgorithmName[] = ['BFS', 'DFS', 'DIJKSTRA', 'BELLMAN_FORD']
+const ALGO_COLORS: Record<AlgorithmName, string> = {
+  BFS:          '#4ade80',
+  DFS:          '#22d3ee',
+  DIJKSTRA:     '#c084fc',
+  BELLMAN_FORD: '#e3000b',
+}
+
 export function DashboardOverlay2({ onClose }: DashboardOverlay2Props) {
   const [activeTab, setActiveTab] = useState<TabId>('macro')
+  
+  // --- ESTADOS DE FILTROS ---
+  const [selectedCategory, setSelectedCategory] = useState<string>('all')
+  const [minBudget, setMinBudget] = useState<number>(0)
 
-  // DADOS PARA O DASHBOARD MARVEL
-  const marvelStatsData = [
-    { name: 'Movies', count: 335, color: '#6366F1' },
-    { name: 'Directors', count: 124, color: '#3B82F6' },
-    { name: 'Actors', count: 298, color: '#10B981' },
-  ]
+  // 1. Coleta dos dados
+  const { data: allMovies, isLoading } = useMarvelMovies()
+  const algoTimings = useStore(s => s.algoTimings)
 
-  const boxOfficeData = [
-    { studio: 'MCU Phase 1-3', revenue: 22560, avg_rating: 7.2 },
-    { studio: 'MCU Phase 4', revenue: 8940, avg_rating: 6.8 },
-    { studio: 'MCU Phase 5', revenue: 4520, avg_rating: 6.5 },
-    { studio: 'Sony MCU', revenue: 3870, avg_rating: 6.9 },
-  ]
+  // 2. Extração de categorias
+  const categories = useMemo(() => {
+    if (!allMovies) return []
+    return Array.from(new Set(allMovies.map(m => m.category)))
+  }, [allMovies])
 
-  const networkMetricsData = [
-    { metric: 'Densidade', valor: 0.0234, descricao: 'Rede muito esparsa' },
-    { metric: 'Diâmetro', valor: 6, descricao: 'Distância máxima entre nós' },
-    { metric: 'Coef. Agrupamento', valor: 0.387, descricao: 'Tendência de clustering' },
-  ]
+  // 3. Aplicação do Filtro
+  const filteredMovies = useMemo(() => {
+    if (!allMovies) return []
+    return allMovies.filter(movie => {
+      const matchesCategory = selectedCategory === 'all' || movie.category === selectedCategory
+      const matchesBudget = movie.budget_million >= minBudget
+      return matchesCategory && matchesBudget
+    })
+  }, [allMovies, selectedCategory, minBudget])
 
-  const asymptoticData = [
-    { v: 10, BFS: 10, Dijkstra: 15, BellmanFord: 45 },
-    { v: 50, BFS: 50, Dijkstra: 90, BellmanFord: 350 },
-    { v: 100, BFS: 100, Dijkstra: 210, BellmanFord: 1200 },
-    { v: 250, BFS: 250, Dijkstra: 580, BellmanFord: 6500 },
-    { v: 500, BFS: 500, Dijkstra: 1300, BellmanFord: 24000 },
-  ]
+  // --- PREPARAÇÃO DE DADOS PARA OS GRÁFICOS (useMemo para performance) ---
 
-  const benchmarkData = [
-    { name: 'BFS', tempo: 85, complexidade: 'O(V + E)', cor: '#10B981', recomendacao: 'Ótimo para análise de proximidade.' },
-    { name: 'DFS', tempo: 92, complexidade: 'O(V + E)', cor: '#3B82F6', recomendacao: 'Útil para detecção de ciclos e componentes.' },
-    { name: 'Dijkstra', tempo: 156, complexidade: 'O((V + E) log V)', cor: '#6366F1', recomendacao: 'Caminho mais curto entre dois atores.' },
-    { name: 'Bellman', tempo: 520, complexidade: 'O(V * E)', cor: '#EF4444', recomendacao: 'Não recomendado para rede sem pesos negativos.' },
-  ]
+  const topRevenueData = useMemo(() => {
+    return [...filteredMovies]
+      .sort((a, b) => b.worldwide_gross_million - a.worldwide_gross_million)
+      .slice(0, 12)
+      .map(m => ({
+        name: m.title.replace(/:.+/, '').trim(),
+        revenue: m.worldwide_gross_million,
+        category: m.category,
+      }))
+  }, [filteredMovies])
+
+  const categoryRoiData = useMemo(() => {
+    const byCategory: Record<string, number[]> = {}
+    filteredMovies.forEach(m => {
+      if (!byCategory[m.category]) byCategory[m.category] = []
+      byCategory[m.category].push(m.roi_percent)
+    })
+    return Object.entries(byCategory).map(([category, rois]) => ({
+      category,
+      avgROI: rois.reduce((a, b) => a + b, 0) / rois.length,
+    }))
+  }, [filteredMovies])
+
+  const degreeData = useMemo(() => {
+    const degreeCount: Record<number, number> = {}
+    filteredMovies.forEach(m => {
+      degreeCount[m.degree] = (degreeCount[m.degree] ?? 0) + 1
+    })
+    return Object.entries(degreeCount)
+      .map(([deg, count]) => ({ degree: Number(deg), count }))
+      .sort((a, b) => a.degree - b.degree)
+  }, [filteredMovies])
+
+  const scatterData = useMemo(() => {
+    return filteredMovies.map(m => ({
+      budget: m.budget_million,
+      roi: m.roi_percent,
+      category: m.category,
+      title: m.title,
+    }))
+  }, [filteredMovies])
+
+  const algoData = useMemo(() => {
+    return ALGO_ORDER
+      .filter(alg => algoTimings[alg] !== undefined)
+      .map(alg => ({
+        name: ALGORITHM_LABELS[alg],
+        algorithm: alg,
+        time: algoTimings[alg]!,
+      }))
+  }, [algoTimings])
+
+
+  const handleResetFilters = () => {
+    setSelectedCategory('all')
+    setMinBudget(0)
+  }
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-[#0B1120] text-slate-100 select-none overflow-hidden">
-      {/* HEADER PRINCIPAL */}
-      <header className="flex shrink-0 items-center justify-between border-b border-slate-800 bg-[#0F172A] px-6 py-4">
-        <div>
-          <h2 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-            Análise de Grafo <span className="text-indigo-400">Marvel Network</span>
-          </h2>
-          <p className="text-xs text-slate-400">Dashboard Interativo - Conexões entre Filmes, Atores e Diretores</p>
+    <div className="fixed inset-0 z-50 flex items-center justify-end bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="w-full max-w-4xl h-full bg-slate-950 border-l border-slate-800 flex flex-col shadow-2xl text-slate-100 font-sans animate-in slide-in-from-right duration-300">
+        
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-slate-800 bg-slate-900/50 px-6 py-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-indigo-500/10 text-indigo-400 rounded-lg border border-indigo-500/20">
+              <BarChart3 size={18} />
+            </div>
+            <div>
+              <h2 className="text-sm font-bold tracking-tight text-white uppercase font-mono">
+                Painel de Análise Interativo
+              </h2>
+              <p className="text-[10px] text-slate-400 font-mono mt-0.5">
+                Métricas conectadas diretamente ao grafo Marvel
+              </p>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-1.5 rounded-lg border border-slate-800 hover:bg-slate-800 text-slate-400 hover:text-white transition-colors">
+            <X size={16} />
+          </button>
         </div>
-        <nav className="flex bg-slate-900 rounded-lg p-1 border border-slate-800">
-          <button onClick={() => setActiveTab('macro')} className={`flex items-center gap-2 px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${activeTab === 'macro' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'}`}><BarChart3 size={14} /> Estatísticas</button>
-          <button onClick={() => setActiveTab('routes')} className={`flex items-center gap-2 px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${activeTab === 'routes' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'}`}><Route size={14} /> Box Office</button>
-          <button onClick={() => setActiveTab('benchmarking')} className={`flex items-center gap-2 px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${activeTab === 'benchmarking' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'}`}><Cpu size={14} /> Performance</button>
-        </nav>
-        <div className="flex gap-3">
-          <button onClick={() => setActiveTab('macro')} className="flex items-center gap-1.5 rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"><FilterX size={14} /> Reset</button>
-          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"><X size={16} /></button>
-        </div>
-      </header>
 
-      <div className="flex-1 overflow-y-auto p-6 bg-[#0B1120]">
-        <div className="mx-auto max-w-[1500px] space-y-6">
-          
-          {/* ================================================== */}
-          {/* ABA 1: ESTATÍSTICAS (MACRO)                         */}
-          {/* ================================================== */}
-          {activeTab === 'macro' && (
+        {/* Tabs */}
+        <div className="flex border-b border-slate-800 bg-slate-900/20 px-6 py-2 gap-2">
+          <button onClick={() => setActiveTab('macro')} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium font-mono transition-colors border ${activeTab === 'macro' ? 'bg-indigo-600 border-indigo-500 text-white' : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>
+            <Info size={14} /> Visão Geral & Bilheteria
+          </button>
+          <button onClick={() => setActiveTab('routes')} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium font-mono transition-colors border ${activeTab === 'routes' ? 'bg-indigo-600 border-indigo-500 text-white' : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>
+            <Route size={14} /> Distribuição, Grafos & ROI
+          </button>
+          <button onClick={() => setActiveTab('benchmarking')} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium font-mono transition-colors border ${activeTab === 'benchmarking' ? 'bg-indigo-600 border-indigo-500 text-white' : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>
+            <Cpu size={14} /> Benchmarking de Algoritmos
+          </button>
+        </div>
+
+        {/* Barra de Filtros (Oculta na aba de Benchmarking) */}
+        {activeTab !== 'benchmarking' && (
+          <div className="bg-slate-900/40 border-b border-slate-800 px-6 py-3 flex flex-wrap items-center gap-4 text-xs font-mono">
+            <div className="flex items-center gap-1.5 text-slate-400">
+              <SlidersHorizontal size={14} className="text-indigo-400" />
+              <span>Filtros:</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="text-slate-400 text-[11px]">Categoria:</label>
+              <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} className="bg-slate-900 border border-slate-800 rounded px-2 py-1 text-slate-200 focus:outline-none focus:border-indigo-500 text-[11px]">
+                <option value="all">Todas</option>
+                {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+              </select>
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="text-slate-400 text-[11px]">Orçamento Mín.:</label>
+              <div className="flex items-center gap-2">
+                <input type="range" min="0" max="400" step="50" value={minBudget} onChange={(e) => setMinBudget(Number(e.target.value))} className="accent-indigo-500 h-1 w-24 bg-slate-800 rounded-lg appearance-none cursor-pointer" />
+                <span className="text-[11px] text-indigo-300 min-w-[50px]">${minBudget}M</span>
+              </div>
+            </div>
+            {(selectedCategory !== 'all' || minBudget > 0) && (
+              <button onClick={handleResetFilters} className="ml-auto flex items-center gap-1 text-[10px] text-rose-400 hover:text-rose-300 border border-rose-500/20 bg-rose-500/5 px-2 py-0.5 rounded transition-colors">
+                <FilterX size={12} /> Limpar ({filteredMovies.length})
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Área de Conteúdo */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-[#0B0F19]">
+          {isLoading ? (
+            <div className="h-full flex items-center justify-center font-mono text-xs text-slate-400">
+              A carregar dados da rede...
+            </div>
+          ) : (
             <>
-              {/* CARDS DE RESUMO */}
-              <div className="grid gap-4 sm:grid-cols-3">
-                {marvelStatsData.map((stat) => (
-                  <div key={stat.name} className="rounded-xl border border-slate-800 bg-[#1E293B] p-5 flex flex-col space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">{stat.name}</h3>
-                      <div className="h-3 w-3 rounded-full" style={{ backgroundColor: stat.color }} />
+              {/* ABA 1: VISÃO GERAL */}
+              {activeTab === 'macro' && (
+                <div className="space-y-6 animate-in fade-in duration-200">
+                  <div className="rounded-xl border border-slate-800 bg-[#111726] p-5">
+                    <div className="mb-4">
+                      <h3 className="text-xs font-bold text-white uppercase font-mono tracking-wider">Top Filmes por Bilheteria Mundial</h3>
+                      <p className="text-[10px] text-slate-400 font-mono">Valores em milhões de dólares (US$)</p>
                     </div>
-                    <p className="text-3xl font-black text-white">{stat.count}</p>
-                  </div>
-                ))}
-              </div>
-
-              {/* GRÁFICOS */}
-              <div className="grid gap-6 lg:grid-cols-2">
-                <div className="rounded-xl border border-slate-800 bg-[#1E293B] p-5">
-                  <div className="mb-4">
-                    <h3 className="text-sm font-bold text-white">Distribuição de Estatísticas</h3>
-                    <p className="text-xs text-slate-400">Proporção de elementos no network Marvel.</p>
-                  </div>
-                  <div className="h-[260px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={marvelStatsData}>
-                        <CartesianGrid stroke="#334155" strokeDasharray="3 3" vertical={false} />
-                        <XAxis dataKey="name" tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} />
-                        <YAxis tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} />
-                        <Tooltip cursor={{ fill: 'rgba(255,255,255,0.03)' }} contentStyle={{ backgroundColor: '#0F172A', border: 'none', borderRadius: '6px' }} />
-                        <Bar dataKey="count" radius={[4, 4, 0, 0]}>
-                          {marvelStatsData.map((entry) => <Cell key={entry.name} fill={entry.color} />)}
-                        </Bar>
-                      </BarChart>
-                    </ResponsiveContainer>
+                    <div className="bg-slate-900/40 p-4 border border-slate-800/60 rounded-lg">
+                      <ResponsiveContainer width="100%" height={250}>
+                        <BarChart data={topRevenueData} layout="vertical" margin={{ left: 0, right: 8, top: 0, bottom: 0 }}>
+                          <XAxis type="number" tick={{ fill: '#94a3b8', fontSize: 10, fontFamily: 'monospace' }} tickLine={false} axisLine={false} />
+                          <YAxis type="category" dataKey="name" width={100} tick={{ fill: '#e2e8f0', fontSize: 10, fontFamily: 'monospace' }} tickLine={false} axisLine={false} />
+                          <Tooltip
+                            contentStyle={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '4px', fontSize: 12, fontFamily: 'monospace', color: '#f8fafc' }}
+                            formatter={(v: number) => [`$${v.toFixed(0)}M`, 'Bilheteria']}
+                          />
+                          <Bar dataKey="revenue" radius={[0, 4, 4, 0]}>
+                            {topRevenueData.map((entry, i) => (
+                              <Cell key={i} fill={CATEGORY_COLORS[entry.category] ?? '#6366f1'} />
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
                   </div>
                 </div>
+              )}
 
-                <div className="rounded-xl border border-slate-800 bg-[#1E293B] p-5">
-                  <div className="mb-4">
-                    <h3 className="text-sm font-bold text-white">Métricas de Rede</h3>
-                    <p className="text-xs text-slate-400">Propriedades estruturais do grafo Marvel.</p>
+              {/* ABA 2: DISTRIBUIÇÃO E ROI */}
+              {activeTab === 'routes' && (
+                <div className="grid gap-6 md:grid-cols-2 animate-in fade-in duration-200">
+                  {/* Gráfico de Barras: ROI por Categoria */}
+                  <div className="rounded-xl border border-slate-800 bg-[#111726] p-5 flex flex-col justify-between">
+                    <div>
+                      <h3 className="text-xs font-bold text-white uppercase font-mono tracking-wider mb-1">Média de ROI por Categoria</h3>
+                      <p className="text-[10px] text-slate-400 font-mono mb-4">Retorno sobre investimento (%)</p>
+                    </div>
+                    <div className="bg-slate-900/40 p-4 border border-slate-800/60 rounded-lg">
+                      <ResponsiveContainer width="100%" height={160}>
+                        <BarChart data={categoryRoiData} margin={{ left: 0, right: 8, top: 0, bottom: 0 }}>
+                          <XAxis dataKey="category" tick={{ fill: '#94a3b8', fontSize: 9, fontFamily: 'monospace' }} tickLine={false} axisLine={false} angle={-20} textAnchor="end" height={40} />
+                          <YAxis tick={{ fill: '#94a3b8', fontSize: 10, fontFamily: 'monospace' }} tickLine={false} axisLine={false} />
+                          <Tooltip
+                            contentStyle={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '4px', fontSize: 12, fontFamily: 'monospace', color: '#f8fafc' }}
+                            formatter={(v: number) => [`${v.toFixed(0)}%`, 'ROI Médio']}
+                          />
+                          <Bar dataKey="avgROI" radius={[4, 4, 0, 0]}>
+                            {categoryRoiData.map((entry, i) => (
+                              <Cell key={i} fill={CATEGORY_COLORS[entry.category] ?? '#888'} />
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
                   </div>
-                  <div className="space-y-3">
-                    {networkMetricsData.map((metric) => (
-                      <div key={metric.metric} className="rounded-lg bg-slate-900/50 p-3 border border-slate-700">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs font-semibold text-slate-300">{metric.metric}</span>
-                          <span className="text-sm font-bold text-indigo-400">{metric.valor}</span>
-                        </div>
-                        <p className="text-[10px] text-slate-400">{metric.descricao}</p>
-                      </div>
-                    ))}
+
+                  {/* Histograma: Distribuição de Graus */}
+                  <div className="rounded-xl border border-slate-800 bg-[#111726] p-5 flex flex-col justify-between">
+                    <div>
+                      <h3 className="text-xs font-bold text-white uppercase font-mono tracking-wider mb-1">Distribuição de Graus</h3>
+                      <p className="text-[10px] text-slate-400 font-mono mb-4">Conectividade dos filmes</p>
+                    </div>
+                    <div className="bg-slate-900/40 p-4 border border-slate-800/60 rounded-lg">
+                      <ResponsiveContainer width="100%" height={160}>
+                        <BarChart data={degreeData} margin={{ left: 0, right: 8, top: 0, bottom: 0 }}>
+                          <XAxis dataKey="degree" tick={{ fill: '#94a3b8', fontSize: 10, fontFamily: 'monospace' }} tickLine={false} axisLine={false} />
+                          <YAxis tick={{ fill: '#94a3b8', fontSize: 10, fontFamily: 'monospace' }} tickLine={false} axisLine={false} allowDecimals={false} />
+                          <Tooltip
+                            contentStyle={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '4px', fontSize: 12, fontFamily: 'monospace', color: '#f8fafc' }}
+                            formatter={(v: number) => [v, 'Qtd de Filmes']}
+                            labelFormatter={l => `Grau: ${l}`}
+                          />
+                          <Bar dataKey="count" fill="#3b82f6" radius={[2, 2, 0, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  {/* Scatter Plot: Orçamento vs ROI */}
+                  <div className="rounded-xl border border-slate-800 bg-[#111726] p-5 md:col-span-2">
+                    <div>
+                      <h3 className="text-xs font-bold text-white uppercase font-mono tracking-wider mb-1">Correlação: Orçamento vs ROI</h3>
+                      <p className="text-[10px] text-slate-400 font-mono mb-4">Dispersão de sucesso financeiro</p>
+                    </div>
+                    <div className="bg-slate-900/40 p-4 border border-slate-800/60 rounded-lg">
+                      <ResponsiveContainer width="100%" height={220}>
+                        <ScatterChart margin={{ left: 0, right: 8, top: 0, bottom: 0 }}>
+                          <XAxis dataKey="budget" type="number" name="Orçamento" unit="M" tick={{ fill: '#94a3b8', fontSize: 10, fontFamily: 'monospace' }} tickLine={false} axisLine={false} />
+                          <YAxis dataKey="roi" type="number" name="ROI" unit="%" tick={{ fill: '#94a3b8', fontSize: 10, fontFamily: 'monospace' }} tickLine={false} axisLine={false} />
+                          <Tooltip
+                            contentStyle={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '4px', fontSize: 12, fontFamily: 'monospace', color: '#f8fafc' }}
+                            formatter={(v: number, name: string) => [name === 'Orçamento' ? `$${v}M` : `${v.toFixed(0)}%`, name]}
+                            labelFormatter={() => ''}
+                          />
+                          <Scatter data={scatterData} shape="circle">
+                            {scatterData.map((p, i) => (
+                              <Cell key={i} fill={CATEGORY_COLORS[p.category] ?? '#888'} />
+                            ))}
+                          </Scatter>
+                        </ScatterChart>
+                      </ResponsiveContainer>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
-              {/* INSIGHT */}
-              <div className="rounded-xl border border-amber-900/30 bg-amber-950/10 p-5 space-y-3">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-amber-500 flex items-center gap-2"><Lightbulb size={14}/> Insight Exploratório</h4>
-                <p className="text-sm text-slate-300 leading-relaxed">
-                  A rede Marvel apresenta uma estrutura <strong>Scale-Free</strong> típica, onde alguns atores (hubs) aparecem em muitos filmes enquanto a maioria tem poucas aparições. A baixa densidade (0.0234) indica que nem todos os atores trabalham entre si, refletindo as diferentes franquias e períodos do universo cinematográfico.
-                </p>
-              </div>
+              {/* ABA 3: BENCHMARKING (Algoritmos) */}
+              {activeTab === 'benchmarking' && (
+                <div className="space-y-6 animate-in fade-in duration-200">
+                  <div className="rounded-xl border border-slate-800 bg-[#111726] p-5">
+                    <div className="mb-4">
+                      <h3 className="text-xs font-bold text-white uppercase font-mono tracking-wider">Performance Real Aferida</h3>
+                      <p className="text-[10px] text-slate-400 font-mono">Tempos de execução (ms) da última busca de rotas</p>
+                    </div>
+                    <div className="bg-slate-900/40 p-4 border border-slate-800/60 rounded-lg">
+                      {algoData.length === 0 ? (
+                        <p className="text-xs font-mono text-slate-500 italic p-4 text-center">
+                          Execute uma busca (ex: BFS ou Dijkstra) no painel lateral para visualizar os tempos de execução.
+                        </p>
+                      ) : (
+                        <ResponsiveContainer width="100%" height={200}>
+                          <BarChart data={algoData} margin={{ left: 0, right: 8, top: 0, bottom: 24 }}>
+                            <XAxis dataKey="name" interval={0} angle={-15} textAnchor="end" height={40} tick={{ fill: '#94a3b8', fontSize: 10, fontFamily: 'monospace' }} tickLine={false} axisLine={false} />
+                            <YAxis tick={{ fill: '#94a3b8', fontSize: 10, fontFamily: 'monospace' }} tickLine={false} axisLine={false} label={{ value: 'ms', position: 'insideTopLeft', fontSize: 10, fill: '#64748b' }} />
+                            <Tooltip
+                              contentStyle={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '4px', fontSize: 12, fontFamily: 'monospace', color: '#f8fafc' }}
+                              formatter={(v: number) => [`${v.toFixed(2)}ms`, 'Tempo (ms)']}
+                            />
+                            <Bar dataKey="time" radius={[4, 4, 0, 0]}>
+                              {algoData.map((entry, i) => (
+                                <Cell key={i} fill={ALGO_COLORS[entry.algorithm]} />
+                              ))}
+                            </Bar>
+                          </BarChart>
+                        </ResponsiveContainer>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
             </>
           )}
-
-          {/* ================================================== */}
-          {/* ABA 2: BOX OFFICE E RECEITAS                       */}
-          {/* ================================================== */}
-          {activeTab === 'routes' && (
-            <div className="space-y-6">
-              <div className="rounded-xl border border-slate-800 bg-[#1E293B] p-6">
-                <h3 className="text-sm font-bold text-white mb-4">Receita por Fase (em milhões USD)</h3>
-                <div className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <ComposedChart data={boxOfficeData} margin={{ top: 20, right: 20, bottom: 20, left: 0 }}>
-                      <CartesianGrid stroke="#334155" strokeDasharray="3 3" vertical={false} />
-                      <XAxis dataKey="studio" tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} />
-                      <YAxis yAxisId="left" tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} label={{ value: 'Box Office ($M)', angle: -90, position: 'insideLeft', fill: '#64748B', fontSize: 11 }} />
-                      <YAxis yAxisId="right" orientation="right" tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} label={{ value: 'Rating Médio', angle: 90, position: 'insideRight', fill: '#64748B', fontSize: 11 }} />
-                      <Tooltip contentStyle={{ backgroundColor: '#0F172A', border: '1px solid #334155', borderRadius: '8px' }} />
-                      <Legend />
-                      <Bar yAxisId="left" dataKey="revenue" name="Receita Total" fill="#6366F1" radius={[4, 4, 0, 0]} isAnimationActive={false} />
-                      <Line yAxisId="right" type="monotone" dataKey="avg_rating" name="Rating Médio" stroke="#F59E0B" strokeWidth={3} dot={{ r: 6, fill: '#F59E0B', stroke: '#1E293B', strokeWidth: 2 }} isAnimationActive={false} />
-                    </ComposedChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ================================================== */}
-          {/* ABA 3: BENCHMARKING TÉCNICO                        */}
-          {/* ================================================== */}
-          {activeTab === 'benchmarking' && (
-            <div className="space-y-6">
-              
-              <div className="grid gap-6 lg:grid-cols-2">
-                <div className="rounded-xl border border-slate-800 bg-[#1E293B] p-5">
-                  <h3 className="text-sm font-bold text-white mb-1">Microbenchmarking (Rede Marvel)</h3>
-                  <p className="text-xs text-slate-400 mb-4">Tempo de execução com os dados atuais.</p>
-                  <div className="h-[200px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={benchmarkData} margin={{ top: 10, bottom: 5 }}>
-                        <CartesianGrid stroke="#334155" strokeDasharray="3 3" vertical={false} />
-                        <XAxis dataKey="name" tick={{ fill: '#94a3b8', fontSize: 10 }} axisLine={false} />
-                        <YAxis tick={{ fill: '#94a3b8', fontSize: 11 }} label={{ value: 'Tempo (µs)', angle: -90, position: 'insideLeft', fill: '#64748B', fontSize: 11 }} axisLine={false} />
-                        <Tooltip contentStyle={{ backgroundColor: '#0F172A', border: 'none', borderRadius: '6px' }} />
-                        <Bar dataKey="tempo" radius={[4, 4, 0, 0]}>
-                          {benchmarkData.map((entry, idx) => <Cell key={idx} fill={entry.cor} />)}
-                        </Bar>
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-
-                <div className="rounded-xl border border-slate-800 bg-[#1E293B] p-5">
-                  <h3 className="text-sm font-bold text-white mb-1">Escalabilidade Assintótica</h3>
-                  <p className="text-xs text-slate-400 mb-4">Comportamento de crescimento com tamanho de grafo.</p>
-                  <div className="h-[200px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={asymptoticData} margin={{ top: 10, bottom: 5, left: 10 }}>
-                        <CartesianGrid stroke="#334155" strokeDasharray="3 3" vertical={false} />
-                        <XAxis dataKey="v" tick={{ fill: '#94a3b8', fontSize: 10 }} axisLine={false} tickLine={false} label={{ value: 'Ordem |V|', position: 'insideBottom', offset: -5, fill: '#64748B', fontSize: 10 }} />
-                        <YAxis tick={{ fill: '#94a3b8', fontSize: 10 }} axisLine={false} tickLine={false} />
-                        <Tooltip contentStyle={{ backgroundColor: '#0F172A', border: '1px solid #334155', borderRadius: '8px' }} />
-                        <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
-                        <Line type="monotone" dataKey="BFS" stroke="#10B981" strokeWidth={2} dot={false} />
-                        <Line type="monotone" dataKey="Dijkstra" stroke="#6366F1" strokeWidth={2} dot={false} />
-                        <Line type="monotone" dataKey="BellmanFord" stroke="#EF4444" strokeWidth={2} dot={false} />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {benchmarkData.map((algo) => (
-                  <div key={algo.name} className="rounded-xl border border-slate-800 bg-[#1E293B] p-4 flex flex-col space-y-3">
-                    <div>
-                      <div className="flex items-center gap-2"><div className="h-2 w-2 rounded-full" style={{ backgroundColor: algo.cor }} /><h4 className="text-xs font-bold text-white">{algo.name}</h4></div>
-                      <span className="text-[10px] font-mono bg-slate-900 px-1.5 py-0.5 rounded text-indigo-300 border border-slate-800 inline-block mt-1.5">{algo.complexidade}</span>
-                    </div>
-                    <p className="text-xs text-slate-400">{algo.recomendacao}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
         </div>
       </div>
     </div>

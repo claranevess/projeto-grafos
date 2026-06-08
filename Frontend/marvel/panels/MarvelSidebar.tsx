@@ -56,7 +56,6 @@ export function MarvelSidebar() {
                     <TabsList className="w-full h-8 bg-transparent border-2 border-black p-0 gap-0 shrink-0">
                         {[
                             {value: 'algoritmo', label: 'Alg'},
-                            {value: 'graficos', label: 'Gráf'},
                             {value: 'grafo', label: 'Info'},
                         ].map(t => (
                             <TabsTrigger
