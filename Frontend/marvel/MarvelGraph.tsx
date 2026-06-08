@@ -4,6 +4,7 @@ import { useMarvelGraph } from '@/hooks/useMarvelGraph'
 import { useStore } from '@/store'
 import { MarvelNodeTooltip } from './MarvelNodeTooltip'
 import { MarvelPathHighlight } from './MarvelPathHighlight'
+import { MarvelExplorationLayer } from './MarvelExplorationLayer'
 import type { MarvelMovieSchema, MarvelEdgeSchema } from '@/lib/types'
 import { CATEGORY_COLORS } from '@/lib/constants'
 
@@ -188,6 +189,7 @@ export function MarvelGraph() {
       </svg>
 
       <MarvelPathHighlight nodes={simNodes} path={resultPath} />
+      <MarvelExplorationLayer nodes={simNodes} />
       <MarvelNodeTooltip nodes={simNodes} />
     </div>
   )
