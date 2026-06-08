@@ -9,11 +9,6 @@ import { useRunMarvelAlgorithm, useRunMarvelBellmanFordScenario } from '@/hooks/
 import { ALGORITHM_LABELS, MARVEL_CATEGORIES, CATEGORY_COLORS } from '@/lib/constants'
 import type { AlgorithmName, MarvelMovieSchema } from '@/lib/types'
 import { cn } from '@/lib/utils'
-import { RevenueBarChart } from '../charts/RevenueBarChart'
-import { CategoryCompareChart } from '../charts/CategoryCompareChart'
-import { DegreeHistogram } from '../charts/DegreeHistogram'
-import { ROIScatterPlot } from '../charts/ROIScatterPlot'
-import { AlgoCompareChart } from '../charts/AlgoCompareChart'
 
 const ALGORITHMS: AlgorithmName[] = ['BFS', 'DFS', 'DIJKSTRA', 'BELLMAN_FORD']
 
@@ -170,22 +165,6 @@ export function MarvelSidebar() {
             </div>
 
             {result && <ResultSummary result={result as unknown as Record<string, unknown>} movies={movies ?? []} />}
-          </TabsContent>
-
-          <TabsContent value="graficos" className="mt-3 flex-1 min-h-0 overflow-hidden">
-            <ScrollArea className="h-full">
-              <div className="space-y-4 pr-1">
-                <RevenueBarChart />
-                <Separator style={{ background: 'black', height: 2 }} />
-                <CategoryCompareChart />
-                <Separator style={{ background: 'black', height: 2 }} />
-                <DegreeHistogram />
-                <Separator style={{ background: 'black', height: 2 }} />
-                <ROIScatterPlot />
-                <Separator style={{ background: 'black', height: 2 }} />
-                <AlgoCompareChart />
-              </div>
-            </ScrollArea>
           </TabsContent>
 
           <TabsContent value="grafo" className="mt-3 flex-1 min-h-0 overflow-hidden">

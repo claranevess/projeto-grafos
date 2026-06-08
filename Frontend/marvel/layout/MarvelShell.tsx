@@ -1,12 +1,16 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 import { TopBar } from '@shared/TopBar'
 import { Button } from '@/components/ui/button'
 import { MarvelSidebar } from '@marvel/panels/MarvelSidebar'
 import { MarvelGraph } from '@marvel/MarvelGraph'
+import { AlgoDial } from '@marvel/controls/AlgoDial'
+import { DashboardOverlay2 } from '@marvel/panels/DashboardOverlay2'
 
 export function MarvelShell() {
   const navigate = useNavigate()
+  const [dashboardOpen, setDashboardOpen] = useState(false)
 
   return (
     <div className="flex flex-col h-screen bg-[var(--background)] text-[var(--foreground)]">
@@ -27,6 +31,8 @@ export function MarvelShell() {
 
         <main className="flex-1 relative overflow-hidden">
           <MarvelGraph />
+          <AlgoDial dashboardOpen={dashboardOpen} onToggleDashboard={() => setDashboardOpen(v => !v)} />
+          {dashboardOpen && <DashboardOverlay2 onClose={() => setDashboardOpen(false)} />}
         </main>
       </div>
     </div>
