@@ -17,7 +17,7 @@ export function MarvelSidebar() {
   const { data: movies } = useMarvelMovies()
   const { data: graph }  = useMarvelGraph()
 
-  const { selectedAlgorithm, setSelectedAlgorithm, source, target, setSource, setTarget, result } = useStore(s => ({
+  const { selectedAlgorithm, setSelectedAlgorithm, source, target, setSource, setTarget, result, activeCategories, toggleCategory } = useStore(s => ({
     selectedAlgorithm:    s.selectedAlgorithm,
     setSelectedAlgorithm: s.setSelectedAlgorithm,
     source:               s.source as number | null,
@@ -25,6 +25,8 @@ export function MarvelSidebar() {
     setSource:            s.setSource,
     setTarget:            s.setTarget,
     result:               s.result,
+    activeCategories:     s.activeCategories,
+    toggleCategory:       s.toggleCategory,
   }))
 
   const { mutate: run, isPending } = useRunMarvelAlgorithm()
@@ -179,18 +181,36 @@ export function MarvelSidebar() {
 
                 <Separator style={{ background: 'black', height: 2 }} />
 
-                <p className="text-[9px] font-mono text-[var(--muted-foreground)] uppercase tracking-widest">
-                  Legenda de categorias
-                </p>
-                {MARVEL_CATEGORIES.map(c => (
-                  <div key={c} className="flex items-center gap-2 text-[10px] font-mono">
-                    <span
-                      className="w-3 h-3 shrink-0"
-                      style={{ background: CATEGORY_COLORS[c], outline: '1.5px solid black' }}
-                    />
-                    <span className="text-[var(--foreground)]">{c}</span>
+                <div className="space-y-1.5">
+                  <p className="text-[9px] font-mono text-[var(--muted-foreground)] uppercase tracking-widest">
+                    Filtrar por categoria
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {MARVEL_CATEGORIES.map(c => {
+                      const active = activeCategories.has(c)
+                      return (
+                        <button
+                          key={c}
+                          onClick={() => toggleCategory(c)}
+                          className={cn(
+                            'flex items-center gap-1.5 text-[10px] font-mono px-1.5 py-1 border-2 border-black transition-opacity',
+                            active ? 'opacity-100' : 'opacity-35',
+                          )}
+                          style={{ background: active ? 'var(--background-card)' : 'var(--muted)' }}
+                        >
+                          <span
+                            className="w-2.5 h-2.5 shrink-0"
+                            style={{ background: CATEGORY_COLORS[c], outline: '1.5px solid black' }}
+                          />
+                          <span className="text-[var(--foreground)]">{c}</span>
+                        </button>
+                      )
+                    })}
                   </div>
-                ))}
+                  <p className="text-[9px] font-mono text-[var(--muted-foreground)] leading-snug">
+                    Clique numa categoria para realçar/atenuar seus filmes no grafo.
+                  </p>
+                </div>
 
                 <Separator style={{ background: 'black', height: 2 }} />
                 <p className="text-[9px] font-mono text-[var(--muted-foreground)]">

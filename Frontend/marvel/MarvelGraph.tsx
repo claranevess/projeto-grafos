@@ -29,12 +29,13 @@ export function MarvelGraph() {
   const [simNodes, setSimNodes] = useState<SimNode[]>([])
   const [simEdges, setSimEdges] = useState<SimEdge[]>([])
 
-  const { source, target, setSource, setTarget, setTooltip } = useStore(s => ({
-    source:     s.source as number | null,
-    target:     s.target as number | null,
-    setSource:  s.setSource,
-    setTarget:  s.setTarget,
-    setTooltip: s.setTooltip,
+  const { source, target, setSource, setTarget, setTooltip, activeCategories } = useStore(s => ({
+    source:           s.source as number | null,
+    target:           s.target as number | null,
+    setSource:        s.setSource,
+    setTarget:        s.setTarget,
+    setTooltip:       s.setTooltip,
+    activeCategories: s.activeCategories,
   }))
 
   useEffect(() => {
@@ -126,19 +127,20 @@ export function MarvelGraph() {
       <svg width={dims.w} height={dims.h} className="absolute inset-0">
         <g>
           {simEdges.map((e, i) => {
-            const sid = (e.source as SimNode).movie_id
-            const tid = (e.target as SimNode).movie_id
-            const isPath = pathSet.has(`${sid}-${tid}`)
+            const s = e.source as SimNode
+            const t = e.target as SimNode
+            const isPath = pathSet.has(`${s.movie_id}-${t.movie_id}`)
+            const isDimmed = !activeCategories.has(s.category) || !activeCategories.has(t.category)
             return (
               <line
                 key={i}
-                x1={(e.source as SimNode).x}
-                y1={(e.source as SimNode).y}
-                x2={(e.target as SimNode).x}
-                y2={(e.target as SimNode).y}
+                x1={s.x}
+                y1={s.y}
+                x2={t.x}
+                y2={t.y}
                 stroke={isPath ? 'var(--primary)' : 'var(--border)'}
                 strokeWidth={isPath ? 3 : 0.8}
-                strokeOpacity={isPath ? 1 : 0.3}
+                strokeOpacity={isPath ? 1 : isDimmed ? 0.06 : 0.3}
               />
             )
           })}
@@ -149,6 +151,7 @@ export function MarvelGraph() {
             const isSource  = source === n.movie_id
             const isTarget  = target === n.movie_id
             const isOnPath  = resultPath.includes(n.movie_id)
+            const isDimmed  = !activeCategories.has(n.category)
             const nodeColor = CATEGORY_COLORS[n.category] ?? '#888'
             const r         = n.is_hub ? 12 : 8
 
@@ -157,6 +160,7 @@ export function MarvelGraph() {
                 key={n.movie_id}
                 transform={`translate(${n.x},${n.y})`}
                 className="cursor-pointer"
+                opacity={isDimmed ? 0.15 : 1}
                 onClick={() => handleClick(n)}
                 onMouseEnter={e => handleMouseEnter(n, e)}
                 onMouseLeave={handleMouseLeave}
