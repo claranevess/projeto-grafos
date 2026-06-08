@@ -17,12 +17,12 @@ export function MarvelShell() {
       <TopBar title="Marvel Box Office Network" part="Parte 2">
         <Button
           size="sm"
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/airport')}
           className="h-7 px-2.5 text-[10px] font-mono font-bold border-2 border-black rounded-none gap-1.5 bg-[var(--background)] text-[var(--foreground)] hover:bg-[var(--primary)] hover:text-black"
           style={{ boxShadow: '2px 2px 0px #000' }}
         >
           <ArrowLeft size={12} />
-          Voltar ao mapa
+          Voltar aos aeroportos
         </Button>
       </TopBar>
 
