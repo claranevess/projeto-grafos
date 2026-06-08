@@ -40,7 +40,7 @@ projeto-grafos/
 │   │   ├── store/                # Zustand slices
 │   │   └── lib/
 │   ├── aeroportos/               # componentes D3 da Parte 1
-│   ├── marvel/                   # componentes Recharts da Parte 2
+│   ├── marvel/                   # grafo D3 (força) + overlays + gráficos Recharts da Parte 2
 │   ├── shared/                   # TopBar, BridgeAlert, StatusIndicator
 │   └── package.json
 │
