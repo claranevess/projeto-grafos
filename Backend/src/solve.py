@@ -23,19 +23,17 @@ import csv
 import json
 import logging
 from pathlib import Path
-import csv
 import time
 
 from .graphs.io import (
-    salvar_csv_graus,
     carregar_grafo,
-    salvar_ego_aeroporto_csv,
     grau_ego_aeroporto,
     densidade_ego_aeroporto,
-    salvar_report_parte_2
+    salvar_report_parte_2,
+    carregar_dataset_parte2, 
+    carregar_cenario_bellman_ford
 )
-from .viz import render_global, render_regioes
-from .graphs.io import carregar_dataset_parte2, carregar_cenario_bellman_ford
+
 from .graphs.algorithms import bfs, dfs, dijkstra, bellman_ford
 
 logger = logging.getLogger(__name__)
@@ -148,7 +146,7 @@ def calcular_metricas(graph):
 
 def salvar_metricas(graph, out_dir):
     """
-    Persiste out/global.json e out/regioes.json no diretório indicado.
+    Persiste out/global.json, out/regioes.json e gera os CSVs para graus e ego networks.
 
     Parâmetros
     ----------
@@ -160,18 +158,20 @@ def salvar_metricas(graph, out_dir):
 
     global_m, regional_m = calcular_metricas(graph)
 
-    # Renderizar PNGs finais em vez de gravar JSONs
+    # Gravar JSONs finais
     try:
-        render_global(global_m, out_dir / "global.png")
-        logger.info("Salvo: %s", out_dir / "global.png")
+        with open(out_dir / "global.json", "w", encoding="utf-8") as f:
+            json.dump(global_m, f, ensure_ascii=False, indent=2)
+        logger.info("Salvo: %s", out_dir / "global.json")
     except Exception:
-        logger.exception("Falha ao renderizar global PNG em %s", out_dir)
+        logger.exception("Falha ao salvar global.json em %s", out_dir)
 
     try:
-        render_regioes(regional_m, out_dir / "regioes.png")
-        logger.info("Salvo: %s", out_dir / "regioes.png")
+        with open(out_dir / "regioes.json", "w", encoding="utf-8") as f:
+            json.dump(regional_m, f, ensure_ascii=False, indent=2)
+        logger.info("Salvo: %s", out_dir / "regioes.json")
     except Exception:
-        logger.exception("Falha ao renderizar regioes PNG em %s", out_dir)
+        logger.exception("Falha ao salvar regioes.json em %s", out_dir)
 
     # Log de resumo para validação visual rápida no console
     g = global_m
@@ -185,8 +185,24 @@ def salvar_metricas(graph, out_dir):
             r["regiao"], r["ordem"], r["tamanho"], r["densidade"],
         )
 
+    # Gravar CSV de Graus Manualmente
     lista = graph.all_degrees()
-    salvar_csv_graus(lista, out_dir)
+    caminho_graus = out_dir / "graus.csv"
+    try:
+        with open(caminho_graus, mode="w", newline="", encoding="utf-8") as f:
+            if lista:
+                writer = csv.DictWriter(f, fieldnames=["node", "degree"])
+                writer.writeheader()
+                for item in lista:
+                    # Garantindo compatibilidade se a lista retornar tuplas em vez de dicionários
+                    if isinstance(item, tuple) or isinstance(item, list):
+                        writer.writerow({"node": item[0], "degree": item[1]})
+                    else:
+                        writer.writerow(item)
+        logger.info("Salvo: %s", caminho_graus)
+    except Exception:
+        logger.exception("Falha ao salvar graus.csv em %s", out_dir)
+
     gerar_analise_ego_network(graph, out_dir)
 
 
@@ -197,7 +213,6 @@ def gerar_analise_ego_network(graph, out_dir):
     o `Graph` para evitar hardcode de datasets.
     """
     grafo_principal = graph
-
     resultado_ego = []
 
     for iata in grafo_principal.iter_nodes():
@@ -216,7 +231,18 @@ def gerar_analise_ego_network(graph, out_dir):
             "densidade_ego": densidade_ego,
         })
 
-    salvar_ego_aeroporto_csv(resultado_ego, out_dir)
+    # Gravar CSV do Ego Network Manualmente
+    caminho_ego = Path(out_dir) / "ego_aeroportos.csv"
+    try:
+        with open(caminho_ego, mode="w", newline="", encoding="utf-8") as f:
+            if resultado_ego:
+                fieldnames = ["aeroporto", "grau", "ordem_ego", "tamanho_ego", "densidade_ego"]
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerows(resultado_ego)
+        logger.info("Salvo: %s", caminho_ego)
+    except Exception:
+        logger.exception("Falha ao salvar ego_aeroportos.csv em %s", out_dir)
 
     if resultado_ego:
         # recebe a lista resultado_ego e analisa qual o aeroporto com maior grau
@@ -416,3 +442,19 @@ def calcular_tempo_execucao(dataset_dir=DATASET_PARTE2_DIR):
     salvar_report_parte_2(resultados)
 
     return resultados
+
+if __name__ == "__main__":
+    # Configuração básica de log para exibir as mensagens no console
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+    
+    # Resolve os caminhos relativos ao arquivo solve.py
+    camino_base = Path(__file__).resolve().parent.parent # Sobe para a pasta Backend/
+    dataset_csv = camino_base / "data" / "aeroportos_data.csv"
+    saida_dir = camino_base.parent / "out" # Cria a pasta out na raiz do projeto
+    
+    print(f"Iniciando processamento direto...")
+    # Carrega o grafo usando a função importada
+    grafo_aeroportos = carregar_grafo(dataset_csv)
+    
+    # Executa a persistência dos arquivos solicitados
+    salvar_metricas(grafo_aeroportos, saida_dir)

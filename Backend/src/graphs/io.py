@@ -30,8 +30,8 @@ from .algorithms import componentes_conexos, nos_isolados
 from .graph import Graph
 # Plotagem e visualização ficam centralizadas em src.viz (apenas viz.py
 # pode importar matplotlib/pyvis/plotly). Importa-se apenas as funções de
-# plotagem reutilizáveis aqui.
-from ..viz import plot_degree_histogram, plot_degree_distribution, render_description
+# plotagem reutilizáveis aqui. Removido plot_degree_histogram.
+from ..viz import plot_degree_distribution, render_description
 
 # ---------------------------------------------------------------------------
 # Configuração de logging
@@ -505,10 +505,12 @@ def download_dataset_parte2(dest_dir="data/dataset_parte2", kaggle_dataset="joeb
 
 
 def salvar_csv_graus(graus, out_dir="out", json_name="graus.json"):
-    """Exporta a distribuição de graus como JSON e uma figura PNG.
+    """Exporta a distribuição de graus APENAS como JSON.
 
     NOTE: Mantemos o nome da função por compatibilidade, mas NÃO geramos
     arquivos CSV em `out/` para obedecer à arquitetura do projeto.
+    Também removemos a geração da figura do histograma para evitar 
+    side-effects (efeitos colaterais) em operações simples como um BFS.
     """
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -517,14 +519,6 @@ def salvar_csv_graus(graus, out_dir="out", json_name="graus.json"):
     json_path = out_dir / json_name
     data = [{"node": n, "degree": int(d)} for n, d in graus]
     json_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
-
-    # gerar histograma de graus delegando a visualização a src.viz
-    try:
-        degrees = [d for _, d in graus]
-        fig_path = out_dir / "degree_hist.png"
-        plot_degree_histogram(degrees, fig_path)
-    except Exception:
-        logger.warning("Falha ao gerar degree_hist.png em %s", out_dir)
 
 
 def salvar_ego_aeroporto_csv(ego_data, out_dir="out"):
