@@ -475,10 +475,3 @@ if __name__ == "__main__":
     else:
         logger.error(f"Arquivo de rotas não encontrado em: {rotas_csv}. Não foi possível gerar distancias_rotas.csv")
 
-    # 3. Gera o parte2_report.json (NOVO - ADICIONADO AQUI)
-    print(f"\nCalculando tempos de execução (Parte 2)...")
-    try:
-        calcular_tempo_execucao()
-        print("Relatório da Parte 2 gerado com sucesso.")
-    except Exception as e:
-        logger.error(f"Erro ao gerar relatório da Parte 2: {e}")
