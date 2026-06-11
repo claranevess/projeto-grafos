@@ -27,8 +27,8 @@ import matplotlib.patheffects as pe
 import numpy as np
 import pandas as pd
 
-from graphs.io import carregar_grafo
-from graphs.algorithms import dijkstra
+from Backend.src.graphs.io import carregar_grafo
+from Backend.src.graphs.algorithms import dijkstra
 
 logger = logging.getLogger(__name__)
 
@@ -93,7 +93,7 @@ def viz_histograma_graus(graus_df: pd.DataFrame, out_dir: Path) -> None:
     Mostra como os graus se distribuem — identifica se há poucos hubs
     dominantes ou uma distribuição homogênea.
     """
-    graus = graus_df["Grau"].values
+    graus = graus_df["degree"].values
 
     fig, ax = plt.subplots(figsize=(9, 5), facecolor="#f8f9fa")
     ax.set_facecolor("#f0f4f8")
