@@ -198,11 +198,11 @@ def _executar(args):
                 print(f"[cli] Descrição do dataset Parte 2 salva em '{args.out}'")
             except Exception as exc:
                 print(f"[aviso] Falha ao gerar descrição Parte 2: {exc}", file=sys.stderr)
+
+            calcular_tempo_execucao()
         else:
             salvar_metricas(grafo, args.out)
             print(f"[cli] Métricas salvas em '{args.out}' (global.png, regioes.png)")
-        
-        calcular_tempo_execucao()
 
     except Exception as exc:
         print(f"[aviso] Falha ao salvar métricas: {exc}", file=sys.stderr)

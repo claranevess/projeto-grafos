@@ -165,6 +165,30 @@ python -m Backend.src.cli --dataset Backend/data/aeroportos_data.csv --alg DFS -
 python -m Backend.src.cli --dataset Backend/data/aeroportos_data.csv --alg BELLMAN-FORD --source MAO --target GRU --out ./out/
 ```
 
+**Parte 2 (Marvel) — descrição do dataset + relatório de desempenho:**
+
+```bash
+python -m Backend.src.cli --dataset Backend/data/dataset_parte2 --out ./out/
+```
+
+> Sem `--alg`, gera `description.json/png` e `grausparte2.json` em `./out/` e o
+> `parte2_report.json` (BFS/DFS/Dijkstra/Bellman-Ford sobre o grafo Marvel) em `out/` na raiz do projeto.
+
+**BFS a partir de "Iron Man":**
+
+```bash
+python -m Backend.src.cli --dataset Backend/data/dataset_parte2 --alg BFS --source FILM_IRON-MAN --out ./out/
+```
+
+**Dijkstra — Iron Man → Iron Man 3:**
+
+```bash
+python -m Backend.src.cli --dataset Backend/data/dataset_parte2 --alg DIJKSTRA --source FILM_IRON-MAN --target FILM_IRON-MAN-3 --out ./out/
+```
+
+> Os nós da Parte 2 seguem o formato `FILM_NOME-DO-FILME` (maiúsculo, espaços
+> e `:` viram `-`), conforme `Backend/src/graphs/io.py::carregar_dataset_parte2`.
+
 ---
 
 ## Algoritmos Implementados
