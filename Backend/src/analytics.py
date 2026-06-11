@@ -188,33 +188,34 @@ def viz_scatter_grau_densidade(ego_df: pd.DataFrame, graph, out_dir: Path) -> No
 
 # VIZ 3 — EXPLANATÓRIA: Ranking dos aeroportos por grau (barras horizontais)
 
-def viz_ranking_hubs(graus_df: pd.DataFrame, graph, out_dir: Path) -> None:
+def viz_ranking_hubs(aeroportos_df: pd.DataFrame, graus_df: pd.DataFrame, graph, out_dir: Path) -> None:
     """
     Visualização explanatória 1.
     Ranking claro e ordenado dos aeroportos mais conectados, colorido por região.
     Mensagem: GRU, BSB e GIG dominam a conectividade nacional.
     """
-    df = graus_df.copy()
-    df["regiao"] = df["IATA"].apply(lambda x: graph.get_node(x).regiao)
-    df["cidade"] = df["IATA"].apply(lambda x: graph.get_node(x).cidade)
-    df = df.sort_values("Grau", ascending=True)
+    df = aeroportos_df.copy()
+    df["regiao"] = df["iata"].apply(lambda x: graph.get_node(x).regiao)
+    df["cidade"] = df["iata"].apply(lambda x: graph.get_node(x).cidade)
+    df["degree"] = graus_df["degree"]
+    df = df.sort_values("degree", ascending=True)
 
     fig, ax = plt.subplots(figsize=(10, 8), facecolor="#f8f9fa")
     ax.set_facecolor("#f0f4f8")
 
     bars = ax.barh(
-        df["IATA"], df["Grau"],
+        df["iata"], df["degree"],
         color=[CORES_REGIAO[r] for r in df["regiao"]],
         edgecolor="white", linewidth=0.5, height=0.75
     )
 
     # Valor no final de cada barra
-    for bar, val in zip(bars, df["Grau"]):
+    for bar, val in zip(bars, df["degree"]):
         ax.text(bar.get_width() + 0.2, bar.get_y() + bar.get_height() / 2,
                 str(int(val)), va="center", fontsize=9, fontweight="bold")
 
     # Linha de média
-    media = df["Grau"].mean()
+    media = df["degree"].mean()
     ax.axvline(media, color="#607D8B", linestyle="--", linewidth=1.5,
                label=f"Média = {media:.1f}")
 
@@ -232,7 +233,7 @@ def viz_ranking_hubs(graus_df: pd.DataFrame, graph, out_dir: Path) -> None:
     ax.legend(handles=legend_handles, fontsize=9, framealpha=0.9,
               loc="lower right")
 
-    ax.set_xlim(0, df["Grau"].max() + 2.5)
+    ax.set_xlim(0, df["degree"].max() + 2.5)
     ax.grid(axis="x", alpha=0.4, linestyle=":")
     ax.set_axisbelow(True)
 
@@ -573,6 +574,7 @@ def gerar_todas_visualizacoes(out_dir: str | Path = "out") -> None:
     print("[analytics] Carregando grafo...")
     graph = carregar_grafo("Backend/data/aeroportos_data.csv")
 
+    aeroportos = pd.read_csv("Backend/data/aeroportos_data.csv")
     graus_df = pd.read_csv(out_dir / "graus.csv")
     ego_df = pd.read_csv(out_dir / "ego_aeroportos.csv")
 
@@ -598,7 +600,7 @@ def gerar_todas_visualizacoes(out_dir: str | Path = "out") -> None:
     viz_scatter_grau_densidade(ego_df, graph, out_dir)
 
     print("[analytics] Gerando viz 3 - Ranking de hubs (explanatorio)...")
-    viz_ranking_hubs(graus_df, graph, out_dir)
+    viz_ranking_hubs(aeroportos, graus_df, graph, out_dir)
 
     print("[analytics] Gerando viz 4 - Comparacao regional (explanatorio)...")
     viz_comparacao_regioes(regioes_data, out_dir)
@@ -607,7 +609,7 @@ def gerar_todas_visualizacoes(out_dir: str | Path = "out") -> None:
     viz_mapa_grafo(ego_df, graph, out_dir)
 
     print("[analytics] Gerando arvore de percurso - Secao 7 (HTML interativo)...")
-    from viz import render_routes
+    from Backend.src.viz import render_routes
     highlighted = {("REC", "POA"), ("MAO", "GRU")}
     render_routes(graph, all_paths, highlighted, out_dir / "arvore_percurso.html")
 
