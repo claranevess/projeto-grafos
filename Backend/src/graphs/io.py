@@ -814,7 +814,7 @@ def save_dataset_description(graph, out_dir="out"):
       - `degree_distribution.csv` : tabela `degree,frequency`
       - `degree_hist.png` : histograma / gráfico de barras legível
       - `methodology.md` : explicação sucinta da metodologia usada
-      - `top_hubs.csv` : top-20 nós por grau
+      - `top_movies.csv` : top-20 nós por grau
 
     Retorna o dicionário com a descrição (também gravado em JSON).
     """
@@ -918,9 +918,9 @@ def save_dataset_description(graph, out_dir="out"):
     description_path.write_text(json.dumps(description, ensure_ascii=False, indent=2), encoding="utf-8")
 
     # Salvar top hubs (20) em JSON (mantido como auxiliar)
-    top_hubs = sorted(graph.all_degrees(), key=lambda x: x[1], reverse=True)[:20]
-    hubs_path = out_dir / "top_hubs.json"
-    hubs_data = [{"node": n, "degree": int(d)} for n, d in top_hubs]
+    top_movies = sorted(graph.all_degrees(), key=lambda x: x[1], reverse=True)[:20]
+    hubs_path = out_dir / "top_movies.json"
+    hubs_data = [{"node": n, "degree": int(d)} for n, d in top_movies]
     hubs_path.write_text(json.dumps(hubs_data, ensure_ascii=False, indent=2), encoding="utf-8")
 
     # Salvar distribuição de graus específica da Parte 2 sem sobrescrever
@@ -957,7 +957,7 @@ def salvar_report_parte_2(resultados: dict, out_dir=None):
     documentado no README.
     """
     if out_dir is None:
-        out_dir = _PROJECT_ROOT / "out" / "parte2"
+        out_dir = _PROJECT_ROOT / "out"
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / "parte2_report.json"
