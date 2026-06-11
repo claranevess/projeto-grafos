@@ -217,7 +217,6 @@ def gerar_analise_ego_network(graph, out_dir):
 
     for iata in grafo_principal.iter_nodes():
         subgrafo = grafo_principal.criar_ego_subgrafo(iata)
-        aeroporto = grafo_principal.get_node(iata)
         grau = grafo_principal.degree(iata)
         ordem_ego = subgrafo.order()
         tamanho_ego = subgrafo.size()
@@ -323,14 +322,15 @@ def compute_routes(
                     "origin": origem,
                     "destination": destino,
                     "custo": f"{custo:.2f}",
-                    "caminho": ";".join(caminho),
+                    "caminho": " -> ".join(caminho), # Correção: Separador ajustado para o viz.py
                 })
 
-    # Persistir resultados como JSON (não gerar CSV em out/)
-    out_path = Path(out_dir) / Path(out_csv_name).with_suffix('.json').name
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    with out_path.open("w", encoding="utf-8") as f:
-        json.dump(resultados, f, ensure_ascii=False, indent=2)
+    # Correção: Persistir resultados como CSV VERDADEIRO (substitui o salvamento em .json)
+    out_path = Path(out_dir) / out_csv_name
+    with out_path.open("w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=["origin", "destination", "custo", "caminho"])
+        writer.writeheader()
+        writer.writerows(resultados)
 
     logging.getLogger(__name__).info("Gravado: %s", out_path)
     return resultados
@@ -450,6 +450,10 @@ if __name__ == "__main__":
     # Resolve os caminhos relativos ao arquivo solve.py
     camino_base = Path(__file__).resolve().parent.parent # Sobe para a pasta Backend/
     dataset_csv = camino_base / "data" / "aeroportos_data.csv"
+    
+    # Correção: Definindo a variável rotas_csv
+    rotas_csv = camino_base / "data" / "rotas.csv" 
+    
     saida_dir = camino_base.parent / "out" # Cria a pasta out na raiz do projeto
     
     print(f"Iniciando processamento direto...")
@@ -458,3 +462,23 @@ if __name__ == "__main__":
     
     # Executa a persistência dos arquivos solicitados
     salvar_metricas(grafo_aeroportos, saida_dir)
+    
+    # Correção: Adicionando a chamada que estava faltando para gerar o distancias_rotas.csv
+    print(f"\nCalculando distâncias e rotas...")
+    if rotas_csv.exists():
+        compute_routes(
+            airports_csv=dataset_csv,
+            routes_csv=rotas_csv,
+            out_dir=saida_dir,
+            out_csv_name="distancias_rotas.csv"
+        )
+    else:
+        logger.error(f"Arquivo de rotas não encontrado em: {rotas_csv}. Não foi possível gerar distancias_rotas.csv")
+
+    # 3. Gera o parte2_report.json (NOVO - ADICIONADO AQUI)
+    print(f"\nCalculando tempos de execução (Parte 2)...")
+    try:
+        calcular_tempo_execucao()
+        print("Relatório da Parte 2 gerado com sucesso.")
+    except Exception as e:
+        logger.error(f"Erro ao gerar relatório da Parte 2: {e}")
