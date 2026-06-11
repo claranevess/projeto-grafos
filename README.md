@@ -217,25 +217,23 @@ python -m pytest tests/ -v
 |----------------------------|----------------------------------------------|
 | `global.json`              | Ordem, tamanho e densidade do grafo completo |
 | `regioes.json`             | Métricas por região geográfica               |
-| `ego_aeroportos.json`      | Ego-rede de cada aeroporto                   |
-| `graus.json`               | Grau de cada aeroporto                       |
-| `parte2/degree_distribution.json` | Distribuição de graus                        |
-| `parte2/top_hubs.json`            | Top aeroportos por grau                      |
+| `ego_aeroportos.csv`      | Ego-rede de cada aeroporto                   |
+| `degree_distribution.json` | Distribuição de graus                        |
+| `degree_hist.png` | Histograma da frequência da quantidade de graus |
+| `top_movies.json`            | Top filmes por grau                      |
 | `graus.csv`                | Grau de cada aeroporto (CSV)                 |
 | `ego_aeroportos.csv`       | Ego-rede por aeroporto (CSV)                 |
 | `distancias_rotas.csv`     | Custos e caminhos calculados pelo Dijkstra   |
-| `arvore_rec_poa.png`       | Árvore de percurso REC → POA                 |
-| `arvore_mao_gru.png`       | Árvore de percurso MAO → GRU                 |
 | `viz_1_*`                  | Histograma de distribuição de graus          |
 | `viz_2_*`                  | Scatter: grau × densidade ego                |
 | `viz_3_*`                  | Ranking de hubs por grau                     |
 | `viz_4_*`                  | Comparação de métricas por região            |
 | `viz_5_mapa_grafo.png`     | Mapa do grafo sobre o Brasil                 |
 | `grafo_interativo.html`    | Grafo completo interativo (pyvis)            |
-| `parte2/parte2_report.json`       | Métricas de desempenho da Parte 2            |
-| `parte2/description.png`          | Descrição visual do dataset Marvel           |
-| `parte2/degree_hist.png` | Histograma da frequência da quantidade de graus | 
-| `parte2/grausparte2.json`| Grau de cada filme |
+| `arvore_percurso.html`    | Árvorede percurso REC → POA e MAO → GRU            |
+| `parte2_report.json`       | Métricas de desempenho da Parte 2            |
+| `description.png`          | Descrição visual do dataset Marvel           | 
+| `grausparte2.json`| Grau de cada filme |
 
 ---
 
