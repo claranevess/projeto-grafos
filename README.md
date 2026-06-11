@@ -228,7 +228,7 @@ python -m pytest tests/ -v
 | `viz_2_*`                  | Scatter: grau × densidade ego                |
 | `viz_3_*`                  | Ranking de hubs por grau                     |
 | `viz_4_*`                  | Comparação de métricas por região            |
-| `viz_5_mapa_grafo.png`     | Mapa do grafo sobre o Brasil                 |
+| `viz_5_*`     | Mapa do grafo sobre o Brasil                 |
 | `grafo_interativo.html`    | Grafo completo interativo (pyvis)            |
 | `arvore_percurso.html`    | Árvorede percurso REC → POA e MAO → GRU            |
 | `parte2_report.json`       | Métricas de desempenho da Parte 2            |
