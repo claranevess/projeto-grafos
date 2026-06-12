@@ -165,6 +165,12 @@ python -m Backend.src.cli --dataset Backend/data/aeroportos_data.csv --alg DFS -
 python -m Backend.src.cli --dataset Backend/data/aeroportos_data.csv --alg BELLMAN-FORD --source MAO --target GRU --out ./out/
 ```
 
+### Gerar as visualizações
+```bash
+python -m Backend.src.analytics
+```
+
+
 **Parte 2 (Marvel) — descrição do dataset + relatório de desempenho:**
 
 ```bash
