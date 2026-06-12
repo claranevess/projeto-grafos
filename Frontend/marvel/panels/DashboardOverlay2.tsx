@@ -167,7 +167,7 @@ export function DashboardOverlay2({ onClose }: DashboardOverlay2Props) {
           <h2 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
             Análise Estrutural <span className="text-indigo-400">Universo Marvel</span>
           </h2>
-          <p className="text-xs text-slate-400">Filtros dinâmicos cruzados calculados no navegador.</p>
+          
         </div>
         <div className="flex gap-3">
           <button 
