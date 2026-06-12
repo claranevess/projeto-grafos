@@ -204,7 +204,7 @@ def salvar_metricas(graph, out_dir):
         logger.exception("Falha ao salvar graus.csv em %s", out_dir)
 
     gerar_analise_ego_network(graph, out_dir)
-    compute_routes()
+    #compute_routes()
 
 
 def gerar_analise_ego_network(graph, out_dir):

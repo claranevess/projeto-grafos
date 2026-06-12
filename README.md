@@ -165,7 +165,17 @@ python -m Backend.src.cli --dataset Backend/data/aeroportos_data.csv --alg DFS -
 python -m Backend.src.cli --dataset Backend/data/aeroportos_data.csv --alg BELLMAN-FORD --source MAO --target GRU --out ./out/
 ```
 
-### Gerar as visualizações
+### Gerar o distancias_rotas.csv e as visualizações
+*Obs: Antes de rodar os comandos abaixo, você deve executar algum algoritmo para gerar os arquivos necessários para
+a criação dos distancias_rotas.csv e as visualizações*
+
+#### distancias_rotas.csv
+
+```bash
+python -m Backend.src.solve
+```
+#### Visualizações
+
 ```bash
 python -m Backend.src.analytics
 ```
